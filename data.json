@@ -1,0 +1,14 @@
+[
+  {
+    "worker": "sachina",
+    "date": "2026-05-07",
+    "silageCost": 500,
+    "feedCost": 6500,
+    "bhusaCost": 300,
+    "salary": 5000,
+    "milk": 550,
+    "pricePerLiter": 40,
+    "totalExpense": 12300,
+    "revenue": 22000
+  }
+]
