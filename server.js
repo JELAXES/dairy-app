@@ -38,7 +38,9 @@ const EntrySchema = new mongoose.Schema({
 
     dailyMilk:Number,
 
-    revenue:Number
+    revenue:Number,
+
+    feedData:Object
 });
 
 const Entry =
@@ -47,13 +49,13 @@ const Entry =
         EntrySchema
     );
 
-// ===== ADD =====
+// ===== ADD ENTRY =====
 
 app.post("/add", async (req,res)=>{
 
     try{
 
-        // prevent duplicate milk entry same date
+        // replace same milk date
 
         if(req.body.type === "milk"){
 
@@ -65,7 +67,7 @@ app.post("/add", async (req,res)=>{
             });
         }
 
-        // prevent duplicate month settings
+        // replace same month settings
 
         if(req.body.type === "monthly"){
 
@@ -112,17 +114,19 @@ app.get("/dashboard", async (req,res)=>{
                 d => d.type === "milk"
             );
 
+        // ===== LATEST MONTH =====
+
+        const latestMonthly =
+            monthlyEntries[
+                monthlyEntries.length - 1
+            ];
+
         // ===== TOTAL EXPENSE =====
 
-        let totalExpense = 0;
-
-        monthlyEntries.forEach(entry => {
-
-            totalExpense +=
-                Number(
-                    entry.monthlyExpense || 0
-                );
-        });
+        const totalExpense =
+            Number(
+                latestMonthly?.monthlyExpense || 0
+            );
 
         // ===== TOTAL MILK =====
 
@@ -164,6 +168,14 @@ app.get("/dashboard", async (req,res)=>{
 
             totalProfit,
 
+            milkPrice:
+                Number(
+                    latestMonthly?.milkPrice || 0
+                ),
+
+            monthlySettings:
+                latestMonthly || {},
+
             records:milkEntries
         });
 
@@ -177,7 +189,7 @@ app.get("/dashboard", async (req,res)=>{
     }
 });
 
-// ===== START =====
+// ===== START SERVER =====
 
 app.listen(3000,"0.0.0.0",()=>{
 
