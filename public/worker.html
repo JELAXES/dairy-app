@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Worker Panel</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f1f5f9;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    max-width:500px;
+    margin:auto;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-top:10px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🐄 Daily Milk Entry</h1>
+
+<input type="date" id="date">
+
+<input
+type="number"
+id="dailyMilk"
+placeholder="Milk Produced Today"
+>
+
+<button onclick="saveMilk()">
+Save Milk Entry
+</button>
+
+</div>
+
+<script>
+
+if(
+    localStorage.getItem("role")
+    !== "worker"
+){
+    window.location = "/";
+}
+
+function val(id){
+
+    return Number(
+        document.getElementById(id).value
+    ) || 0;
+}
+
+async function saveMilk(){
+
+    const data = {
+
+        type:"milk",
+
+        date:
+            document.getElementById(
+                "date"
+            ).value,
+
+        dailyMilk:
+            val("dailyMilk")
+    };
+
+    await fetch("/add",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    alert("Saved ✅");
+}
+
+</script>
+
+</body>
+</html>

@@ -6,41 +6,31 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dairy Farm ERP</title>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>Dairy ERP Login</title>
 
 <style>
 
 body{
     font-family:Arial;
     background:#f1f5f9;
-    padding:20px;
-    margin:0;
-}
-
-h1{
-    text-align:center;
-    margin-bottom:25px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
 }
 
 .card{
     background:white;
-    padding:20px;
+    padding:30px;
     border-radius:15px;
-    margin-bottom:20px;
+    width:350px;
     box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
-
-.grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
 }
 
 input{
     width:100%;
-    padding:10px;
+    padding:12px;
+    margin-top:10px;
     border-radius:8px;
     border:1px solid #ccc;
     box-sizing:border-box;
@@ -49,6 +39,7 @@ input{
 button{
     width:100%;
     padding:15px;
+    margin-top:20px;
     border:none;
     border-radius:10px;
     background:#2563eb;
@@ -57,54 +48,8 @@ button{
     cursor:pointer;
 }
 
-button:hover{
-    opacity:0.9;
-}
-
-.stats{
-    display:grid;
-    grid-template-columns:1fr 1fr 1fr 1fr;
-    gap:15px;
-}
-
-.stat{
-    background:#dbeafe;
-    padding:20px;
-    border-radius:12px;
+h1{
     text-align:center;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:10px;
-    text-align:center;
-}
-
-th{
-    background:#2563eb;
-    color:white;
-}
-
-canvas{
-    background:white;
-    border-radius:15px;
-    padding:10px;
-}
-
-@media(max-width:900px){
-
-    .grid{
-        grid-template-columns:1fr;
-    }
-
-    .stats{
-        grid-template-columns:1fr 1fr;
-    }
 }
 
 </style>
@@ -113,539 +58,76 @@ canvas{
 
 <body>
 
-<h1>🐄 Dairy Farm ERP Dashboard</h1>
-
-<!-- MONTHLY SETTINGS -->
-
 <div class="card">
 
-<h2>Monthly Farm Settings</h2>
+<h1>🐄 Dairy ERP Login</h1>
 
-<div class="grid">
+<input id="username" placeholder="Username">
 
-<div>
-<label>Month</label>
-<input type="month" id="month">
-</div>
+<input
+type="password"
+id="password"
+placeholder="Password"
+>
 
-<div>
-<label>Total Number Of Cows</label>
-<input type="number" id="cows" oninput="calculateFeed()">
-</div>
-
-<div>
-<label>Milk Selling Price Per Liter (₹)</label>
-<input type="number" id="milkPrice">
-</div>
-
-<div>
-<label>Total Monthly Salary (₹)</label>
-<input type="number" id="salary">
-</div>
-
-</div>
-
-</div>
-
-<!-- FEED COSTING -->
-
-<div class="card">
-
-<h2>Feed Costing</h2>
-
-<table>
-
-<thead>
-
-<tr>
-<th>Feed Item</th>
-<th>Cost/KG (₹)</th>
-<th>KG/Cow/Day</th>
-<th>Daily Cost</th>
-<th>Monthly Cost</th>
-</tr>
-
-</thead>
-
-<tbody>
-
-<tr>
-<td>Silage</td>
-<td><input id="silagePrice" oninput="calculateFeed()"></td>
-<td><input id="silageKg" oninput="calculateFeed()"></td>
-<td id="silageDaily">₹0</td>
-<td id="silageMonthly">₹0</td>
-</tr>
-
-<tr>
-<td>Concentrate Feed</td>
-<td><input id="feedPrice" oninput="calculateFeed()"></td>
-<td><input id="feedKg" oninput="calculateFeed()"></td>
-<td id="feedDaily">₹0</td>
-<td id="feedMonthly">₹0</td>
-</tr>
-
-<tr>
-<td>Bhusa</td>
-<td><input id="bhusaPrice" oninput="calculateFeed()"></td>
-<td><input id="bhusaKg" oninput="calculateFeed()"></td>
-<td id="bhusaDaily">₹0</td>
-<td id="bhusaMonthly">₹0</td>
-</tr>
-
-<tr>
-<td>Mineral Mixture</td>
-<td><input id="mineralPrice" oninput="calculateFeed()"></td>
-<td><input id="mineralKg" oninput="calculateFeed()"></td>
-<td id="mineralDaily">₹0</td>
-<td id="mineralMonthly">₹0</td>
-</tr>
-
-<tr>
-<td>Yeast</td>
-<td><input id="yeastPrice" oninput="calculateFeed()"></td>
-<td><input id="yeastKg" oninput="calculateFeed()"></td>
-<td id="yeastDaily">₹0</td>
-<td id="yeastMonthly">₹0</td>
-</tr>
-
-<tr>
-<td>Rumen Buffer</td>
-<td><input id="bufferPrice" oninput="calculateFeed()"></td>
-<td><input id="bufferKg" oninput="calculateFeed()"></td>
-<td id="bufferDaily">₹0</td>
-<td id="bufferMonthly">₹0</td>
-</tr>
-
-<tr>
-<td>Propylene Glycol</td>
-<td><input id="glycolPrice" oninput="calculateFeed()"></td>
-<td><input id="glycolKg" oninput="calculateFeed()"></td>
-<td id="glycolDaily">₹0</td>
-<td id="glycolMonthly">₹0</td>
-</tr>
-
-<tr>
-<td>Soda</td>
-<td><input id="sodaPrice" oninput="calculateFeed()"></td>
-<td><input id="sodaKg" oninput="calculateFeed()"></td>
-<td id="sodaDaily">₹0</td>
-<td id="sodaMonthly">₹0</td>
-</tr>
-
-<tr>
-<td>DCP</td>
-<td><input id="dcpPrice" oninput="calculateFeed()"></td>
-<td><input id="dcpKg" oninput="calculateFeed()"></td>
-<td id="dcpDaily">₹0</td>
-<td id="dcpMonthly">₹0</td>
-</tr>
-
-</tbody>
-
-</table>
-
-<br>
-
-<h2>
-Total Monthly Feed Cost:
-<span id="totalFeed">
-₹0
-</span>
-</h2>
-
-<br>
-
-<button onclick="saveMonthlySettings()">
-Save Monthly Settings
+<button onclick="login()">
+Login
 </button>
-
-</div>
-
-<!-- DAILY MILK -->
-
-<div class="card">
-
-<h2>Daily Milk Entry</h2>
-
-<div class="grid">
-
-<div>
-<label>Date</label>
-<input type="date" id="date">
-</div>
-
-<div>
-<label>Milk Produced Today (L)</label>
-<input type="number" id="dailyMilk">
-</div>
-
-</div>
-
-<br>
-
-<button onclick="saveMilk()">
-Save Milk Entry
-</button>
-
-</div>
-
-<!-- ANALYTICS -->
-
-<div class="card">
-
-<h2>Farm Analytics</h2>
-
-<div class="stats">
-
-<div class="stat">
-<h3>Monthly Expense</h3>
-<p id="expense">₹0</p>
-</div>
-
-<div class="stat">
-<h3>Monthly Revenue</h3>
-<p id="revenue">₹0</p>
-</div>
-
-<div class="stat">
-<h3>Total Milk</h3>
-<p id="milk">0 L</p>
-</div>
-
-<div class="stat">
-<h3>Profit</h3>
-<p id="profit">₹0</p>
-</div>
-
-</div>
-
-<br><br>
-
-<canvas id="financeChart"></canvas>
-
-<br><br>
-
-<canvas id="milkChart"></canvas>
-
-</div>
-
-<!-- RECORDS -->
-
-<div class="card">
-
-<h2>Milk Records</h2>
-
-<table>
-
-<thead>
-
-<tr>
-<th>Date</th>
-<th>Milk Produced</th>
-<th>Revenue</th>
-</tr>
-
-</thead>
-
-<tbody id="records">
-</tbody>
-
-</table>
 
 </div>
 
 <script>
 
-let financeChart;
-let milkChart;
+function login(){
 
-function val(id){
-
-    return Number(
-        document.getElementById(id).value
-    ) || 0;
-}
-
-function calculateFeed(){
-
-    const cows =
-        val("cows");
-
-    const daysInMonth = 30;
-
-    const feedItems = [
-
-        "silage",
-        "feed",
-        "bhusa",
-        "mineral",
-        "yeast",
-        "buffer",
-        "glycol",
-        "soda",
-        "dcp"
-    ];
-
-    let grandTotal = 0;
-
-    feedItems.forEach(item => {
-
-        const price =
-            val(item + "Price");
-
-        const kg =
-            val(item + "Kg");
-
-        const dailyCost =
-            price *
-            kg *
-            cows;
-
-        const monthlyCost =
-            dailyCost *
-            daysInMonth;
-
+    const user =
         document.getElementById(
-            item + "Daily"
-        ).innerText =
-            "₹" + dailyCost.toFixed(2);
+            "username"
+        ).value;
 
+    const pass =
         document.getElementById(
-            item + "Monthly"
-        ).innerText =
-            "₹" + monthlyCost.toFixed(2);
+            "password"
+        ).value;
 
-        grandTotal += monthlyCost;
-    });
+    // ADMIN
 
-    document.getElementById(
-        "totalFeed"
-    ).innerText =
-        "₹" + grandTotal.toFixed(2);
+    if(
+        user === "Praveen" &&
+        pass === "vishnu123"
+    ){
 
-    return grandTotal;
-}
-
-async function saveMonthlySettings(){
-
-    const totalFeed =
-        calculateFeed();
-
-    const monthlyExpense =
-        totalFeed +
-        val("salary");
-
-    const data = {
-
-        type:"monthly",
-
-        month:
-            document.getElementById("month").value,
-
-        cows:
-            val("cows"),
-
-        milkPrice:
-            val("milkPrice"),
-
-        salary:
-            val("salary"),
-
-        monthlyExpense
-    };
-
-    await fetch("/add",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify(data)
-    });
-
-    alert("Monthly Settings Saved ✅");
-
-    loadDashboard();
-}
-
-async function saveMilk(){
-
-    const milk =
-        val("dailyMilk");
-
-    const milkPrice =
-        val("milkPrice");
-
-    const revenue =
-        milk * milkPrice;
-
-    const data = {
-
-        type:"milk",
-
-        date:
-            document.getElementById("date").value,
-
-        dailyMilk:milk,
-
-        revenue:revenue
-    };
-
-    await fetch("/add",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify(data)
-    });
-
-    alert("Milk Entry Saved ✅");
-
-    loadDashboard();
-}
-
-async function loadDashboard(){
-
-    const res =
-        await fetch("/dashboard");
-
-    const d =
-        await res.json();
-
-    document.getElementById(
-        "expense"
-    ).innerText =
-        "₹" + Number(d.totalExpense || 0).toFixed(2);
-
-    document.getElementById(
-        "revenue"
-    ).innerText =
-        "₹" + Number(d.totalRevenue || 0).toFixed(2);
-
-    document.getElementById(
-        "milk"
-    ).innerText =
-        Number(d.totalMilk || 0).toFixed(2) + " L";
-
-    document.getElementById(
-        "profit"
-    ).innerText =
-        "₹" + Number(d.totalProfit || 0).toFixed(2);
-
-    const table =
-        document.getElementById("records");
-
-    table.innerHTML = "";
-
-    const labels = [];
-    const milkData = [];
-    const revenueData = [];
-
-    (d.records || []).forEach(r => {
-
-        labels.push(r.date || "");
-
-        milkData.push(
-            Number(r.dailyMilk || 0)
+        localStorage.setItem(
+            "role",
+            "admin"
         );
 
-        revenueData.push(
-            Number(r.revenue || 0)
+        window.location =
+            "admin.html";
+
+        return;
+    }
+
+    // WORKER
+
+    if(
+        user === "Sachin" &&
+        pass === "sachin@123"
+    ){
+
+        localStorage.setItem(
+            "role",
+            "worker"
         );
 
-        table.innerHTML += `
+        window.location =
+            "worker.html";
 
-        <tr>
-
-        <td>${r.date || "-"}</td>
-
-        <td>${Number(r.dailyMilk || 0).toFixed(2)} L</td>
-
-        <td>₹${Number(r.revenue || 0).toFixed(2)}</td>
-
-        </tr>
-        `;
-    });
-
-    // FINANCE CHART
-
-    if(financeChart){
-        financeChart.destroy();
+        return;
     }
 
-    financeChart = new Chart(
-
-        document.getElementById(
-            "financeChart"
-        ),
-
-        {
-
-            type:"bar",
-
-            data:{
-
-                labels:[
-                    "Expense",
-                    "Revenue",
-                    "Profit"
-                ],
-
-                datasets:[{
-
-                    label:"Farm Finance",
-
-                    data:[
-
-                        Number(d.totalExpense || 0),
-
-                        Number(d.totalRevenue || 0),
-
-                        Number(d.totalProfit || 0)
-                    ]
-                }]
-            }
-        }
-    );
-
-    // MILK CHART
-
-    if(milkChart){
-        milkChart.destroy();
-    }
-
-    milkChart = new Chart(
-
-        document.getElementById(
-            "milkChart"
-        ),
-
-        {
-
-            type:"line",
-
-            data:{
-
-                labels:labels,
-
-                datasets:[{
-
-                    label:"Milk Production",
-
-                    data:milkData
-                }]
-            }
-        }
-    );
+    alert("Wrong Login");
 }
-
-loadDashboard();
 
 </script>
 
