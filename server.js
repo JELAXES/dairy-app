@@ -38,8 +38,6 @@ const EntrySchema = new mongoose.Schema({
 
     dailyMilk:Number,
 
-    revenue:Number,
-
     feedData:Object
 });
 
@@ -49,13 +47,11 @@ const Entry =
         EntrySchema
     );
 
-// ===== ADD ENTRY =====
+// ===== ADD =====
 
 app.post("/add", async (req,res)=>{
 
     try{
-
-        // replace same milk date
 
         if(req.body.type === "milk"){
 
@@ -66,8 +62,6 @@ app.post("/add", async (req,res)=>{
                 date:req.body.date
             });
         }
-
-        // replace same month settings
 
         if(req.body.type === "monthly"){
 
@@ -101,34 +95,57 @@ app.get("/dashboard", async (req,res)=>{
 
     try{
 
+        const selectedMonth =
+            req.query.month;
+
         const data =
             await Entry.find().sort({_id:1});
 
+        // MONTHLY SETTINGS
+
         const monthlyEntries =
-            data.filter(
-                d => d.type === "monthly"
+            data.filter(d =>
+
+                d.type === "monthly" &&
+
+                (
+                    !selectedMonth ||
+
+                    d.month === selectedMonth
+                )
             );
+
+        // DAILY MILK ENTRIES
 
         const milkEntries =
-            data.filter(
-                d => d.type === "milk"
+            data.filter(d =>
+
+                d.type === "milk" &&
+
+                (
+                    !selectedMonth ||
+
+                    d.date?.startsWith(
+                        selectedMonth
+                    )
+                )
             );
 
-        // ===== LATEST MONTH =====
+        // LATEST MONTH SETTINGS
 
         const latestMonthly =
             monthlyEntries[
                 monthlyEntries.length - 1
             ];
 
-        // ===== TOTAL EXPENSE =====
+        // EXPENSE
 
         const totalExpense =
             Number(
                 latestMonthly?.monthlyExpense || 0
             );
 
-        // ===== TOTAL MILK =====
+        // TOTAL MILK
 
         let totalMilk = 0;
 
@@ -140,17 +157,20 @@ app.get("/dashboard", async (req,res)=>{
                 );
         });
 
-        // ===== TOTAL REVENUE =====
+        // MILK PRICE
 
-       const milkPrice =
-    Number(
-        latestMonthly?.milkPrice || 0
-    );
+        const milkPrice =
+            Number(
+                latestMonthly?.milkPrice || 0
+            );
 
-const totalRevenue =
-    totalMilk *
-    milkPrice;
-        // ===== PROFIT =====
+        // REVENUE
+
+        const totalRevenue =
+            totalMilk *
+            milkPrice;
+
+        // PROFIT
 
         const totalProfit =
             totalRevenue -
@@ -165,8 +185,8 @@ const totalRevenue =
             totalRevenue,
 
             totalProfit,
-            
-             milkPrice,
+
+            milkPrice,
 
             monthlySettings:
                 latestMonthly || {},
@@ -184,7 +204,7 @@ const totalRevenue =
     }
 });
 
-// ===== START SERVER =====
+// ===== START =====
 
 app.listen(3000,"0.0.0.0",()=>{
 
