@@ -1,13 +1,19 @@
 {
   "name": "dairy-app",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Dairy Farm Management Dashboard",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "dairy",
+    "farm",
+    "dashboard",
+    "mongodb",
+    "nodejs"
+  ],
+  "author": "Vishnu",
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
