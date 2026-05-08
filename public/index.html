@@ -6,7 +6,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dairy ERP</title>
+<title>Dairy Farm ERP</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -83,6 +85,12 @@ th{
     color:white;
 }
 
+canvas{
+    background:white;
+    border-radius:15px;
+    padding:10px;
+}
+
 @media(max-width:900px){
 
     .grid{
@@ -102,11 +110,11 @@ th{
 
 <h1>🐄 Dairy Farm ERP Dashboard</h1>
 
-<!-- MONTHLY FARM DATA -->
+<!-- MONTHLY DETAILS -->
 
 <div class="card">
 
-<h2>Monthly Farm Expenses</h2>
+<h2>Monthly Farm Data</h2>
 
 <div class="grid">
 
@@ -116,8 +124,8 @@ th{
 </div>
 
 <div>
-<label>Number Of Cows</label>
-<input type="number" id="cows">
+<label>Total Number Of Cows</label>
+<input type="number" id="cows" oninput="calculateFeedCosts()">
 </div>
 
 <div>
@@ -126,7 +134,7 @@ th{
 </div>
 
 <div>
-<label>Total Monthly Salary Cost (₹)</label>
+<label>Total Monthly Salary (₹)</label>
 <input type="number" id="salary">
 </div>
 
@@ -134,11 +142,11 @@ th{
 
 </div>
 
-<!-- MONTHLY FEED -->
+<!-- FEED COSTING -->
 
 <div class="card">
 
-<h2>Monthly Feed Purchases</h2>
+<h2>Feed Costing</h2>
 
 <table>
 
@@ -146,8 +154,9 @@ th{
 
 <tr>
 <th>Feed Item</th>
-<th>Monthly Quantity Bought (KG)</th>
-<th>Total Monthly Cost (₹)</th>
+<th>Cost Per KG (₹)</th>
+<th>KG Per Cow Per Day</th>
+<th>Total Daily Cost</th>
 </tr>
 
 </thead>
@@ -156,61 +165,79 @@ th{
 
 <tr>
 <td>Silage</td>
-<td><input id="silageQty"></td>
-<td><input id="silageCost"></td>
+<td><input id="silageCostPerKg" oninput="calculateFeedCosts()"></td>
+<td><input id="silageKg" oninput="calculateFeedCosts()"></td>
+<td id="silageTotal">₹0</td>
 </tr>
 
 <tr>
 <td>Concentrate Feed</td>
-<td><input id="feedQty"></td>
-<td><input id="feedCost"></td>
+<td><input id="feedCostPerKg" oninput="calculateFeedCosts()"></td>
+<td><input id="feedKg" oninput="calculateFeedCosts()"></td>
+<td id="feedTotal">₹0</td>
 </tr>
 
 <tr>
 <td>Bhusa</td>
-<td><input id="bhusaQty"></td>
-<td><input id="bhusaCost"></td>
+<td><input id="bhusaCostPerKg" oninput="calculateFeedCosts()"></td>
+<td><input id="bhusaKg" oninput="calculateFeedCosts()"></td>
+<td id="bhusaTotal">₹0</td>
 </tr>
 
 <tr>
 <td>Mineral Mixture</td>
-<td><input id="mineralQty"></td>
-<td><input id="mineralCost"></td>
+<td><input id="mineralCostPerKg" oninput="calculateFeedCosts()"></td>
+<td><input id="mineralKg" oninput="calculateFeedCosts()"></td>
+<td id="mineralTotal">₹0</td>
 </tr>
 
 <tr>
 <td>Yeast</td>
-<td><input id="yeastQty"></td>
-<td><input id="yeastCost"></td>
+<td><input id="yeastCostPerKg" oninput="calculateFeedCosts()"></td>
+<td><input id="yeastKg" oninput="calculateFeedCosts()"></td>
+<td id="yeastTotal">₹0</td>
 </tr>
 
 <tr>
 <td>Rumen Buffer</td>
-<td><input id="bufferQty"></td>
-<td><input id="bufferCost"></td>
+<td><input id="bufferCostPerKg" oninput="calculateFeedCosts()"></td>
+<td><input id="bufferKg" oninput="calculateFeedCosts()"></td>
+<td id="bufferTotal">₹0</td>
 </tr>
 
 <tr>
 <td>Propylene Glycol</td>
-<td><input id="glycolQty"></td>
-<td><input id="glycolCost"></td>
+<td><input id="glycolCostPerKg" oninput="calculateFeedCosts()"></td>
+<td><input id="glycolKg" oninput="calculateFeedCosts()"></td>
+<td id="glycolTotal">₹0</td>
 </tr>
 
 <tr>
 <td>Soda</td>
-<td><input id="sodaQty"></td>
-<td><input id="sodaCost"></td>
+<td><input id="sodaCostPerKg" oninput="calculateFeedCosts()"></td>
+<td><input id="sodaKg" oninput="calculateFeedCosts()"></td>
+<td id="sodaTotal">₹0</td>
 </tr>
 
 <tr>
 <td>DCP</td>
-<td><input id="dcpQty"></td>
-<td><input id="dcpCost"></td>
+<td><input id="dcpCostPerKg" oninput="calculateFeedCosts()"></td>
+<td><input id="dcpKg" oninput="calculateFeedCosts()"></td>
+<td id="dcpTotal">₹0</td>
 </tr>
 
 </tbody>
 
 </table>
+
+<br>
+
+<h2>
+Total Daily Feed Cost:
+<span id="totalFeedCost">
+₹0
+</span>
+</h2>
 
 </div>
 
@@ -272,6 +299,14 @@ Save Data
 
 </div>
 
+<br><br>
+
+<canvas id="financeChart"></canvas>
+
+<br><br>
+
+<canvas id="milkChart"></canvas>
+
 </div>
 
 <!-- RECORDS -->
@@ -287,6 +322,7 @@ Save Data
 <tr>
 <th>Date</th>
 <th>Milk Produced</th>
+<th>Revenue</th>
 </tr>
 
 </thead>
@@ -300,6 +336,9 @@ Save Data
 
 <script>
 
+let financeChart;
+let milkChart;
+
 function val(id){
 
     return Number(
@@ -307,19 +346,56 @@ function val(id){
     ) || 0;
 }
 
+function calculateFeedCosts(){
+
+    const cows =
+        val("cows");
+
+    function calc(name){
+
+        const costPerKg =
+            val(name + "CostPerKg");
+
+        const kg =
+            val(name + "Kg");
+
+        const total =
+            costPerKg *
+            kg *
+            cows;
+
+        document.getElementById(
+            name + "Total"
+        ).innerText =
+            "₹" + total.toFixed(2);
+
+        return total;
+    }
+
+    const totalFeed =
+
+        calc("silage") +
+        calc("feed") +
+        calc("bhusa") +
+        calc("mineral") +
+        calc("yeast") +
+        calc("buffer") +
+        calc("glycol") +
+        calc("soda") +
+        calc("dcp");
+
+    document.getElementById(
+        "totalFeedCost"
+    ).innerText =
+        "₹" + totalFeed.toFixed(2);
+
+    return totalFeed;
+}
+
 async function submitData(){
 
     const totalFeedCost =
-
-        val("silageCost") +
-        val("feedCost") +
-        val("bhusaCost") +
-        val("mineralCost") +
-        val("yeastCost") +
-        val("bufferCost") +
-        val("glycolCost") +
-        val("sodaCost") +
-        val("dcpCost");
+        calculateFeedCosts();
 
     const salary =
         val("salary");
@@ -353,11 +429,13 @@ async function submitData(){
         cows:
             val("cows"),
 
-        dailyMilk,
-
         milkPrice,
 
         salary,
+
+        dailyMilk,
+
+        totalFeedCost,
 
         totalExpense,
 
@@ -411,7 +489,15 @@ async function loadDashboard(){
 
     table.innerHTML = "";
 
+    const labels = [];
+    const milkData = [];
+    const revenueData = [];
+
     d.records.forEach(r => {
+
+        labels.push(r.date);
+        milkData.push(r.dailyMilk);
+        revenueData.push(r.revenue);
 
         table.innerHTML += `
 
@@ -421,9 +507,73 @@ async function loadDashboard(){
 
         <td>${r.dailyMilk} L</td>
 
+        <td>₹${r.revenue.toFixed(2)}</td>
+
         </tr>
         `;
     });
+
+    // FINANCE CHART
+
+    if(financeChart){
+        financeChart.destroy();
+    }
+
+    financeChart = new Chart(
+
+        document.getElementById("financeChart"),
+
+        {
+            type:"bar",
+
+            data:{
+
+                labels:[
+                    "Expense",
+                    "Revenue",
+                    "Profit"
+                ],
+
+                datasets:[{
+
+                    label:"Farm Finance",
+
+                    data:[
+                        d.totalExpense,
+                        d.totalRevenue,
+                        d.totalProfit
+                    ]
+                }]
+            }
+        }
+    );
+
+    // MILK CHART
+
+    if(milkChart){
+        milkChart.destroy();
+    }
+
+    milkChart = new Chart(
+
+        document.getElementById("milkChart"),
+
+        {
+            type:"line",
+
+            data:{
+
+                labels:labels,
+
+                datasets:[{
+
+                    label:"Milk Production",
+
+                    data:milkData
+                }]
+            }
+        }
+    );
 }
 
 loadDashboard();
@@ -431,5 +581,4 @@ loadDashboard();
 </script>
 
 </body>
-
 </html>
