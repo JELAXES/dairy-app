@@ -8,57 +8,87 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-// DEBUG
-console.log(process.env.MONGO_URI);
+// ===== MONGODB CONNECTION =====
 
-// MongoDB Connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(
+    process.env.MONGO_URI
+)
 .then(() => {
-
-    console.log("MongoDB Connected");
-
+    console.log("MongoDB Connected ✅");
 })
 .catch((err) => {
-
     console.log(err);
-
 });
 
-// Schema
+// ===== SCHEMA =====
+
 const EntrySchema = new mongoose.Schema({
 
     worker: String,
     date: String,
 
-    silageCost: Number,
-    feedCost: Number,
-    bhusaCost: Number,
-    salary: Number,
+    cows: Number,
 
     milk: Number,
-    pricePerLiter: Number,
+    milkPrice: Number,
+
+    salary: Number,
+
+    silageCost: Number,
+    silageQty: Number,
+
+    feedCost: Number,
+    feedQty: Number,
+
+    bhusaCost: Number,
+    bhusaQty: Number,
+
+    mineralCost: Number,
+    mineralQty: Number,
+
+    yeastCost: Number,
+    yeastQty: Number,
+
+    bufferCost: Number,
+    bufferQty: Number,
+
+    glycolCost: Number,
+    glycolQty: Number,
+
+    sodaCost: Number,
+    sodaQty: Number,
+
+    dcpCost: Number,
+    dcpQty: Number,
 
     totalExpense: Number,
-    revenue: Number
+    revenue: Number,
+    profit: Number,
+
+    costPerCow: Number,
+    costPerLiter: Number
 });
 
-// Model
+// ===== MODEL =====
+
 const Entry = mongoose.model(
     "Entry",
     EntrySchema
 );
 
-// Add Entry
+// ===== ADD ENTRY =====
+
 app.post("/add", async (req, res) => {
 
     try {
 
-        const newEntry = new Entry(req.body);
+        const data = req.body;
 
-        await newEntry.save();
+        await Entry.create(data);
 
         res.send({
-            success: true
+            success: true,
+            message: "Entry Saved"
         });
 
     } catch (err) {
@@ -66,41 +96,47 @@ app.post("/add", async (req, res) => {
         console.log(err);
 
         res.status(500).send({
-            success: false
+            success: false,
+            message: "Error Saving Entry"
         });
     }
 });
 
-// Dashboard
+// ===== DASHBOARD =====
+
 app.get("/dashboard", async (req, res) => {
 
     try {
 
-        const data = await Entry.find();
+        const data =
+            await Entry.find().sort({_id:-1});
 
         let totalExpense = 0;
-        let totalMilk = 0;
         let totalRevenue = 0;
+        let totalMilk = 0;
+        let totalProfit = 0;
 
-        data.forEach(d => {
+        data.forEach((d) => {
 
-            totalExpense += d.totalExpense || 0;
+            totalExpense +=
+                d.totalExpense || 0;
 
-            totalMilk += d.milk || 0;
+            totalRevenue +=
+                d.revenue || 0;
 
-            totalRevenue += d.revenue || 0;
+            totalMilk +=
+                d.milk || 0;
+
+            totalProfit +=
+                d.profit || 0;
         });
-
-        const profit =
-            totalRevenue -
-            totalExpense;
 
         res.send({
 
             totalExpense,
-            totalMilk,
             totalRevenue,
-            profit,
+            totalMilk,
+            totalProfit,
 
             records: data
         });
@@ -110,15 +146,17 @@ app.get("/dashboard", async (req, res) => {
         console.log(err);
 
         res.status(500).send({
-            success: false
+            success: false,
+            message: "Dashboard Error"
         });
     }
 });
 
-// Start Server
+// ===== SERVER =====
+
 app.listen(3000, "0.0.0.0", () => {
 
     console.log(
-        "Server running on port 3000"
+        "Server running on http://localhost:3000"
     );
 });

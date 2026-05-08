@@ -1,16 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dairy Farm Dashboard</title>
+<title>Dairy ERP</title>
 
 <style>
 
 body{
     font-family:Arial;
-    background:#f3f4f6;
+    background:#f1f5f9;
     padding:20px;
 }
 
@@ -19,58 +20,57 @@ h1{
     margin-bottom:20px;
 }
 
-.container{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
-}
-
 .card{
     background:white;
     padding:20px;
     border-radius:15px;
+    margin-bottom:20px;
     box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
 }
 
 input{
     width:100%;
     padding:10px;
-    margin-top:5px;
-    margin-bottom:15px;
     border-radius:8px;
     border:1px solid #ccc;
 }
 
 button{
     width:100%;
-    padding:12px;
-    background:#2563eb;
-    color:white;
+    padding:15px;
     border:none;
     border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
     cursor:pointer;
 }
 
 .stats{
     display:grid;
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr 1fr 1fr 1fr;
     gap:15px;
 }
 
 .stat{
-    background:#eff6ff;
-    padding:15px;
-    border-radius:10px;
+    background:#dbeafe;
+    padding:20px;
+    border-radius:12px;
     text-align:center;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
 }
 
-th, td{
+th,td{
     border:1px solid #ddd;
     padding:10px;
     text-align:center;
@@ -81,59 +81,109 @@ th{
     color:white;
 }
 
-.history{
-    margin-top:30px;
-}
-
 @media(max-width:900px){
-    .container{
+
+    .grid{
         grid-template-columns:1fr;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
     }
 }
 
 </style>
+
 </head>
+
 <body>
 
-<h1>🐄 Dairy Farm Dashboard</h1>
-
-<div class="container">
+<h1>🐄 Dairy Farm ERP</h1>
 
 <div class="card">
 
-<h2>Daily Entry</h2>
+<div class="grid">
 
-<label>Worker Name</label>
-<input type="text" id="worker">
+<div>
+<label>Worker</label>
+<input id="worker">
+</div>
 
+<div>
 <label>Date</label>
 <input type="date" id="date">
+</div>
 
-<label>Silage Cost</label>
-<input type="number" id="silageCost">
+<div>
+<label>Number of Cows</label>
+<input type="number" id="cows">
+</div>
 
-<label>Feed Cost</label>
-<input type="number" id="feedCost">
+<div>
+<label>Total Milk (L)</label>
+<input type="number" id="milk">
+</div>
 
-<label>Bhusa Cost</label>
-<input type="number" id="bhusaCost">
+<div>
+<label>Milk Price/Liter</label>
+<input type="number" id="milkPrice">
+</div>
 
+<div>
 <label>Salary</label>
 <input type="number" id="salary">
+</div>
 
-<label>Milk Produced (L)</label>
-<input type="number" id="milk">
-
-<label>Price Per Liter</label>
-<input type="number" id="price">
-
-<button onclick="submitData()">Save Entry</button>
+</div>
 
 </div>
 
 <div class="card">
 
-<h2>Dashboard</h2>
+<h2>Feed Inputs</h2>
+
+<div class="grid">
+
+<div><input id="silageCost" placeholder="Silage ₹/KG"></div>
+<div><input id="silageQty" placeholder="Silage KG/Cow"></div>
+
+<div><input id="feedCost" placeholder="Feed ₹/KG"></div>
+<div><input id="feedQty" placeholder="Feed KG/Cow"></div>
+
+<div><input id="bhusaCost" placeholder="Bhusa ₹/KG"></div>
+<div><input id="bhusaQty" placeholder="Bhusa KG/Cow"></div>
+
+<div><input id="mineralCost" placeholder="Mineral ₹/KG"></div>
+<div><input id="mineralQty" placeholder="Mineral KG/Cow"></div>
+
+<div><input id="yeastCost" placeholder="Yeast ₹/KG"></div>
+<div><input id="yeastQty" placeholder="Yeast KG/Cow"></div>
+
+<div><input id="bufferCost" placeholder="Buffer ₹/KG"></div>
+<div><input id="bufferQty" placeholder="Buffer KG/Cow"></div>
+
+<div><input id="glycolCost" placeholder="Propylene Glycol ₹/KG"></div>
+<div><input id="glycolQty" placeholder="Propylene Glycol KG/Cow"></div>
+
+<div><input id="sodaCost" placeholder="Soda ₹/KG"></div>
+<div><input id="sodaQty" placeholder="Soda KG/Cow"></div>
+
+<div><input id="dcpCost" placeholder="DCP ₹/KG"></div>
+<div><input id="dcpQty" placeholder="DCP KG/Cow"></div>
+
+</div>
+
+<br>
+
+<button onclick="submitData()">
+Save Daily Entry
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>Farm Analytics</h2>
 
 <div class="stats">
 
@@ -153,38 +203,37 @@ th{
 </div>
 
 <div class="stat">
-<h3>Profit</h3>
+<h3>Total Profit</h3>
 <p id="profit">₹0</p>
 </div>
 
 </div>
 
-<br>
-
-<button onclick="loadDashboard()">Refresh Dashboard</button>
-
 </div>
 
-</div>
-
-<div class="card history">
+<div class="card">
 
 <h2>Daily Records</h2>
 
 <table>
 
 <thead>
+
 <tr>
 <th>Date</th>
 <th>Worker</th>
-<th>Expense</th>
+<th>Cows</th>
 <th>Milk</th>
+<th>Expense</th>
 <th>Revenue</th>
 <th>Profit</th>
+<th>Cost/Cow</th>
+<th>Cost/Liter</th>
 </tr>
+
 </thead>
 
-<tbody id="historyTable">
+<tbody id="records">
 </tbody>
 
 </table>
@@ -193,44 +242,116 @@ th{
 
 <script>
 
+function val(id){
+
+    return Number(
+        document.getElementById(id).value
+    ) || 0;
+}
+
 async function submitData(){
 
-    const silageCost = Number(document.getElementById("silageCost").value) || 0;
-    const feedCost = Number(document.getElementById("feedCost").value) || 0;
-    const bhusaCost = Number(document.getElementById("bhusaCost").value) || 0;
-    const salary = Number(document.getElementById("salary").value) || 0;
-    const milk = Number(document.getElementById("milk").value) || 0;
-    const pricePerLiter = Number(document.getElementById("price").value) || 0;
+    const cows = val("cows");
+
+    const milk = val("milk");
+
+    const milkPrice = val("milkPrice");
+
+    const salary = val("salary");
+
+    // Feed costs
+
+    const feedTotal =
+
+        (val("silageCost") * val("silageQty") * cows) +
+
+        (val("feedCost") * val("feedQty") * cows) +
+
+        (val("bhusaCost") * val("bhusaQty") * cows) +
+
+        (val("mineralCost") * val("mineralQty") * cows) +
+
+        (val("yeastCost") * val("yeastQty") * cows) +
+
+        (val("bufferCost") * val("bufferQty") * cows) +
+
+        (val("glycolCost") * val("glycolQty") * cows) +
+
+        (val("sodaCost") * val("sodaQty") * cows) +
+
+        (val("dcpCost") * val("dcpQty") * cows);
+
+    const totalExpense =
+        feedTotal + salary;
+
+    const revenue =
+        milk * milkPrice;
+
+    const profit =
+        revenue - totalExpense;
+
+    const costPerCow =
+        totalExpense / cows;
+
+    const costPerLiter =
+        totalExpense / milk;
 
     const data = {
 
-        worker:document.getElementById("worker").value,
+        worker:
+            document.getElementById("worker").value,
 
-        date:document.getElementById("date").value,
+        date:
+            document.getElementById("date").value,
 
-        silageCost,
-        feedCost,
-        bhusaCost,
-        salary,
+        cows,
         milk,
-        pricePerLiter,
+        milkPrice,
+        salary,
 
-        totalExpense:
-            silageCost +
-            feedCost +
-            bhusaCost +
-            salary,
+        silageCost:val("silageCost"),
+        silageQty:val("silageQty"),
 
-        revenue:
-            milk *
-            pricePerLiter
+        feedCost:val("feedCost"),
+        feedQty:val("feedQty"),
+
+        bhusaCost:val("bhusaCost"),
+        bhusaQty:val("bhusaQty"),
+
+        mineralCost:val("mineralCost"),
+        mineralQty:val("mineralQty"),
+
+        yeastCost:val("yeastCost"),
+        yeastQty:val("yeastQty"),
+
+        bufferCost:val("bufferCost"),
+        bufferQty:val("bufferQty"),
+
+        glycolCost:val("glycolCost"),
+        glycolQty:val("glycolQty"),
+
+        sodaCost:val("sodaCost"),
+        sodaQty:val("sodaQty"),
+
+        dcpCost:val("dcpCost"),
+        dcpQty:val("dcpQty"),
+
+        totalExpense,
+        revenue,
+        profit,
+
+        costPerCow,
+        costPerLiter
     };
 
     await fetch("/add",{
+
         method:"POST",
+
         headers:{
             "Content-Type":"application/json"
         },
+
         body:JSON.stringify(data)
     });
 
@@ -241,40 +362,53 @@ async function submitData(){
 
 async function loadDashboard(){
 
-    const res = await fetch("/dashboard");
+    const res =
+        await fetch("/dashboard");
 
-    const d = await res.json();
+    const d =
+        await res.json();
 
-    document.getElementById("expense").innerText =
-        "₹" + d.totalExpense;
+    document.getElementById("expense")
+        .innerText = "₹" + d.totalExpense;
 
-    document.getElementById("revenue").innerText =
-        "₹" + d.totalRevenue;
+    document.getElementById("revenue")
+        .innerText = "₹" + d.totalRevenue;
 
-    document.getElementById("milkTotal").innerText =
-        d.totalMilk + " L";
+    document.getElementById("milkTotal")
+        .innerText = d.totalMilk + " L";
 
-    document.getElementById("profit").innerText =
-        "₹" + d.profit;
+    document.getElementById("profit")
+        .innerText = "₹" + d.totalProfit;
 
-    const table = document.getElementById("historyTable");
+    const table =
+        document.getElementById("records");
 
     table.innerHTML = "";
 
     d.records.forEach(r => {
 
-        const profit =
-            r.revenue -
-            r.totalExpense;
-
         table.innerHTML += `
+
         <tr>
-            <td>${r.date}</td>
-            <td>${r.worker}</td>
-            <td>₹${r.totalExpense}</td>
-            <td>${r.milk} L</td>
-            <td>₹${r.revenue}</td>
-            <td>₹${profit}</td>
+
+        <td>${r.date}</td>
+
+        <td>${r.worker}</td>
+
+        <td>${r.cows}</td>
+
+        <td>${r.milk}</td>
+
+        <td>₹${r.totalExpense.toFixed(2)}</td>
+
+        <td>₹${r.revenue.toFixed(2)}</td>
+
+        <td>₹${r.profit.toFixed(2)}</td>
+
+        <td>₹${r.costPerCow.toFixed(2)}</td>
+
+        <td>₹${r.costPerLiter.toFixed(2)}</td>
+
         </tr>
         `;
     });
