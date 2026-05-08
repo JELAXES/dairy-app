@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
@@ -18,7 +17,6 @@ body{
 
 h1{
     text-align:center;
-    margin-bottom:20px;
 }
 
 .card{
@@ -83,8 +81,8 @@ th{
     color:white;
 }
 
-.feed-table input{
-    width:95%;
+a{
+    text-decoration:none;
 }
 
 @media(max-width:900px){
@@ -104,11 +102,21 @@ th{
 
 <body>
 
-<h1>🐄 Dairy Farm ERP Dashboard</h1>
+<h1>🐄 Dairy Farm ERP</h1>
 
 <div class="card">
 
-<h2>Farm Daily Entry</h2>
+<a href="monthly-feed.html">
+<button>
+Open Monthly Feed Sheet
+</button>
+</a>
+
+</div>
+
+<div class="card">
+
+<h2>Farm Production Entry</h2>
 
 <div class="grid">
 
@@ -118,8 +126,13 @@ th{
 </div>
 
 <div>
-<label>Date</label>
-<input type="date" id="date">
+<label>From Date</label>
+<input type="date" id="fromDate">
+</div>
+
+<div>
+<label>To Date</label>
+<input type="date" id="toDate">
 </div>
 
 <div>
@@ -133,12 +146,12 @@ th{
 </div>
 
 <div>
-<label>Milk Selling Price/Liter (₹)</label>
+<label>Milk Price/Liter (₹)</label>
 <input type="number" id="milkPrice">
 </div>
 
 <div>
-<label>Salary Cost (₹)</label>
+<label>Total Salary Cost (₹)</label>
 <input type="number" id="salary">
 </div>
 
@@ -148,17 +161,15 @@ th{
 
 <div class="card">
 
-<h2>Monthly Feed Purchase + Daily Usage</h2>
+<h2>Feed Consumption Per Cow/Day</h2>
 
-<table class="feed-table">
+<table>
 
 <thead>
 
 <tr>
 <th>Feed Item</th>
-<th>Monthly Qty Bought (KG)</th>
-<th>Total Monthly Cost (₹)</th>
-<th>Consumption Per Cow/Day (KG)</th>
+<th>KG Per Cow/Day</th>
 </tr>
 
 </thead>
@@ -167,64 +178,46 @@ th{
 
 <tr>
 <td>Silage</td>
-<td><input id="silageMonthlyQty"></td>
-<td><input id="silageMonthlyCost"></td>
 <td><input id="silageDaily"></td>
 </tr>
 
 <tr>
 <td>Concentrate Feed</td>
-<td><input id="feedMonthlyQty"></td>
-<td><input id="feedMonthlyCost"></td>
 <td><input id="feedDaily"></td>
 </tr>
 
 <tr>
 <td>Bhusa</td>
-<td><input id="bhusaMonthlyQty"></td>
-<td><input id="bhusaMonthlyCost"></td>
 <td><input id="bhusaDaily"></td>
 </tr>
 
 <tr>
 <td>Mineral Mixture</td>
-<td><input id="mineralMonthlyQty"></td>
-<td><input id="mineralMonthlyCost"></td>
 <td><input id="mineralDaily"></td>
 </tr>
 
 <tr>
 <td>Yeast</td>
-<td><input id="yeastMonthlyQty"></td>
-<td><input id="yeastMonthlyCost"></td>
 <td><input id="yeastDaily"></td>
 </tr>
 
 <tr>
 <td>Rumen Buffer</td>
-<td><input id="bufferMonthlyQty"></td>
-<td><input id="bufferMonthlyCost"></td>
 <td><input id="bufferDaily"></td>
 </tr>
 
 <tr>
 <td>Propylene Glycol</td>
-<td><input id="glycolMonthlyQty"></td>
-<td><input id="glycolMonthlyCost"></td>
 <td><input id="glycolDaily"></td>
 </tr>
 
 <tr>
 <td>Soda</td>
-<td><input id="sodaMonthlyQty"></td>
-<td><input id="sodaMonthlyCost"></td>
 <td><input id="sodaDaily"></td>
 </tr>
 
 <tr>
-<td>Di Calcium Phosphate</td>
-<td><input id="dcpMonthlyQty"></td>
-<td><input id="dcpMonthlyCost"></td>
+<td>DCP</td>
 <td><input id="dcpDaily"></td>
 </tr>
 
@@ -235,7 +228,7 @@ th{
 <br>
 
 <button onclick="submitData()">
-Save Daily Entry
+Save Production Entry
 </button>
 
 </div>
@@ -272,22 +265,20 @@ Save Daily Entry
 
 <div class="card">
 
-<h2>Daily Records</h2>
+<h2>Production Records</h2>
 
 <table>
 
 <thead>
 
 <tr>
-<th>Date</th>
+<th>Range</th>
 <th>Worker</th>
 <th>Cows</th>
 <th>Milk</th>
 <th>Expense</th>
 <th>Revenue</th>
 <th>Profit</th>
-<th>Cost/Cow</th>
-<th>Cost/Liter</th>
 </tr>
 
 </thead>
@@ -308,146 +299,110 @@ function val(id){
     ) || 0;
 }
 
-function calculateFeedCost(
-    monthlyQty,
-    monthlyCost,
-    dailyPerCow,
-    cows
-){
+function daysBetween(start,end){
 
-    if(monthlyQty <= 0) return 0;
+    const s = new Date(start);
+    const e = new Date(end);
 
-    const costPerKg =
-        monthlyCost / monthlyQty;
+    const diff =
+        Math.abs(e-s);
 
-    return (
-        costPerKg *
-        dailyPerCow *
-        cows
-    );
+    return Math.ceil(
+        diff / (1000*60*60*24)
+    ) + 1;
+}
+
+async function getFeedData(){
+
+    const res =
+        await fetch("/monthly-feed");
+
+    return await res.json();
 }
 
 async function submitData(){
 
-    const cows = val("cows");
+    const feedData =
+        await getFeedData();
 
-    const milk = val("milk");
+    const cows =
+        val("cows");
 
-    const milkPrice = val("milkPrice");
+    const milk =
+        val("milk");
 
-    const salary = val("salary");
+    const milkPrice =
+        val("milkPrice");
 
-    // FEED COSTS
+    const salary =
+        val("salary");
 
-    const silageTotal =
-        calculateFeedCost(
-            val("silageMonthlyQty"),
-            val("silageMonthlyCost"),
-            val("silageDaily"),
-            cows
+    const fromDate =
+        document.getElementById("fromDate").value;
+
+    const toDate =
+        document.getElementById("toDate").value;
+
+    const totalDays =
+        daysBetween(fromDate,toDate);
+
+    function calculate(feedName,daily){
+
+        const feed =
+            feedData.find(
+                f => f.feedItem === feedName
+            );
+
+        if(!feed) return 0;
+
+        const costPerKg =
+            feed.monthlyCost /
+            feed.monthlyQty;
+
+        return (
+            costPerKg *
+            daily *
+            cows *
+            totalDays
         );
-
-    const feedTotal =
-        calculateFeedCost(
-            val("feedMonthlyQty"),
-            val("feedMonthlyCost"),
-            val("feedDaily"),
-            cows
-        );
-
-    const bhusaTotal =
-        calculateFeedCost(
-            val("bhusaMonthlyQty"),
-            val("bhusaMonthlyCost"),
-            val("bhusaDaily"),
-            cows
-        );
-
-    const mineralTotal =
-        calculateFeedCost(
-            val("mineralMonthlyQty"),
-            val("mineralMonthlyCost"),
-            val("mineralDaily"),
-            cows
-        );
-
-    const yeastTotal =
-        calculateFeedCost(
-            val("yeastMonthlyQty"),
-            val("yeastMonthlyCost"),
-            val("yeastDaily"),
-            cows
-        );
-
-    const bufferTotal =
-        calculateFeedCost(
-            val("bufferMonthlyQty"),
-            val("bufferMonthlyCost"),
-            val("bufferDaily"),
-            cows
-        );
-
-    const glycolTotal =
-        calculateFeedCost(
-            val("glycolMonthlyQty"),
-            val("glycolMonthlyCost"),
-            val("glycolDaily"),
-            cows
-        );
-
-    const sodaTotal =
-        calculateFeedCost(
-            val("sodaMonthlyQty"),
-            val("sodaMonthlyCost"),
-            val("sodaDaily"),
-            cows
-        );
-
-    const dcpTotal =
-        calculateFeedCost(
-            val("dcpMonthlyQty"),
-            val("dcpMonthlyCost"),
-            val("dcpDaily"),
-            cows
-        );
+    }
 
     const totalFeedCost =
 
-        silageTotal +
-        feedTotal +
-        bhusaTotal +
-        mineralTotal +
-        yeastTotal +
-        bufferTotal +
-        glycolTotal +
-        sodaTotal +
-        dcpTotal;
+        calculate("Silage",val("silageDaily")) +
+
+        calculate("Feed",val("feedDaily")) +
+
+        calculate("Bhusa",val("bhusaDaily")) +
+
+        calculate("Mineral",val("mineralDaily")) +
+
+        calculate("Yeast",val("yeastDaily")) +
+
+        calculate("Buffer",val("bufferDaily")) +
+
+        calculate("Glycol",val("glycolDaily")) +
+
+        calculate("Soda",val("sodaDaily")) +
+
+        calculate("DCP",val("dcpDaily"));
 
     const totalExpense =
-        totalFeedCost +
-        salary;
+        totalFeedCost + salary;
 
     const revenue =
-        milk *
-        milkPrice;
+        milk * milkPrice;
 
     const profit =
-        revenue -
-        totalExpense;
-
-    const costPerCow =
-        totalExpense / cows;
-
-    const costPerLiter =
-        totalExpense / milk;
+        revenue - totalExpense;
 
     const data = {
 
         worker:
             document.getElementById("worker").value,
 
-        date:
-            document.getElementById("date").value,
+        fromDate,
+        toDate,
 
         cows,
         milk,
@@ -456,10 +411,7 @@ async function submitData(){
 
         totalExpense,
         revenue,
-        profit,
-
-        costPerCow,
-        costPerLiter
+        profit
     };
 
     await fetch("/add",{
@@ -487,16 +439,20 @@ async function loadDashboard(){
         await res.json();
 
     document.getElementById("expense")
-        .innerText = "₹" + d.totalExpense.toFixed(2);
+        .innerText =
+        "₹" + d.totalExpense.toFixed(2);
 
     document.getElementById("revenue")
-        .innerText = "₹" + d.totalRevenue.toFixed(2);
+        .innerText =
+        "₹" + d.totalRevenue.toFixed(2);
 
     document.getElementById("milkTotal")
-        .innerText = d.totalMilk.toFixed(2) + " L";
+        .innerText =
+        d.totalMilk.toFixed(2) + " L";
 
     document.getElementById("profit")
-        .innerText = "₹" + d.totalProfit.toFixed(2);
+        .innerText =
+        "₹" + d.totalProfit.toFixed(2);
 
     const table =
         document.getElementById("records");
@@ -509,7 +465,11 @@ async function loadDashboard(){
 
         <tr>
 
-        <td>${r.date}</td>
+        <td>
+        ${r.fromDate}
+        to
+        ${r.toDate}
+        </td>
 
         <td>${r.worker}</td>
 
@@ -522,10 +482,6 @@ async function loadDashboard(){
         <td>₹${r.revenue.toFixed(2)}</td>
 
         <td>₹${r.profit.toFixed(2)}</td>
-
-        <td>₹${r.costPerCow.toFixed(2)}</td>
-
-        <td>₹${r.costPerLiter.toFixed(2)}</td>
 
         </tr>
         `;

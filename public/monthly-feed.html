@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Monthly Feed Sheet</title>
+
+<style>
+
+body{
+    font-family:Arial;
+    background:#f1f5f9;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+
+input{
+    width:100%;
+    padding:8px;
+}
+
+button{
+    margin-top:20px;
+    width:100%;
+    padding:15px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>🐄 Monthly Feed Sheet</h1>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Feed Item</th>
+<th>Monthly Qty Bought (KG)</th>
+<th>Total Monthly Cost (₹)</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+<tr>
+<td>Silage</td>
+<td><input id="silageQty"></td>
+<td><input id="silageCost"></td>
+</tr>
+
+<tr>
+<td>Feed</td>
+<td><input id="feedQty"></td>
+<td><input id="feedCost"></td>
+</tr>
+
+<tr>
+<td>Bhusa</td>
+<td><input id="bhusaQty"></td>
+<td><input id="bhusaCost"></td>
+</tr>
+
+<tr>
+<td>Mineral</td>
+<td><input id="mineralQty"></td>
+<td><input id="mineralCost"></td>
+</tr>
+
+<tr>
+<td>Yeast</td>
+<td><input id="yeastQty"></td>
+<td><input id="yeastCost"></td>
+</tr>
+
+<tr>
+<td>Buffer</td>
+<td><input id="bufferQty"></td>
+<td><input id="bufferCost"></td>
+</tr>
+
+<tr>
+<td>Glycol</td>
+<td><input id="glycolQty"></td>
+<td><input id="glycolCost"></td>
+</tr>
+
+<tr>
+<td>Soda</td>
+<td><input id="sodaQty"></td>
+<td><input id="sodaCost"></td>
+</tr>
+
+<tr>
+<td>DCP</td>
+<td><input id="dcpQty"></td>
+<td><input id="dcpCost"></td>
+</tr>
+
+</tbody>
+
+</table>
+
+<button onclick="saveFeed()">
+Save Monthly Feed Data
+</button>
+
+</div>
+
+<script>
+
+function val(id){
+
+    return Number(
+        document.getElementById(id).value
+    ) || 0;
+}
+
+async function saveFeed(){
+
+    const feeds = [
+
+        {
+            feedItem:"Silage",
+            monthlyQty:val("silageQty"),
+            monthlyCost:val("silageCost")
+        },
+
+        {
+            feedItem:"Feed",
+            monthlyQty:val("feedQty"),
+            monthlyCost:val("feedCost")
+        },
+
+        {
+            feedItem:"Bhusa",
+            monthlyQty:val("bhusaQty"),
+            monthlyCost:val("bhusaCost")
+        },
+
+        {
+            feedItem:"Mineral",
+            monthlyQty:val("mineralQty"),
+            monthlyCost:val("mineralCost")
+        },
+
+        {
+            feedItem:"Yeast",
+            monthlyQty:val("yeastQty"),
+            monthlyCost:val("yeastCost")
+        },
+
+        {
+            feedItem:"Buffer",
+            monthlyQty:val("bufferQty"),
+            monthlyCost:val("bufferCost")
+        },
+
+        {
+            feedItem:"Glycol",
+            monthlyQty:val("glycolQty"),
+            monthlyCost:val("glycolCost")
+        },
+
+        {
+            feedItem:"Soda",
+            monthlyQty:val("sodaQty"),
+            monthlyCost:val("sodaCost")
+        },
+
+        {
+            feedItem:"DCP",
+            monthlyQty:val("dcpQty"),
+            monthlyCost:val("dcpCost")
+        }
+    ];
+
+    await fetch("/save-monthly-feed",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify(feeds)
+    });
+
+    alert("Monthly Feed Saved ✅");
+}
+
+</script>
+
+</body>
+</html>
