@@ -122,6 +122,20 @@ if(
 
 <h1>🐄 Dairy Farm Admin Dashboard</h1>
 
+<!-- MONTH SELECTOR -->
+
+<div class="card">
+
+<h2>Select Analytics Month</h2>
+
+<input
+type="month"
+id="selectedMonth"
+onchange="loadDashboard()"
+>
+
+</div>
+
 <!-- MONTHLY SETTINGS -->
 
 <div class="card">
@@ -147,14 +161,14 @@ if(
 
 <div>
 <label>Total Monthly Salary (₹)</label>
-<input type="number" id="salary" oninput="calculateFeed()">
+<input type="number" id="salary">
 </div>
 
 </div>
 
 </div>
 
-<!-- FEED COSTING -->
+<!-- FEED -->
 
 <div class="card">
 
@@ -166,7 +180,7 @@ if(
 
 <tr>
 <th>Feed Item</th>
-<th>Cost/KG (₹)</th>
+<th>Cost/KG</th>
 <th>KG/Cow/Day</th>
 <th>Daily Cost</th>
 <th>Monthly Cost</th>
@@ -322,7 +336,6 @@ Save Monthly Settings
 <tr>
 <th>Date</th>
 <th>Milk Produced</th>
-<th>Revenue</th>
 </tr>
 
 </thead>
@@ -335,6 +348,15 @@ Save Monthly Settings
 </div>
 
 <script>
+
+const today =
+    new Date();
+
+const currentMonth =
+
+    today
+    .toISOString()
+    .slice(0,7);
 
 let financeChart;
 let milkChart;
@@ -518,7 +540,14 @@ function loadMonthlySettings(settings){
 async function loadDashboard(){
 
     const res =
-        await fetch("/dashboard");
+        await fetch(
+
+        "/dashboard?month=" +
+
+        document.getElementById(
+            "selectedMonth"
+        ).value
+    );
 
     const d =
         await res.json();
@@ -583,12 +612,6 @@ async function loadDashboard(){
         ${Number(
             r.dailyMilk || 0
         ).toFixed(2)} L
-        </td>
-
-        <td>
-        ₹${Number(
-            r.revenue || 0
-        ).toFixed(2)}
         </td>
 
         </tr>
@@ -669,7 +692,48 @@ async function loadDashboard(){
         });
 }
 
-loadDashboard();
+document.getElementById(
+    "selectedMonth"
+).value =
+    currentMonth;
+
+window.onload = async () => {
+
+    const res =
+        await fetch("/dashboard");
+
+    const d =
+        await res.json();
+
+    const savedMonth =
+        d.monthlySettings?.month;
+
+    if(
+        savedMonth &&
+        savedMonth !== currentMonth
+    ){
+
+        const change =
+            confirm(
+
+            "New month detected.\n\nChange feed formula?"
+        );
+
+        if(!change){
+
+            loadMonthlySettings(
+                d.monthlySettings
+            );
+
+            document.getElementById(
+                "month"
+            ).value =
+                currentMonth;
+        }
+    }
+
+    loadDashboard();
+};
 
 </script>
 
