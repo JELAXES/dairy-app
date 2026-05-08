@@ -142,16 +142,14 @@ app.get("/dashboard", async (req,res)=>{
 
         // ===== TOTAL REVENUE =====
 
-        let totalRevenue = 0;
+       const milkPrice =
+    Number(
+        latestMonthly?.milkPrice || 0
+    );
 
-        milkEntries.forEach(entry => {
-
-            totalRevenue +=
-                Number(
-                    entry.revenue || 0
-                );
-        });
-
+const totalRevenue =
+    totalMilk *
+    milkPrice;
         // ===== PROFIT =====
 
         const totalProfit =
@@ -167,11 +165,8 @@ app.get("/dashboard", async (req,res)=>{
             totalRevenue,
 
             totalProfit,
-
-            milkPrice:
-                Number(
-                    latestMonthly?.milkPrice || 0
-                ),
+            
+             milkPrice,
 
             monthlySettings:
                 latestMonthly || {},
