@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dairy Farm ERP</title>
+<title>Dairy ERP</title>
 
 <style>
 
@@ -84,7 +84,7 @@ th{
 }
 
 .feed-table input{
-    width:90%;
+    width:95%;
 }
 
 @media(max-width:900px){
@@ -105,8 +105,6 @@ th{
 <body>
 
 <h1>🐄 Dairy Farm ERP Dashboard</h1>
-
-<!-- BASIC INFO -->
 
 <div class="card">
 
@@ -130,17 +128,17 @@ th{
 </div>
 
 <div>
-<label>Total Milk Produced (Liters)</label>
+<label>Total Milk Produced (L)</label>
 <input type="number" id="milk">
 </div>
 
 <div>
-<label>Milk Selling Price Per Liter (₹)</label>
+<label>Milk Selling Price/Liter (₹)</label>
 <input type="number" id="milkPrice">
 </div>
 
 <div>
-<label>Total Salary Cost (₹)</label>
+<label>Salary Cost (₹)</label>
 <input type="number" id="salary">
 </div>
 
@@ -148,11 +146,9 @@ th{
 
 </div>
 
-<!-- FEED TABLE -->
-
 <div class="card">
 
-<h2>Feed Cost Table</h2>
+<h2>Monthly Feed Purchase + Daily Usage</h2>
 
 <table class="feed-table">
 
@@ -160,7 +156,8 @@ th{
 
 <tr>
 <th>Feed Item</th>
-<th>Cost Per KG (₹)</th>
+<th>Monthly Qty Bought (KG)</th>
+<th>Total Monthly Cost (₹)</th>
 <th>Consumption Per Cow/Day (KG)</th>
 </tr>
 
@@ -170,56 +167,65 @@ th{
 
 <tr>
 <td>Silage</td>
-<td><input id="silageCost"></td>
-<td><input id="silageQty"></td>
+<td><input id="silageMonthlyQty"></td>
+<td><input id="silageMonthlyCost"></td>
+<td><input id="silageDaily"></td>
 </tr>
 
 <tr>
 <td>Concentrate Feed</td>
-<td><input id="feedCost"></td>
-<td><input id="feedQty"></td>
+<td><input id="feedMonthlyQty"></td>
+<td><input id="feedMonthlyCost"></td>
+<td><input id="feedDaily"></td>
 </tr>
 
 <tr>
 <td>Bhusa</td>
-<td><input id="bhusaCost"></td>
-<td><input id="bhusaQty"></td>
+<td><input id="bhusaMonthlyQty"></td>
+<td><input id="bhusaMonthlyCost"></td>
+<td><input id="bhusaDaily"></td>
 </tr>
 
 <tr>
 <td>Mineral Mixture</td>
-<td><input id="mineralCost"></td>
-<td><input id="mineralQty"></td>
+<td><input id="mineralMonthlyQty"></td>
+<td><input id="mineralMonthlyCost"></td>
+<td><input id="mineralDaily"></td>
 </tr>
 
 <tr>
 <td>Yeast</td>
-<td><input id="yeastCost"></td>
-<td><input id="yeastQty"></td>
+<td><input id="yeastMonthlyQty"></td>
+<td><input id="yeastMonthlyCost"></td>
+<td><input id="yeastDaily"></td>
 </tr>
 
 <tr>
 <td>Rumen Buffer</td>
-<td><input id="bufferCost"></td>
-<td><input id="bufferQty"></td>
+<td><input id="bufferMonthlyQty"></td>
+<td><input id="bufferMonthlyCost"></td>
+<td><input id="bufferDaily"></td>
 </tr>
 
 <tr>
 <td>Propylene Glycol</td>
-<td><input id="glycolCost"></td>
-<td><input id="glycolQty"></td>
+<td><input id="glycolMonthlyQty"></td>
+<td><input id="glycolMonthlyCost"></td>
+<td><input id="glycolDaily"></td>
 </tr>
 
 <tr>
 <td>Soda</td>
-<td><input id="sodaCost"></td>
-<td><input id="sodaQty"></td>
+<td><input id="sodaMonthlyQty"></td>
+<td><input id="sodaMonthlyCost"></td>
+<td><input id="sodaDaily"></td>
 </tr>
 
 <tr>
 <td>Di Calcium Phosphate</td>
-<td><input id="dcpCost"></td>
-<td><input id="dcpQty"></td>
+<td><input id="dcpMonthlyQty"></td>
+<td><input id="dcpMonthlyCost"></td>
+<td><input id="dcpDaily"></td>
 </tr>
 
 </tbody>
@@ -233,8 +239,6 @@ Save Daily Entry
 </button>
 
 </div>
-
-<!-- ANALYTICS -->
 
 <div class="card">
 
@@ -266,8 +270,6 @@ Save Daily Entry
 
 </div>
 
-<!-- RECORDS -->
-
 <div class="card">
 
 <h2>Daily Records</h2>
@@ -281,7 +283,7 @@ Save Daily Entry
 <th>Worker</th>
 <th>Cows</th>
 <th>Milk</th>
-<th>Total Expense</th>
+<th>Expense</th>
 <th>Revenue</th>
 <th>Profit</th>
 <th>Cost/Cow</th>
@@ -306,6 +308,25 @@ function val(id){
     ) || 0;
 }
 
+function calculateFeedCost(
+    monthlyQty,
+    monthlyCost,
+    dailyPerCow,
+    cows
+){
+
+    if(monthlyQty <= 0) return 0;
+
+    const costPerKg =
+        monthlyCost / monthlyQty;
+
+    return (
+        costPerKg *
+        dailyPerCow *
+        cows
+    );
+}
+
 async function submitData(){
 
     const cows = val("cows");
@@ -316,52 +337,79 @@ async function submitData(){
 
     const salary = val("salary");
 
-    // TOTAL FEED COST
+    // FEED COSTS
 
     const silageTotal =
-        val("silageCost") *
-        val("silageQty") *
-        cows;
+        calculateFeedCost(
+            val("silageMonthlyQty"),
+            val("silageMonthlyCost"),
+            val("silageDaily"),
+            cows
+        );
 
     const feedTotal =
-        val("feedCost") *
-        val("feedQty") *
-        cows;
+        calculateFeedCost(
+            val("feedMonthlyQty"),
+            val("feedMonthlyCost"),
+            val("feedDaily"),
+            cows
+        );
 
     const bhusaTotal =
-        val("bhusaCost") *
-        val("bhusaQty") *
-        cows;
+        calculateFeedCost(
+            val("bhusaMonthlyQty"),
+            val("bhusaMonthlyCost"),
+            val("bhusaDaily"),
+            cows
+        );
 
     const mineralTotal =
-        val("mineralCost") *
-        val("mineralQty") *
-        cows;
+        calculateFeedCost(
+            val("mineralMonthlyQty"),
+            val("mineralMonthlyCost"),
+            val("mineralDaily"),
+            cows
+        );
 
     const yeastTotal =
-        val("yeastCost") *
-        val("yeastQty") *
-        cows;
+        calculateFeedCost(
+            val("yeastMonthlyQty"),
+            val("yeastMonthlyCost"),
+            val("yeastDaily"),
+            cows
+        );
 
     const bufferTotal =
-        val("bufferCost") *
-        val("bufferQty") *
-        cows;
+        calculateFeedCost(
+            val("bufferMonthlyQty"),
+            val("bufferMonthlyCost"),
+            val("bufferDaily"),
+            cows
+        );
 
     const glycolTotal =
-        val("glycolCost") *
-        val("glycolQty") *
-        cows;
+        calculateFeedCost(
+            val("glycolMonthlyQty"),
+            val("glycolMonthlyCost"),
+            val("glycolDaily"),
+            cows
+        );
 
     const sodaTotal =
-        val("sodaCost") *
-        val("sodaQty") *
-        cows;
+        calculateFeedCost(
+            val("sodaMonthlyQty"),
+            val("sodaMonthlyCost"),
+            val("sodaDaily"),
+            cows
+        );
 
     const dcpTotal =
-        val("dcpCost") *
-        val("dcpQty") *
-        cows;
+        calculateFeedCost(
+            val("dcpMonthlyQty"),
+            val("dcpMonthlyCost"),
+            val("dcpDaily"),
+            cows
+        );
 
     const totalFeedCost =
 
@@ -405,33 +453,6 @@ async function submitData(){
         milk,
         milkPrice,
         salary,
-
-        silageCost:val("silageCost"),
-        silageQty:val("silageQty"),
-
-        feedCost:val("feedCost"),
-        feedQty:val("feedQty"),
-
-        bhusaCost:val("bhusaCost"),
-        bhusaQty:val("bhusaQty"),
-
-        mineralCost:val("mineralCost"),
-        mineralQty:val("mineralQty"),
-
-        yeastCost:val("yeastCost"),
-        yeastQty:val("yeastQty"),
-
-        bufferCost:val("bufferCost"),
-        bufferQty:val("bufferQty"),
-
-        glycolCost:val("glycolCost"),
-        glycolQty:val("glycolQty"),
-
-        sodaCost:val("sodaCost"),
-        sodaQty:val("sodaQty"),
-
-        dcpCost:val("dcpCost"),
-        dcpQty:val("dcpQty"),
 
         totalExpense,
         revenue,
