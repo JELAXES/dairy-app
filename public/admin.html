@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Admin Dashboard</title>
+<title>Dairy Farm Admin</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -431,7 +431,37 @@ async function saveMonthlySettings(){
         salary:
             val("salary"),
 
-        monthlyExpense
+        monthlyExpense,
+
+        feedData:{
+
+            silagePrice:val("silagePrice"),
+            silageKg:val("silageKg"),
+
+            feedPrice:val("feedPrice"),
+            feedKg:val("feedKg"),
+
+            bhusaPrice:val("bhusaPrice"),
+            bhusaKg:val("bhusaKg"),
+
+            mineralPrice:val("mineralPrice"),
+            mineralKg:val("mineralKg"),
+
+            yeastPrice:val("yeastPrice"),
+            yeastKg:val("yeastKg"),
+
+            bufferPrice:val("bufferPrice"),
+            bufferKg:val("bufferKg"),
+
+            glycolPrice:val("glycolPrice"),
+            glycolKg:val("glycolKg"),
+
+            sodaPrice:val("sodaPrice"),
+            sodaKg:val("sodaKg"),
+
+            dcpPrice:val("dcpPrice"),
+            dcpKg:val("dcpKg")
+        }
     };
 
     await fetch("/add",{
@@ -450,6 +480,41 @@ async function saveMonthlySettings(){
     loadDashboard();
 }
 
+function loadMonthlySettings(settings){
+
+    if(!settings) return;
+
+    document.getElementById("month").value =
+        settings.month || "";
+
+    document.getElementById("cows").value =
+        settings.cows || "";
+
+    document.getElementById("milkPrice").value =
+        settings.milkPrice || "";
+
+    document.getElementById("salary").value =
+        settings.salary || "";
+
+    if(settings.feedData){
+
+        Object.keys(settings.feedData)
+        .forEach(key => {
+
+            if(
+                document.getElementById(key)
+            ){
+                document.getElementById(
+                    key
+                ).value =
+                    settings.feedData[key];
+            }
+        });
+    }
+
+    calculateFeed();
+}
+
 async function loadDashboard(){
 
     const res =
@@ -458,28 +523,42 @@ async function loadDashboard(){
     const d =
         await res.json();
 
+    loadMonthlySettings(
+        d.monthlySettings
+    );
+
     document.getElementById(
         "expense"
     ).innerText =
-        "₹" + Number(d.totalExpense || 0).toFixed(2);
+        "₹" + Number(
+            d.totalExpense || 0
+        ).toFixed(2);
 
     document.getElementById(
         "revenue"
     ).innerText =
-        "₹" + Number(d.totalRevenue || 0).toFixed(2);
+        "₹" + Number(
+            d.totalRevenue || 0
+        ).toFixed(2);
 
     document.getElementById(
         "milk"
     ).innerText =
-        Number(d.totalMilk || 0).toFixed(2) + " L";
+        Number(
+            d.totalMilk || 0
+        ).toFixed(2) + " L";
 
     document.getElementById(
         "profit"
     ).innerText =
-        "₹" + Number(d.totalProfit || 0).toFixed(2);
+        "₹" + Number(
+            d.totalProfit || 0
+        ).toFixed(2);
 
     const table =
-        document.getElementById("records");
+        document.getElementById(
+            "records"
+        );
 
     table.innerHTML = "";
 
@@ -500,21 +579,28 @@ async function loadDashboard(){
 
         <td>${r.date || "-"}</td>
 
-        <td>${Number(r.dailyMilk || 0).toFixed(2)} L</td>
+        <td>
+        ${Number(
+            r.dailyMilk || 0
+        ).toFixed(2)} L
+        </td>
 
-        <td>₹${Number(r.revenue || 0).toFixed(2)}</td>
+        <td>
+        ₹${Number(
+            r.revenue || 0
+        ).toFixed(2)}
+        </td>
 
         </tr>
         `;
     });
 
-    // FINANCE CHART
-
     if(financeChart){
         financeChart.destroy();
     }
 
-    financeChart = new Chart(
+    financeChart =
+        new Chart(
 
         document.getElementById(
             "financeChart"
@@ -538,24 +624,28 @@ async function loadDashboard(){
 
                     data:[
 
-                        Number(d.totalExpense || 0),
+                        Number(
+                            d.totalExpense || 0
+                        ),
 
-                        Number(d.totalRevenue || 0),
+                        Number(
+                            d.totalRevenue || 0
+                        ),
 
-                        Number(d.totalProfit || 0)
+                        Number(
+                            d.totalProfit || 0
+                        )
                     ]
                 }]
             }
-        }
-    );
-
-    // MILK CHART
+        });
 
     if(milkChart){
         milkChart.destroy();
     }
 
-    milkChart = new Chart(
+    milkChart =
+        new Chart(
 
         document.getElementById(
             "milkChart"
@@ -576,8 +666,7 @@ async function loadDashboard(){
                     data:milkData
                 }]
             }
-        }
-    );
+        });
 }
 
 loadDashboard();
