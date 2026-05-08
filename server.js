@@ -8,7 +8,7 @@ const app = express();
 app.use(express.json());
 app.use(express.static("public"));
 
-// ===== MONGODB CONNECTION =====
+// ===== MONGODB =====
 
 mongoose.connect(
     process.env.MONGO_URI
@@ -24,139 +24,123 @@ mongoose.connect(
 
 const EntrySchema = new mongoose.Schema({
 
-    worker: String,
-    date: String,
+    type:String,
 
-    cows: Number,
+    month:String,
 
-    milk: Number,
-    milkPrice: Number,
+    date:String,
 
-    salary: Number,
+    cows:Number,
 
-    silageCost: Number,
-    silageQty: Number,
+    milkPrice:Number,
 
-    feedCost: Number,
-    feedQty: Number,
+    salary:Number,
 
-    bhusaCost: Number,
-    bhusaQty: Number,
+    monthlyExpense:Number,
 
-    mineralCost: Number,
-    mineralQty: Number,
+    dailyMilk:Number,
 
-    yeastCost: Number,
-    yeastQty: Number,
-
-    bufferCost: Number,
-    bufferQty: Number,
-
-    glycolCost: Number,
-    glycolQty: Number,
-
-    sodaCost: Number,
-    sodaQty: Number,
-
-    dcpCost: Number,
-    dcpQty: Number,
-
-    totalExpense: Number,
-    revenue: Number,
-    profit: Number,
-
-    costPerCow: Number,
-    costPerLiter: Number
+    revenue:Number
 });
 
-// ===== MODEL =====
+const Entry =
+    mongoose.model(
+        "Entry",
+        EntrySchema
+    );
 
-const Entry = mongoose.model(
-    "Entry",
-    EntrySchema
-);
+// ===== ADD =====
 
-// ===== ADD ENTRY =====
+app.post("/add", async (req,res)=>{
 
-app.post("/add", async (req, res) => {
+    try{
 
-    try {
-
-        const data = req.body;
-
-        await Entry.create(data);
+        await Entry.create(req.body);
 
         res.send({
-            success: true,
-            message: "Entry Saved"
+            success:true
         });
 
-    } catch (err) {
+    }catch(err){
 
         console.log(err);
 
         res.status(500).send({
-            success: false,
-            message: "Error Saving Entry"
+            success:false
         });
     }
 });
 
 // ===== DASHBOARD =====
 
-app.get("/dashboard", async (req, res) => {
+app.get("/dashboard", async (req,res)=>{
 
-    try {
+    try{
 
         const data =
-            await Entry.find().sort({_id:-1});
+            await Entry.find().sort({_id:1});
 
-        let totalExpense = 0;
-        let totalRevenue = 0;
+        // MONTHLY SETTINGS
+        const monthly =
+            data.find(
+                d => d.type === "monthly"
+            );
+
+        // DAILY MILK ENTRIES
+        const milkEntries =
+            data.filter(
+                d => d.type === "milk"
+            );
+
         let totalMilk = 0;
-        let totalProfit = 0;
+        let totalRevenue = 0;
 
-        data.forEach((d) => {
-
-            totalExpense +=
-                d.totalExpense || 0;
-
-            totalRevenue +=
-                d.revenue || 0;
+        milkEntries.forEach(entry => {
 
             totalMilk +=
-                d.milk || 0;
+                Number(entry.dailyMilk || 0);
 
-            totalProfit +=
-                d.profit || 0;
+            totalRevenue +=
+                Number(entry.revenue || 0);
         });
+
+        const totalExpense =
+            Number(
+                monthly?.monthlyExpense || 0
+            );
+
+        const totalProfit =
+            totalRevenue -
+            totalExpense;
 
         res.send({
 
             totalExpense,
+
             totalRevenue,
+
             totalMilk,
+
             totalProfit,
 
-            records: data
+            records:milkEntries
         });
 
-    } catch (err) {
+    }catch(err){
 
         console.log(err);
 
         res.status(500).send({
-            success: false,
-            message: "Dashboard Error"
+            success:false
         });
     }
 });
 
-// ===== SERVER =====
+// ===== START =====
 
-app.listen(3000, "0.0.0.0", () => {
+app.listen(3000,"0.0.0.0",()=>{
 
     console.log(
-        "Server running on http://localhost:3000"
+        "Server running on port 3000"
     );
 });
