@@ -10,9 +10,7 @@ app.use(express.static("public"));
 
 // ===== MONGODB =====
 
-mongoose.connect(
-    process.env.MONGO_URI
-)
+mongoose.connect(process.env.MONGO_URI)
 .then(() => {
     console.log("MongoDB Connected ✅");
 })
@@ -55,6 +53,30 @@ app.post("/add", async (req,res)=>{
 
     try{
 
+        // prevent duplicate milk entry same date
+
+        if(req.body.type === "milk"){
+
+            await Entry.deleteMany({
+
+                type:"milk",
+
+                date:req.body.date
+            });
+        }
+
+        // prevent duplicate month settings
+
+        if(req.body.type === "monthly"){
+
+            await Entry.deleteMany({
+
+                type:"monthly",
+
+                month:req.body.month
+            });
+        }
+
         await Entry.create(req.body);
 
         res.send({
@@ -80,34 +102,53 @@ app.get("/dashboard", async (req,res)=>{
         const data =
             await Entry.find().sort({_id:1});
 
-        // MONTHLY SETTINGS
-        const monthly =
-            data.find(
+        const monthlyEntries =
+            data.filter(
                 d => d.type === "monthly"
             );
 
-        // DAILY MILK ENTRIES
         const milkEntries =
             data.filter(
                 d => d.type === "milk"
             );
 
+        // ===== TOTAL EXPENSE =====
+
+        let totalExpense = 0;
+
+        monthlyEntries.forEach(entry => {
+
+            totalExpense +=
+                Number(
+                    entry.monthlyExpense || 0
+                );
+        });
+
+        // ===== TOTAL MILK =====
+
         let totalMilk = 0;
-        let totalRevenue = 0;
 
         milkEntries.forEach(entry => {
 
             totalMilk +=
-                Number(entry.dailyMilk || 0);
-
-            totalRevenue +=
-                Number(entry.revenue || 0);
+                Number(
+                    entry.dailyMilk || 0
+                );
         });
 
-        const totalExpense =
-            Number(
-                monthly?.monthlyExpense || 0
-            );
+        // ===== TOTAL REVENUE =====
+
+        let totalRevenue = 0;
+
+        milkEntries.forEach(entry => {
+
+            totalRevenue +=
+                Number(
+                    entry.revenue || 0
+                );
+        });
+
+        // ===== PROFIT =====
 
         const totalProfit =
             totalRevenue -
@@ -117,9 +158,9 @@ app.get("/dashboard", async (req,res)=>{
 
             totalExpense,
 
-            totalRevenue,
-
             totalMilk,
+
+            totalRevenue,
 
             totalProfit,
 
