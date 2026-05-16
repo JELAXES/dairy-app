@@ -12,15 +12,21 @@ app.use(express.static("public"));
 
 mongoose.connect(process.env.MONGO_URI)
 .then(() => {
-    console.log("MongoDB Connected ✅");
+
+    console.log(
+        "MongoDB Connected ✅"
+    );
+
 })
 .catch((err) => {
+
     console.log(err);
 });
 
 // ===== SCHEMA =====
 
-const EntrySchema = new mongoose.Schema({
+const EntrySchema =
+new mongoose.Schema({
 
     type:String,
 
@@ -48,10 +54,10 @@ const EntrySchema = new mongoose.Schema({
 });
 
 const Entry =
-    mongoose.model(
-        "Entry",
-        EntrySchema
-    );
+mongoose.model(
+    "Entry",
+    EntrySchema
+);
 
 // ===== ADD ENTRY =====
 
@@ -59,7 +65,7 @@ app.post("/add", async (req,res)=>{
 
     try{
 
-        // REPLACE SAME DAY MILK ENTRY
+        // OVERWRITE SAME DAY ENTRY
 
         if(req.body.type === "milk"){
 
@@ -71,7 +77,7 @@ app.post("/add", async (req,res)=>{
             });
         }
 
-        // REPLACE SAME MONTH SETTINGS
+        // OVERWRITE SAME MONTH SETTINGS
 
         if(req.body.type === "monthly"){
 
@@ -94,6 +100,7 @@ app.post("/add", async (req,res)=>{
         console.log(err);
 
         res.status(500).send({
+
             success:false
         });
     }
@@ -109,9 +116,10 @@ app.get("/dashboard", async (req,res)=>{
             req.query.month;
 
         const data =
-            await Entry.find().sort({_id:1});
+            await Entry.find()
+            .sort({_id:1});
 
-        // MONTH SETTINGS
+        // MONTHLY SETTINGS
 
         const monthlyEntries =
             data.filter(d =>
@@ -152,7 +160,8 @@ app.get("/dashboard", async (req,res)=>{
 
         const totalExpense =
             Number(
-                latestMonthly?.monthlyExpense || 0
+                latestMonthly
+                ?.monthlyExpense || 0
             );
 
         // MILK TOTALS
@@ -192,7 +201,8 @@ app.get("/dashboard", async (req,res)=>{
 
         const milkPrice =
             Number(
-                latestMonthly?.milkPrice || 0
+                latestMonthly
+                ?.milkPrice || 0
             );
 
         // REVENUE
@@ -207,7 +217,7 @@ app.get("/dashboard", async (req,res)=>{
             totalRevenue -
             totalExpense;
 
-        // SEND DATA
+        // RESPONSE
 
         res.send({
 
@@ -238,6 +248,7 @@ app.get("/dashboard", async (req,res)=>{
         console.log(err);
 
         res.status(500).send({
+
             success:false
         });
     }
@@ -245,9 +256,13 @@ app.get("/dashboard", async (req,res)=>{
 
 // ===== START SERVER =====
 
-app.listen(3000,"0.0.0.0",()=>{
+app.listen(
+    3000,
+    "0.0.0.0",
+    ()=>{
 
-    console.log(
-        "Server running on port 3000"
-    );
-});
+        console.log(
+            "Server running on port 3000"
+        );
+    }
+);

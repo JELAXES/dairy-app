@@ -141,7 +141,7 @@ if(
 <input
 type="number"
 id="milkAM"
-oninput="calculateTotal()"
+oninput="updateMilkTotal()"
 >
 </div>
 
@@ -150,7 +150,7 @@ oninput="calculateTotal()"
 <input
 type="number"
 id="milkPM"
-oninput="calculateTotal()"
+oninput="updateMilkTotal()"
 >
 </div>
 
@@ -160,16 +160,7 @@ oninput="calculateTotal()"
 type="number"
 id="discardedMilk"
 value="0"
-oninput="calculateTotal()"
->
-</div>
-
-<div>
-<label>Total Milk</label>
-<input
-type="number"
-id="totalMilk"
-readonly
+oninput="updateMilkTotal()"
 >
 </div>
 
@@ -249,6 +240,8 @@ Save Milk Entry
 
 let milkChart;
 
+// GET VALUE
+
 function val(id){
 
     return Number(
@@ -256,7 +249,9 @@ function val(id){
     ) || 0;
 }
 
-function calculateTotal(){
+// AUTO TOTAL
+
+function updateMilkTotal(){
 
     const am =
         val("milkAM");
@@ -267,19 +262,19 @@ function calculateTotal(){
     const discarded =
         val("discardedMilk");
 
-    const total =
-        am + pm + discarded;
-
-    document.getElementById(
-        "totalMilk"
-    ).value =
-        total.toFixed(2);
+    return (
+        am +
+        pm +
+        discarded
+    );
 }
+
+// SAVE ENTRY
 
 async function saveMilk(){
 
     const total =
-        val("totalMilk");
+        updateMilkTotal();
 
     const data = {
 
@@ -322,6 +317,8 @@ async function saveMilk(){
 
     loadDashboard();
 }
+
+// LOAD DASHBOARD
 
 async function loadDashboard(){
 
