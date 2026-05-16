@@ -5,12 +5,20 @@ const mongoose = require("mongoose");
 
 const app = express();
 
+// ===== MIDDLEWARE =====
+
 app.use(express.json());
+
+app.use(express.urlencoded({
+    extended:true
+}));
+
 app.use(express.static("public"));
 
 // ===== MONGODB =====
 
 mongoose.connect(process.env.MONGO_URI)
+
 .then(() => {
 
     console.log(
@@ -18,9 +26,13 @@ mongoose.connect(process.env.MONGO_URI)
     );
 
 })
+
 .catch((err) => {
 
-    console.log(err);
+    console.log(
+        "MongoDB Error:",
+        err
+    );
 });
 
 // ===== SCHEMA =====
@@ -59,6 +71,16 @@ mongoose.model(
     EntrySchema
 );
 
+// ===== HOME ROUTE =====
+
+app.get("/",(req,res)=>{
+
+    res.sendFile(
+        __dirname +
+        "/public/index.html"
+    );
+});
+
 // ===== ADD ENTRY =====
 
 app.post("/add", async (req,res)=>{
@@ -89,7 +111,7 @@ app.post("/add", async (req,res)=>{
             });
         }
 
-        // SAVE NEW ENTRY
+        // SAVE ENTRY
 
         await Entry.create(req.body);
 
@@ -103,7 +125,9 @@ app.post("/add", async (req,res)=>{
 
         res.status(500).send({
 
-            success:false
+            success:false,
+
+            error:err.message
         });
     }
 });
@@ -121,7 +145,7 @@ app.get("/dashboard", async (req,res)=>{
             await Entry.find()
             .sort({_id:1});
 
-        // MONTHLY SETTINGS
+        // MONTH SETTINGS
 
         const monthlyEntries =
             data.filter(d =>
@@ -135,7 +159,7 @@ app.get("/dashboard", async (req,res)=>{
                 )
             );
 
-        // DAILY MILK ENTRIES
+        // MILK ENTRIES
 
         const milkEntries =
             data.filter(d =>
@@ -251,9 +275,18 @@ app.get("/dashboard", async (req,res)=>{
 
         res.status(500).send({
 
-            success:false
+            success:false,
+
+            error:err.message
         });
     }
+});
+
+// ===== HEALTH CHECK =====
+
+app.get("/health",(req,res)=>{
+
+    res.send("Server Running ✅");
 });
 
 // ===== START SERVER =====
