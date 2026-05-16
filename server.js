@@ -65,7 +65,7 @@ app.post("/add", async (req,res)=>{
 
     try{
 
-        // OVERWRITE SAME DAY ENTRY
+        // OVERWRITE SAME DAY MILK ENTRY
 
         if(req.body.type === "milk"){
 
@@ -88,6 +88,8 @@ app.post("/add", async (req,res)=>{
                 month:req.body.month
             });
         }
+
+        // SAVE NEW ENTRY
 
         await Entry.create(req.body);
 
@@ -133,7 +135,7 @@ app.get("/dashboard", async (req,res)=>{
                 )
             );
 
-        // MILK ENTRIES
+        // DAILY MILK ENTRIES
 
         const milkEntries =
             data.filter(d =>
@@ -217,7 +219,7 @@ app.get("/dashboard", async (req,res)=>{
             totalRevenue -
             totalExpense;
 
-        // RESPONSE
+        // SEND RESPONSE
 
         res.send({
 
@@ -256,13 +258,16 @@ app.get("/dashboard", async (req,res)=>{
 
 // ===== START SERVER =====
 
+const PORT =
+    process.env.PORT || 3000;
+
 app.listen(
-    3000,
+    PORT,
     "0.0.0.0",
     ()=>{
 
         console.log(
-            "Server running on port 3000"
+            `Server running on port ${PORT}`
         );
     }
 );
