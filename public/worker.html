@@ -6,7 +6,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Worker Panel</title>
+<title>Milk Entry Panel</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
@@ -14,15 +16,37 @@ body{
     font-family:Arial;
     background:#f1f5f9;
     padding:20px;
+    margin:0;
 }
 
 .card{
     background:white;
     padding:20px;
     border-radius:15px;
-    max-width:500px;
-    margin:auto;
+    margin-bottom:20px;
     box-shadow:0 4px 10px rgba(0,0,0,0.1);
+    max-width:900px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+.stats{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr 1fr;
+    gap:15px;
+}
+
+.stat{
+    background:#dbeafe;
+    padding:20px;
+    border-radius:12px;
+    text-align:center;
 }
 
 input{
@@ -43,6 +67,40 @@ button{
     background:#2563eb;
     color:white;
     font-size:16px;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+}
+
+th{
+    background:#2563eb;
+    color:white;
+}
+
+canvas{
+    background:white;
+    border-radius:15px;
+    padding:10px;
+}
+
+@media(max-width:900px){
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .stats{
+        grid-template-columns:1fr 1fr;
+    }
 }
 
 </style>
@@ -66,13 +124,56 @@ if(
 
 <h1>🐄 Daily Milk Entry</h1>
 
-<input type="date" id="date">
+<div class="grid">
 
+<div>
+<label>Date</label>
+<input type="date" id="date">
+</div>
+
+<div>
+<label>No Of Cows</label>
+<input type="number" id="cowCount">
+</div>
+
+<div>
+<label>Milk AM</label>
 <input
 type="number"
-id="dailyMilk"
-placeholder="Milk Produced Today (L)"
+id="milkAM"
+oninput="calculateTotal()"
 >
+</div>
+
+<div>
+<label>Milk PM</label>
+<input
+type="number"
+id="milkPM"
+oninput="calculateTotal()"
+>
+</div>
+
+<div>
+<label>Discarded Milk</label>
+<input
+type="number"
+id="discardedMilk"
+value="0"
+oninput="calculateTotal()"
+>
+</div>
+
+<div>
+<label>Total Milk</label>
+<input
+type="number"
+id="totalMilk"
+readonly
+>
+</div>
+
+</div>
 
 <button onclick="saveMilk()">
 Save Milk Entry
@@ -80,7 +181,73 @@ Save Milk Entry
 
 </div>
 
+<!-- MILK ANALYTICS -->
+
+<div class="card">
+
+<h2>Milk Dashboard</h2>
+
+<div class="stats">
+
+<div class="stat">
+<h3>Total AM Milk</h3>
+<p id="totalAM">0 L</p>
+</div>
+
+<div class="stat">
+<h3>Total PM Milk</h3>
+<p id="totalPM">0 L</p>
+</div>
+
+<div class="stat">
+<h3>Total Milk</h3>
+<p id="totalMilkDashboard">0 L</p>
+</div>
+
+<div class="stat">
+<h3>Discarded Milk</h3>
+<p id="totalDiscarded">0 L</p>
+</div>
+
+</div>
+
+<br><br>
+
+<canvas id="milkChart"></canvas>
+
+</div>
+
+<!-- RECORDS -->
+
+<div class="card">
+
+<h2>Milk Records</h2>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>AM</th>
+<th>PM</th>
+<th>Discarded</th>
+<th>Total</th>
+<th>Cows</th>
+</tr>
+
+</thead>
+
+<tbody id="records">
+</tbody>
+
+</table>
+
+</div>
+
 <script>
+
+let milkChart;
 
 function val(id){
 
@@ -89,10 +256,30 @@ function val(id){
     ) || 0;
 }
 
+function calculateTotal(){
+
+    const am =
+        val("milkAM");
+
+    const pm =
+        val("milkPM");
+
+    const discarded =
+        val("discardedMilk");
+
+    const total =
+        am + pm + discarded;
+
+    document.getElementById(
+        "totalMilk"
+    ).value =
+        total.toFixed(2);
+}
+
 async function saveMilk(){
 
-    const milk =
-        val("dailyMilk");
+    const total =
+        val("totalMilk");
 
     const data = {
 
@@ -103,7 +290,19 @@ async function saveMilk(){
                 "date"
             ).value,
 
-        dailyMilk:milk
+        milkAM:
+            val("milkAM"),
+
+        milkPM:
+            val("milkPM"),
+
+        discardedMilk:
+            val("discardedMilk"),
+
+        dailyMilk:total,
+
+        cows:
+            val("cowCount")
     };
 
     await fetch("/add",{
@@ -120,7 +319,137 @@ async function saveMilk(){
     alert(
         "Milk Entry Saved ✅"
     );
+
+    loadDashboard();
 }
+
+async function loadDashboard(){
+
+    const currentMonth =
+        new Date()
+        .toISOString()
+        .slice(0,7);
+
+    const res =
+        await fetch(
+            "/dashboard?month=" +
+            currentMonth
+        );
+
+    const d =
+        await res.json();
+
+    let totalAM = 0;
+    let totalPM = 0;
+    let totalDiscarded = 0;
+
+    const labels = [];
+    const milkData = [];
+
+    const table =
+        document.getElementById(
+            "records"
+        );
+
+    table.innerHTML = "";
+
+    (d.records || []).forEach(r => {
+
+        totalAM +=
+            Number(r.milkAM || 0);
+
+        totalPM +=
+            Number(r.milkPM || 0);
+
+        totalDiscarded +=
+            Number(r.discardedMilk || 0);
+
+        labels.push(r.date);
+
+        milkData.push(
+            Number(r.dailyMilk || 0)
+        );
+
+        table.innerHTML += `
+
+        <tr>
+
+        <td>${r.date || "-"}</td>
+
+        <td>${Number(
+            r.milkAM || 0
+        ).toFixed(2)}</td>
+
+        <td>${Number(
+            r.milkPM || 0
+        ).toFixed(2)}</td>
+
+        <td>${Number(
+            r.discardedMilk || 0
+        ).toFixed(2)}</td>
+
+        <td>${Number(
+            r.dailyMilk || 0
+        ).toFixed(2)}</td>
+
+        <td>${Number(
+            r.cows || 0
+        )}</td>
+
+        </tr>
+        `;
+    });
+
+    document.getElementById(
+        "totalAM"
+    ).innerText =
+        totalAM.toFixed(2) + " L";
+
+    document.getElementById(
+        "totalPM"
+    ).innerText =
+        totalPM.toFixed(2) + " L";
+
+    document.getElementById(
+        "totalMilkDashboard"
+    ).innerText =
+        d.totalMilk.toFixed(2) + " L";
+
+    document.getElementById(
+        "totalDiscarded"
+    ).innerText =
+        totalDiscarded.toFixed(2) + " L";
+
+    if(milkChart){
+        milkChart.destroy();
+    }
+
+    milkChart =
+        new Chart(
+
+        document.getElementById(
+            "milkChart"
+        ),
+
+        {
+
+            type:"line",
+
+            data:{
+
+                labels:labels,
+
+                datasets:[{
+
+                    label:"Milk Production",
+
+                    data:milkData
+                }]
+            }
+        });
+}
+
+loadDashboard();
 
 </script>
 

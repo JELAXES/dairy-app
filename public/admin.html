@@ -292,8 +292,23 @@ Save Monthly Settings
 <div class="stats">
 
 <div class="stat">
-<h3>Monthly Expense</h3>
-<p id="expense">₹0</p>
+<h3>AM Milk</h3>
+<p id="amMilk">0 L</p>
+</div>
+
+<div class="stat">
+<h3>PM Milk</h3>
+<p id="pmMilk">0 L</p>
+</div>
+
+<div class="stat">
+<h3>Total Milk</h3>
+<p id="milk">0 L</p>
+</div>
+
+<div class="stat">
+<h3>Discarded Milk</h3>
+<p id="discardedMilk">0 L</p>
 </div>
 
 <div class="stat">
@@ -302,8 +317,8 @@ Save Monthly Settings
 </div>
 
 <div class="stat">
-<h3>Total Milk</h3>
-<p id="milk">0 L</p>
+<h3>Monthly Expense</h3>
+<p id="expense">₹0</p>
 </div>
 
 <div class="stat">
@@ -335,7 +350,10 @@ Save Monthly Settings
 
 <tr>
 <th>Date</th>
-<th>Milk Produced</th>
+<th>AM</th>
+<th>PM</th>
+<th>Discarded</th>
+<th>Total</th>
 </tr>
 
 </thead>
@@ -353,7 +371,6 @@ const today =
     new Date();
 
 const currentMonth =
-
     today
     .toISOString()
     .slice(0,7);
@@ -557,11 +574,35 @@ async function loadDashboard(){
     );
 
     document.getElementById(
-        "expense"
+        "amMilk"
     ).innerText =
-        "₹" + Number(
-            d.totalExpense || 0
-        ).toFixed(2);
+
+        Number(
+            d.totalAMMilk || 0
+        ).toFixed(2) + " L";
+
+    document.getElementById(
+        "pmMilk"
+    ).innerText =
+
+        Number(
+            d.totalPMMilk || 0
+        ).toFixed(2) + " L";
+
+    document.getElementById(
+        "discardedMilk"
+    ).innerText =
+
+        Number(
+            d.totalDiscardedMilk || 0
+        ).toFixed(2) + " L";
+
+    document.getElementById(
+        "milk"
+    ).innerText =
+        Number(
+            d.totalMilk || 0
+        ).toFixed(2) + " L";
 
     document.getElementById(
         "revenue"
@@ -571,11 +612,11 @@ async function loadDashboard(){
         ).toFixed(2);
 
     document.getElementById(
-        "milk"
+        "expense"
     ).innerText =
-        Number(
-            d.totalMilk || 0
-        ).toFixed(2) + " L";
+        "₹" + Number(
+            d.totalExpense || 0
+        ).toFixed(2);
 
     document.getElementById(
         "profit"
@@ -608,11 +649,21 @@ async function loadDashboard(){
 
         <td>${r.date || "-"}</td>
 
-        <td>
-        ${Number(
+        <td>${Number(
+            r.milkAM || 0
+        ).toFixed(2)}</td>
+
+        <td>${Number(
+            r.milkPM || 0
+        ).toFixed(2)}</td>
+
+        <td>${Number(
+            r.discardedMilk || 0
+        ).toFixed(2)}</td>
+
+        <td>${Number(
             r.dailyMilk || 0
-        ).toFixed(2)} L
-        </td>
+        ).toFixed(2)}</td>
 
         </tr>
         `;

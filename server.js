@@ -38,6 +38,12 @@ const EntrySchema = new mongoose.Schema({
 
     dailyMilk:Number,
 
+    milkAM:Number,
+
+    milkPM:Number,
+
+    discardedMilk:Number,
+
     feedData:Object
 });
 
@@ -47,11 +53,13 @@ const Entry =
         EntrySchema
     );
 
-// ===== ADD =====
+// ===== ADD ENTRY =====
 
 app.post("/add", async (req,res)=>{
 
     try{
+
+        // REPLACE SAME DAY MILK ENTRY
 
         if(req.body.type === "milk"){
 
@@ -62,6 +70,8 @@ app.post("/add", async (req,res)=>{
                 date:req.body.date
             });
         }
+
+        // REPLACE SAME MONTH SETTINGS
 
         if(req.body.type === "monthly"){
 
@@ -101,7 +111,7 @@ app.get("/dashboard", async (req,res)=>{
         const data =
             await Entry.find().sort({_id:1});
 
-        // MONTHLY SETTINGS
+        // MONTH SETTINGS
 
         const monthlyEntries =
             data.filter(d =>
@@ -115,7 +125,7 @@ app.get("/dashboard", async (req,res)=>{
                 )
             );
 
-        // DAILY MILK ENTRIES
+        // MILK ENTRIES
 
         const milkEntries =
             data.filter(d =>
@@ -145,15 +155,36 @@ app.get("/dashboard", async (req,res)=>{
                 latestMonthly?.monthlyExpense || 0
             );
 
-        // TOTAL MILK
+        // MILK TOTALS
 
         let totalMilk = 0;
+
+        let totalAMMilk = 0;
+
+        let totalPMMilk = 0;
+
+        let totalDiscardedMilk = 0;
 
         milkEntries.forEach(entry => {
 
             totalMilk +=
                 Number(
                     entry.dailyMilk || 0
+                );
+
+            totalAMMilk +=
+                Number(
+                    entry.milkAM || 0
+                );
+
+            totalPMMilk +=
+                Number(
+                    entry.milkPM || 0
+                );
+
+            totalDiscardedMilk +=
+                Number(
+                    entry.discardedMilk || 0
                 );
         });
 
@@ -176,11 +207,19 @@ app.get("/dashboard", async (req,res)=>{
             totalRevenue -
             totalExpense;
 
+        // SEND DATA
+
         res.send({
 
             totalExpense,
 
             totalMilk,
+
+            totalAMMilk,
+
+            totalPMMilk,
+
+            totalDiscardedMilk,
 
             totalRevenue,
 
@@ -204,7 +243,7 @@ app.get("/dashboard", async (req,res)=>{
     }
 });
 
-// ===== START =====
+// ===== START SERVER =====
 
 app.listen(3000,"0.0.0.0",()=>{
 
