@@ -1,3 +1,5 @@
+<!-- REPLACE ENTIRE public/worker.html WITH THIS -->
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -263,6 +265,10 @@ canvas{
     border-radius:15px;
 
     padding:15px;
+
+    max-height:250px !important;
+
+    width:100% !important;
 }
 
 .hidden{
@@ -676,10 +682,6 @@ Milk Records
 
 let milkChart;
 
-// =====================
-// USER
-// =====================
-
 const username =
     localStorage.getItem(
         "username"
@@ -703,10 +705,6 @@ document.getElementById(
     "permissionInfo"
 ).innerText =
     permissions.join(", ");
-
-// =====================
-// SECTION SWITCH
-// =====================
 
 function showSection(id,btn){
 
@@ -741,20 +739,12 @@ function showSection(id,btn){
     }
 }
 
-// =====================
-// LOGOUT
-// =====================
-
 function logout(){
 
     localStorage.clear();
 
     window.location = "/";
 }
-
-// =====================
-// VALUE
-// =====================
 
 function val(id){
 
@@ -765,10 +755,6 @@ function val(id){
 
     ) || 0;
 }
-
-// =====================
-// TOTALS
-// =====================
 
 function calculateTotals(){
 
@@ -837,10 +823,6 @@ function calculateTotals(){
     };
 }
 
-// =====================
-// SAVE MILK
-// =====================
-
 async function saveMilk(){
 
     const calc =
@@ -897,10 +879,6 @@ async function saveMilk(){
     loadDashboard();
 }
 
-// =====================
-// SHARE REPORT
-// =====================
-
 async function shareTodayReport(){
 
     const text = `
@@ -938,10 +916,6 @@ ${document.getElementById("grandTotal").innerText}
     }
 }
 
-// =====================
-// CLIENTS
-// =====================
-
 async function loadClients(){
 
     const res =
@@ -972,10 +946,6 @@ async function loadClients(){
         `;
     });
 }
-
-// =====================
-// DASHBOARD
-// =====================
 
 async function loadDashboard(){
 

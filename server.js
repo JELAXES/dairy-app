@@ -97,13 +97,7 @@ new mongoose.Schema({
 
     worker:String,
 
-    clientPrice:Number,
-
     cows:Number,
-
-    milkPrice:Number,
-
-    salary:Number,
 
     monthlyExpense:Number,
 
@@ -113,15 +107,35 @@ new mongoose.Schema({
 
     milkPM:Number,
 
-    discardedMilk:Number,
-
-    feedData:Object
+    discardedMilk:Number
 });
 
 const Entry =
 mongoose.model(
     "Entry",
     EntrySchema
+);
+
+// ======================
+// FEED SCHEMA
+// ======================
+
+const FeedSchema =
+new mongoose.Schema({
+
+    feedName:String,
+
+    quantity:Number,
+
+    cost:Number,
+
+    date:String
+});
+
+const Feed =
+mongoose.model(
+    "Feed",
+    FeedSchema
 );
 
 // ======================
@@ -411,6 +425,67 @@ app.get("/clients", async (req,res)=>{
 });
 
 // ======================
+// SAVE FEED
+// ======================
+
+app.post("/save-feed", async (req,res)=>{
+
+    try{
+
+        await Feed.create({
+
+            feedName:
+                req.body.feedName,
+
+            quantity:
+                req.body.quantity,
+
+            cost:
+                req.body.cost,
+
+            date:
+                req.body.date
+        });
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// GET FEEDS
+// ======================
+
+app.get("/feeds", async (req,res)=>{
+
+    try{
+
+        const feeds =
+        await Feed.find()
+        .sort({_id:-1});
+
+        res.send(feeds);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).send([]);
+    }
+});
+
+// ======================
 // ADD ENTRY
 // ======================
 
@@ -527,22 +602,14 @@ app.get("/dashboard", async (req,res)=>{
 
         let totalRevenue = 0;
 
-        milkEntries.forEach(entry => {
+        for(const entry of milkEntries){
 
             const milk =
                 Number(
                     entry.dailyMilk || 0
                 );
 
-            const price =
-                Number(
-                    entry.clientPrice || 0
-                );
-
             totalMilk += milk;
-
-            totalRevenue +=
-                milk * price;
 
             totalAMMilk +=
                 Number(
@@ -558,7 +625,21 @@ app.get("/dashboard", async (req,res)=>{
                 Number(
                     entry.discardedMilk || 0
                 );
-        });
+
+            const client =
+            await Client.findOne({
+
+                name:entry.client
+            });
+
+            const clientPrice =
+                Number(
+                    client?.pricePerLiter || 0
+                );
+
+            totalRevenue +=
+                milk * clientPrice;
+        }
 
         const totalProfit =
             totalRevenue -
