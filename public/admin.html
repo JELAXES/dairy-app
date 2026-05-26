@@ -322,13 +322,6 @@ Feed
 
 <button
 class="sideBtn"
-onclick="showSection('monthlySection',this)"
->
-Monthly
-</button>
-
-<button
-class="sideBtn"
 onclick="showSection('managerSection',this)"
 >
 Managers
@@ -441,7 +434,7 @@ Client List
 
 </div>
 
-<!-- FEED -->
+<!-- FEEDS -->
 
 <div
 id="feedSection"
@@ -525,36 +518,10 @@ Feed Records
 </thead>
 
 <tbody id="feedRecords">
+
 </tbody>
 
 </table>
-
-</div>
-
-</div>
-
-<!-- MONTHLY -->
-
-<div
-id="monthlySection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-Monthly Settings
-</h2>
-
-<input
-type="number"
-id="monthlyExpense"
-placeholder="Monthly Expense"
-/>
-
-<button onclick="saveMonthly()">
-Save Monthly
-</button>
 
 </div>
 
@@ -601,15 +568,14 @@ Milk Records
 <th>Date</th>
 <th>Client</th>
 <th>Manager</th>
-<th>Total</th>
-<th>Discard</th>
+<th>Total Milk</th>
+<th>Discarded</th>
 
 </tr>
 
 </thead>
 
-<tbody id="records">
-</tbody>
+<tbody id="records"></tbody>
 
 </table>
 
@@ -657,10 +623,6 @@ function showSection(id,btn){
         "activeBtn"
     );
 
-    if(id === "feedSection"){
-        loadFeeds();
-    }
-
     if(id === "dashboardSection"){
         loadDashboard();
     }
@@ -669,8 +631,16 @@ function showSection(id,btn){
         loadClients();
     }
 
+    if(id === "feedSection"){
+        loadFeeds();
+    }
+
     if(id === "managerSection"){
         loadPendingUsers();
+    }
+
+    if(id === "recordsSection"){
+        loadRecords();
     }
 }
 
@@ -683,327 +653,6 @@ function logout(){
     localStorage.clear();
 
     window.location = "/";
-}
-
-// ======================
-// FEEDS
-// ======================
-
-async function saveFeed(){
-
-    try{
-
-        const data = {
-
-            feedName:
-            document.getElementById(
-                "feedName"
-            ).value,
-
-            quantity:Number(
-
-                document.getElementById(
-                    "feedQty"
-                ).value
-
-            ) || 0,
-
-            cost:Number(
-
-                document.getElementById(
-                    "feedCost"
-                ).value
-
-            ) || 0,
-
-            date:
-            document.getElementById(
-                "feedDate"
-            ).value
-        };
-
-        const res =
-        await fetch("/save-feed",{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
-
-            body:JSON.stringify(data)
-        });
-
-        const result =
-        await res.json();
-
-        console.log(result);
-
-        loadFeeds();
-
-        alert(
-            "Feed Saved ✅"
-        );
-
-    }catch(err){
-
-        console.log(err);
-    }
-}
-
-async function loadFeeds(){
-
-    try{
-
-        const res =
-        await fetch("/feeds");
-
-        const feeds =
-        await res.json();
-
-        console.log(
-            "ALL FEEDS:",
-            feeds
-        );
-
-        const tbody =
-        document.getElementById(
-            "feedRecords"
-        );
-
-        tbody.innerHTML = "";
-
-        if(feeds.length === 0){
-
-            tbody.innerHTML = `
-
-            <tr>
-
-            <td colspan="4">
-
-            No feed records found
-
-            </td>
-
-            </tr>
-            `;
-
-            return;
-        }
-
-        feeds.forEach(feed => {
-
-            const row =
-            document.createElement(
-                "tr"
-            );
-
-            row.innerHTML = `
-
-                <td>
-                ${feed.feedName || ""}
-                </td>
-
-                <td>
-                ${feed.quantity || 0}
-                </td>
-
-                <td>
-                ₹${feed.cost || 0}
-                </td>
-
-                <td>
-                ${feed.date || ""}
-                </td>
-            `;
-
-            tbody.appendChild(row);
-        });
-
-    }catch(err){
-
-        console.log(err);
-    }
-}
-
-// ======================
-// CLIENTS
-// ======================
-
-async function createClient(){
-
-    const data = {
-
-        name:
-        document.getElementById(
-            "clientName"
-        ).value,
-
-        pricePerLiter:Number(
-
-            document.getElementById(
-                "clientPrice"
-            ).value
-
-        ) || 0
-    };
-
-    await fetch("/create-client",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify(data)
-    });
-
-    loadClients();
-
-    alert(
-        "Client Created ✅"
-    );
-}
-
-async function loadClients(){
-
-    const res =
-    await fetch("/clients");
-
-    const clients =
-    await res.json();
-
-    const div =
-    document.getElementById(
-        "clientList"
-    );
-
-    div.innerHTML = "";
-
-    clients.forEach(c => {
-
-        div.innerHTML += `
-
-        <div class="userCard">
-
-        <h3>${c.name}</h3>
-
-        <p>
-
-        ₹${c.pricePerLiter}/L
-
-        </p>
-
-        </div>
-        `;
-    });
-}
-
-// ======================
-// MONTHLY
-// ======================
-
-async function saveMonthly(){
-
-    const data = {
-
-        type:"monthly",
-
-        month:
-        new Date()
-        .toISOString()
-        .slice(0,7),
-
-        monthlyExpense:Number(
-
-            document.getElementById(
-                "monthlyExpense"
-            ).value
-
-        ) || 0
-    };
-
-    await fetch("/add",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify(data)
-    });
-
-    alert(
-        "Monthly Saved ✅"
-    );
-}
-
-// ======================
-// USERS
-// ======================
-
-async function loadPendingUsers(){
-
-    const res =
-    await fetch("/pending-users");
-
-    const users =
-    await res.json();
-
-    const div =
-    document.getElementById(
-        "pendingUsers"
-    );
-
-    div.innerHTML = "";
-
-    users.forEach(user => {
-
-        div.innerHTML += `
-
-        <div class="userCard">
-
-        <h3>
-        ${user.username}
-        </h3>
-
-        <button
-        onclick="approveUser('${user._id}')"
-        >
-        Approve
-        </button>
-
-        </div>
-        `;
-    });
-}
-
-async function approveUser(id){
-
-    await fetch("/approve-user",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-            id
-        })
-    });
-
-    alert(
-        "Approved ✅"
-    );
-
-    loadPendingUsers();
 }
 
 // ======================
@@ -1086,13 +735,401 @@ async function loadDashboard(){
 }
 
 // ======================
+// CREATE CLIENT
+// ======================
+
+async function createClient(){
+
+    const data = {
+
+        name:
+        document.getElementById(
+            "clientName"
+        ).value,
+
+        pricePerLiter:Number(
+
+            document.getElementById(
+                "clientPrice"
+            ).value
+
+        ) || 0
+    };
+
+    await fetch("/create-client",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    alert(
+        "Client Created ✅"
+    );
+
+    loadClients();
+}
+
+// ======================
+// LOAD CLIENTS
+// ======================
+
+async function loadClients(){
+
+    const res =
+    await fetch("/clients");
+
+    const clients =
+    await res.json();
+
+    const div =
+    document.getElementById(
+        "clientList"
+    );
+
+    div.innerHTML = "";
+
+    clients.forEach(c => {
+
+        div.innerHTML += `
+
+        <div class="userCard">
+
+            <h3>
+            ${c.name}
+            </h3>
+
+            <p>
+            ₹${c.pricePerLiter}/L
+            </p>
+
+            <button
+            onclick="editClient(
+                '${c._id}',
+                '${c.name}',
+                '${c.pricePerLiter}'
+            )"
+            >
+            Edit
+            </button>
+
+            <button
+            onclick="deleteClient(
+                '${c._id}'
+            )"
+            style="
+            background:#dc2626;
+            margin-top:10px;
+            "
+            >
+            Delete
+            </button>
+
+        </div>
+        `;
+    });
+}
+
+// ======================
+// DELETE CLIENT
+// ======================
+
+async function deleteClient(id){
+
+    const sure =
+    confirm(
+        "Delete Client?"
+    );
+
+    if(!sure) return;
+
+    await fetch("/delete-client",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+            id
+        })
+    });
+
+    loadClients();
+}
+
+// ======================
+// EDIT CLIENT
+// ======================
+
+async function editClient(
+    id,
+    oldName,
+    oldPrice
+){
+
+    const name =
+    prompt(
+        "Client Name",
+        oldName
+    );
+
+    const price =
+    prompt(
+        "Price Per Liter",
+        oldPrice
+    );
+
+    if(!name || !price) return;
+
+    await fetch("/edit-client",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+            id,
+
+            name,
+
+            pricePerLiter:Number(price)
+        })
+    });
+
+    loadClients();
+}
+
+// ======================
+// SAVE FEED
+// ======================
+
+async function saveFeed(){
+
+    const data = {
+
+        feedName:
+        document.getElementById(
+            "feedName"
+        ).value,
+
+        quantity:Number(
+
+            document.getElementById(
+                "feedQty"
+            ).value
+
+        ) || 0,
+
+        cost:Number(
+
+            document.getElementById(
+                "feedCost"
+            ).value
+
+        ) || 0,
+
+        date:
+        document.getElementById(
+            "feedDate"
+        ).value
+    };
+
+    await fetch("/save-feed",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    alert(
+        "Feed Saved ✅"
+    );
+
+    loadFeeds();
+}
+
+// ======================
+// LOAD FEEDS
+// ======================
+
+async function loadFeeds(){
+
+    const res =
+    await fetch("/feeds");
+
+    const feeds =
+    await res.json();
+
+    const tbody =
+    document.getElementById(
+        "feedRecords"
+    );
+
+    tbody.innerHTML = "";
+
+    feeds.forEach(feed => {
+
+        const row =
+        document.createElement("tr");
+
+        row.innerHTML = `
+
+            <td>
+            ${feed.feedName || ""}
+            </td>
+
+            <td>
+            ${feed.quantity || 0}
+            </td>
+
+            <td>
+            ₹${feed.cost || 0}
+            </td>
+
+            <td>
+            ${feed.date || ""}
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
+// ======================
+// LOAD USERS
+// ======================
+
+async function loadPendingUsers(){
+
+    const res =
+    await fetch("/pending-users");
+
+    const users =
+    await res.json();
+
+    const div =
+    document.getElementById(
+        "pendingUsers"
+    );
+
+    div.innerHTML = "";
+
+    users.forEach(user => {
+
+        div.innerHTML += `
+
+        <div class="userCard">
+
+        <h3>
+        ${user.username}
+        </h3>
+
+        <button
+        onclick="approveUser('${user._id}')"
+        >
+        Approve
+        </button>
+
+        </div>
+        `;
+    });
+}
+
+async function approveUser(id){
+
+    await fetch("/approve-user",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+            id
+        })
+    });
+
+    loadPendingUsers();
+}
+
+// ======================
+// LOAD RECORDS
+// ======================
+
+async function loadRecords(){
+
+    const res =
+    await fetch("/dashboard");
+
+    const data =
+    await res.json();
+
+    const tbody =
+    document.getElementById(
+        "records"
+    );
+
+    tbody.innerHTML = "";
+
+    data.records.forEach(r => {
+
+        tbody.innerHTML += `
+
+        <tr>
+
+        <td>
+        ${r.date || ""}
+        </td>
+
+        <td>
+        ${r.client || ""}
+        </td>
+
+        <td>
+        ${r.worker || ""}
+        </td>
+
+        <td>
+        ${r.dailyMilk || 0}
+        </td>
+
+        <td>
+        ${r.discardedMilk || 0}
+        </td>
+
+        </tr>
+        `;
+    });
+}
+
+// ======================
 // INIT
 // ======================
 
 loadDashboard();
-loadFeeds();
 loadClients();
+loadFeeds();
 loadPendingUsers();
+loadRecords();
 
 </script>
 

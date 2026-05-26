@@ -10,144 +10,166 @@ const app = express();
 // ======================
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+
+app.use(express.urlencoded({
+    extended:true
+}));
+
 app.use(express.static("public"));
 
 // ======================
 // MONGODB
 // ======================
 
-mongoose
-    .connect(process.env.MONGO_URI)
-    .then(() => {
-        console.log("MongoDB Connected ✅");
-    })
-    .catch((err) => {
-        console.log("MongoDB Error:", err);
-    });
+mongoose.connect(process.env.MONGO_URI)
+
+.then(()=>{
+
+    console.log(
+        "MongoDB Connected ✅"
+    );
+
+})
+
+.catch((err)=>{
+
+    console.log(err);
+});
 
 // ======================
 // USER SCHEMA
 // ======================
 
-const UserSchema = new mongoose.Schema({
-    username: String,
-    password: String,
-    role: String,
-    approved: {
-        type: Boolean,
-        default: false,
-    },
-    permissions: [String],
+const UserSchema =
+new mongoose.Schema({
+
+    username:String,
+
+    password:String,
+
+    role:String,
+
+    approved:Boolean,
+
+    permissions:[String]
 });
 
-const User = mongoose.model("User", UserSchema);
+const User =
+mongoose.model(
+    "User",
+    UserSchema
+);
 
 // ======================
 // CLIENT SCHEMA
 // ======================
 
-const ClientSchema = new mongoose.Schema({
-    name: String,
-    pricePerLiter: {
-        type: Number,
-        default: 0,
-    },
-    createdBy: String,
+const ClientSchema =
+new mongoose.Schema({
+
+    name:String,
+
+    pricePerLiter:Number
 });
 
-const Client = mongoose.model("Client", ClientSchema);
+const Client =
+mongoose.model(
+    "Client",
+    ClientSchema
+);
 
 // ======================
 // ENTRY SCHEMA
 // ======================
 
-const EntrySchema = new mongoose.Schema({
-    type: String, // milk | monthly
-    month: String,
-    date: String,
-    client: String,
-    worker: String,
-    cows: Number,
-    milkPrice: Number,
-    salary: Number,
-    monthlyExpense: Number,
-    dailyMilk: Number,
-    milkAM: Number,
-    milkPM: Number,
-    discardedMilk: Number,
-    feedData: Object,
+const EntrySchema =
+new mongoose.Schema({
+
+    type:String,
+
+    month:String,
+
+    date:String,
+
+    client:String,
+
+    worker:String,
+
+    dailyMilk:Number,
+
+    milkAM:Number,
+
+    milkPM:Number,
+
+    discardedMilk:Number,
+
+    monthlyExpense:Number
 });
 
-const Entry = mongoose.model("Entry", EntrySchema);
+const Entry =
+mongoose.model(
+    "Entry",
+    EntrySchema
+);
 
 // ======================
 // FEED SCHEMA
 // ======================
 
-const FeedSchema = new mongoose.Schema({
-    type: {
-        type: String,
-        default: "feed",
-    },
-    feedName: String,
-    quantity: Number,
-    cost: Number,
-    date: String,
+const FeedSchema =
+new mongoose.Schema({
+
+    feedName:String,
+
+    quantity:Number,
+
+    cost:Number,
+
+    date:String
 });
 
-const Feed = mongoose.model("Feed", FeedSchema);
-
-// ======================
-// HELPERS
-// ======================
-
-function calculateMonthlyExpense(monthlyEntry) {
-    if (!monthlyEntry) return 0;
-
-    const direct = Number(monthlyEntry.monthlyExpense || 0);
-    if (direct) return direct;
-
-    const salary = Number(monthlyEntry.salary || 0);
-    const cows = Number(monthlyEntry.cows || 0);
-    const feed = monthlyEntry.feedData || {};
-
-    const dailyFeedCost =
-        ((feed.silagePrice || 0) * (feed.silageKg || 0)) +
-        ((feed.feedPrice || 0) * (feed.feedKg || 0)) +
-        ((feed.bhusaPrice || 0) * (feed.bhusaKg || 0)) +
-        ((feed.mineralPrice || 0) * (feed.mineralKg || 0)) +
-        ((feed.yeastPrice || 0) * (feed.yeastKg || 0)) +
-        ((feed.bufferPrice || 0) * (feed.bufferKg || 0)) +
-        ((feed.glycolPrice || 0) * (feed.glycolKg || 0)) +
-        ((feed.sodaPrice || 0) * (feed.sodaKg || 0)) +
-        ((feed.dcpPrice || 0) * (feed.dcpKg || 0));
-
-    const monthlyFeedExpense = dailyFeedCost * cows * 30;
-
-    return salary + monthlyFeedExpense;
-}
+const Feed =
+mongoose.model(
+    "Feed",
+    FeedSchema
+);
 
 // ======================
 // DEFAULT ADMIN
 // ======================
 
-async function createAdmin() {
-    try {
-        const existing = await User.findOne({ username: "Praveen" });
+async function createAdmin(){
 
-        if (!existing) {
+    try{
+
+        const existing =
+        await User.findOne({
+
+            username:"Praveen"
+        });
+
+        if(!existing){
+
             await User.create({
-                username: "Praveen",
-                password: "vishnu123",
-                role: "admin",
-                approved: true,
-                permissions: ["all"],
+
+                username:"Praveen",
+
+                password:"vishnu123",
+
+                role:"admin",
+
+                approved:true,
+
+                permissions:["all"]
             });
 
-            console.log("Default Admin Created ✅");
+            console.log(
+                "Default Admin Created ✅"
+            );
         }
-    } catch (err) {
+
+    }catch(err){
+
         console.log(err);
     }
 }
@@ -155,209 +177,402 @@ async function createAdmin() {
 createAdmin();
 
 // ======================
-// AUTH
+// LOGIN
 // ======================
 
-app.post("/signup", async (req, res) => {
-    try {
-        const existing = await User.findOne({
-            username: req.body.username,
+app.post("/login", async (req,res)=>{
+
+    try{
+
+        const user =
+        await User.findOne({
+
+            username:req.body.username,
+
+            password:req.body.password
         });
 
-        if (existing) {
+        if(!user){
+
             return res.send({
-                success: false,
-                message: "User already exists",
+
+                success:false,
+
+                message:
+                "Invalid credentials"
+            });
+        }
+
+        if(!user.approved){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "Approval pending"
+            });
+        }
+
+        res.send({
+
+            success:true,
+
+            user
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// SIGNUP
+// ======================
+
+app.post("/signup", async (req,res)=>{
+
+    try{
+
+        const existing =
+        await User.findOne({
+
+            username:req.body.username
+        });
+
+        if(existing){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "User already exists"
             });
         }
 
         await User.create({
-            username: req.body.username,
-            password: req.body.password,
-            role: "worker",
-            approved: false,
-            permissions: req.body.permissions || [],
+
+            username:req.body.username,
+
+            password:req.body.password,
+
+            role:"worker",
+
+            approved:false,
+
+            permissions:[]
         });
 
         res.send({
-            success: true,
-            message: "Account request sent to admin",
+
+            success:true
         });
-    } catch (err) {
+
+    }catch(err){
+
         console.log(err);
-        res.status(500).send({
-            success: false,
+
+        res.send({
+
+            success:false
         });
     }
 });
 
-app.post("/login", async (req, res) => {
-    try {
-        const user = await User.findOne({
-            username: req.body.username,
-            password: req.body.password,
+// ======================
+// PENDING USERS
+// ======================
+
+app.get("/pending-users", async (req,res)=>{
+
+    try{
+
+        const users =
+        await User.find({
+
+            approved:false
         });
 
-        if (!user) {
-            return res.send({
-                success: false,
-                message: "Invalid credentials",
-            });
-        }
-
-        if (!user.approved) {
-            return res.send({
-                success: false,
-                message: "Admin approval pending",
-            });
-        }
-
-        res.send({
-            success: true,
-            user: {
-                username: user.username,
-                role: user.role,
-                permissions: user.permissions,
-            },
-        });
-    } catch (err) {
-        console.log(err);
-        res.status(500).send({
-            success: false,
-        });
-    }
-});
-
-app.get("/pending-users", async (req, res) => {
-    try {
-        const users = await User.find({ approved: false });
         res.send(users);
-    } catch (err) {
+
+    }catch(err){
+
         console.log(err);
-        res.status(500).send([]);
+
+        res.send([]);
     }
 });
 
-app.post("/approve-user", async (req, res) => {
-    try {
-        await User.findByIdAndUpdate(req.body.id, {
-            approved: true,
-        });
+// ======================
+// APPROVE USER
+// ======================
+
+app.post("/approve-user", async (req,res)=>{
+
+    try{
+
+        await User.findByIdAndUpdate(
+
+            req.body.id,
+
+            {
+
+                approved:true
+            }
+        );
 
         res.send({
-            success: true,
+
+            success:true
         });
-    } catch (err) {
+
+    }catch(err){
+
         console.log(err);
-        res.status(500).send({
-            success: false,
+
+        res.send({
+
+            success:false
         });
     }
 });
 
 // ======================
-// CLIENTS
+// CREATE CLIENT
 // ======================
 
-app.post("/create-client", async (req, res) => {
-    try {
+app.post("/create-client", async (req,res)=>{
+
+    try{
+
         await Client.create({
-            name: req.body.name,
-            pricePerLiter: Number(req.body.pricePerLiter || 0),
-            createdBy: req.body.createdBy,
+
+            name:req.body.name,
+
+            pricePerLiter:
+            req.body.pricePerLiter
         });
 
         res.send({
-            success: true,
+
+            success:true
         });
-    } catch (err) {
+
+    }catch(err){
+
         console.log(err);
-        res.status(500).send({
-            success: false,
+
+        res.send({
+
+            success:false
         });
     }
 });
 
-app.get("/clients", async (req, res) => {
-    try {
-        const clients = await Client.find().sort({ _id: -1 });
+// ======================
+// GET CLIENTS
+// ======================
+
+app.get("/clients", async (req,res)=>{
+
+    try{
+
+        const clients =
+        await Client.find()
+        .sort({_id:-1});
+
         res.send(clients);
-    } catch (err) {
+
+    }catch(err){
+
         console.log(err);
-        res.status(500).send([]);
+
+        res.send([]);
     }
 });
 
 // ======================
-// FEEDS
+// DELETE CLIENT
 // ======================
 
-app.post("/save-feed", async (req, res) => {
-    try {
-        console.log("BODY RECEIVED:", req.body);
+app.post("/delete-client", async (req,res)=>{
 
-        const saved = await Feed.create({
-            type: "feed",
-            feedName: String(req.body.feedName || ""),
-            quantity: Number(req.body.quantity || 0),
-            cost: Number(req.body.cost || 0),
-            date: String(req.body.date || ""),
-        });
+    try{
 
-        console.log("FEED SAVED:", saved);
+        await Client.findByIdAndDelete(
+            req.body.id
+        );
 
         res.send({
-            success: true,
-            saved,
-        });
-    } catch (err) {
-        console.log("SAVE FEED ERROR:", err);
-        res.status(500).send({
-            success: false,
-        });
-    }
-});
 
-app.get("/feeds", async (req, res) => {
-    try {
-        const feeds = await Feed.find().sort({ _id: -1 });
-        res.send(feeds);
-    } catch (err) {
+            success:true
+        });
+
+    }catch(err){
+
         console.log(err);
-        res.status(500).send([]);
-    }
-});
-
-// ======================
-// ENTRIES
-// ======================
-
-app.post("/add", async (req, res) => {
-    try {
-        if (req.body.type === "milk") {
-            await Entry.deleteMany({
-                type: "milk",
-                date: req.body.date,
-                client: req.body.client,
-            });
-        }
-
-        if (req.body.type === "monthly") {
-            await Entry.deleteMany({
-                type: "monthly",
-                month: req.body.month,
-            });
-        }
-
-        await Entry.create(req.body);
 
         res.send({
-            success: true,
+
+            success:false
         });
-    } catch (err) {
+    }
+});
+
+// ======================
+// EDIT CLIENT
+// ======================
+
+app.post("/edit-client", async (req,res)=>{
+
+    try{
+
+        await Client.findByIdAndUpdate(
+
+            req.body.id,
+
+            {
+
+                name:req.body.name,
+
+                pricePerLiter:
+                req.body.pricePerLiter
+            }
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
         console.log(err);
-        res.status(500).send({
-            success: false,
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// SAVE FEED
+// ======================
+
+app.post("/save-feed", async (req,res)=>{
+
+    try{
+
+        const saved =
+        await Feed.create({
+
+            feedName:req.body.feedName,
+
+            quantity:req.body.quantity,
+
+            cost:req.body.cost,
+
+            date:req.body.date
+        });
+
+        console.log(saved);
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// GET FEEDS
+// ======================
+
+app.get("/feeds", async (req,res)=>{
+
+    try{
+
+        // OLD FEEDS
+
+        const oldFeeds =
+        await Entry.find({
+
+            type:"feed"
+        });
+
+        // NEW FEEDS
+
+        const newFeeds =
+        await Feed.find();
+
+        // MERGE
+
+        const allFeeds = [
+
+            ...oldFeeds,
+
+            ...newFeeds
+        ];
+
+        // SORT
+
+        allFeeds.sort((a,b)=>
+
+            new Date(b.date) -
+            new Date(a.date)
+        );
+
+        res.send(allFeeds);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send([]);
+    }
+});
+
+// ======================
+// ADD MILK ENTRY
+// ======================
+
+app.post("/add", async (req,res)=>{
+
+    try{
+
+        await Entry.create(
+            req.body
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
         });
     }
 });
@@ -366,70 +581,93 @@ app.post("/add", async (req, res) => {
 // DASHBOARD
 // ======================
 
-app.get("/dashboard", async (req, res) => {
-    try {
-        const selectedMonth = req.query.month;
-        const selectedClient = req.query.client;
+app.get("/dashboard", async (req,res)=>{
 
-        const monthlyEntries = await Entry.find({
-            type: "monthly",
-            ...(selectedMonth && { month: selectedMonth }),
-        }).sort({ _id: 1 });
+    try{
 
-        const milkEntries = await Entry.find({
-            type: "milk",
-            ...(selectedMonth && {
-                date: {
-                    $regex: "^" + selectedMonth,
-                },
-            }),
-            ...(selectedClient && { client: selectedClient }),
-        }).sort({ _id: 1 });
+        const milkEntries =
+        await Entry.find({
 
-        const latestMonthly =
-            monthlyEntries[monthlyEntries.length - 1] || null;
-
-        const totalExpense = calculateMonthlyExpense(latestMonthly);
+            type:"milk"
+        });
 
         let totalMilk = 0;
-        let totalAMMilk = 0;
-        let totalPMMilk = 0;
-        let totalDiscardedMilk = 0;
+
         let totalRevenue = 0;
 
-        for (const entry of milkEntries) {
-            const milk = Number(entry.dailyMilk || 0);
+        let totalDiscardedMilk = 0;
+
+        for(const entry of milkEntries){
+
+            const milk =
+            Number(
+                entry.dailyMilk || 0
+            );
 
             totalMilk += milk;
-            totalAMMilk += Number(entry.milkAM || 0);
-            totalPMMilk += Number(entry.milkPM || 0);
-            totalDiscardedMilk += Number(entry.discardedMilk || 0);
 
-            const client = await Client.findOne({
-                name: entry.client,
+            totalDiscardedMilk +=
+            Number(
+                entry.discardedMilk || 0
+            );
+
+            const client =
+            await Client.findOne({
+
+                name:entry.client
             });
 
-            const clientPrice = Number(client?.pricePerLiter || 0);
-            totalRevenue += milk * clientPrice;
+            const rate =
+            Number(
+
+                client
+                ?.pricePerLiter || 0
+            );
+
+            totalRevenue +=
+            milk * rate;
         }
 
-        const totalProfit = totalRevenue - totalExpense;
+        const latestMonthly =
+        await Entry.findOne({
+
+            type:"monthly"
+        })
+        .sort({_id:-1});
+
+        const totalExpense =
+        Number(
+
+            latestMonthly
+            ?.monthlyExpense || 0
+        );
+
+        const totalProfit =
+        totalRevenue -
+        totalExpense;
 
         res.send({
-            totalExpense,
+
             totalMilk,
-            totalAMMilk,
-            totalPMMilk,
-            totalDiscardedMilk,
+
             totalRevenue,
+
+            totalExpense,
+
             totalProfit,
-            monthlySettings: latestMonthly || {},
-            records: milkEntries,
+
+            totalDiscardedMilk,
+
+            records:milkEntries
         });
-    } catch (err) {
+
+    }catch(err){
+
         console.log(err);
-        res.status(500).send({
-            success: false,
+
+        res.send({
+
+            success:false
         });
     }
 });
@@ -438,16 +676,31 @@ app.get("/dashboard", async (req, res) => {
 // HEALTH
 // ======================
 
-app.get("/health", (req, res) => {
-    res.send("Server Running ✅");
+app.get("/health",(req,res)=>{
+
+    res.send(
+        "Server Running ✅"
+    );
 });
 
 // ======================
-// START
+// START SERVER
 // ======================
 
-const PORT = process.env.PORT || 3000;
+const PORT =
+process.env.PORT || 3000;
 
-app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on ${PORT}`);
-});
+app.listen(
+
+    PORT,
+
+    "0.0.0.0",
+
+    ()=>{
+
+        console.log(
+
+            `Server running on ${PORT}`
+        );
+    }
+);
