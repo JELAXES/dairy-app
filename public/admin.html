@@ -6,104 +6,283 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Admin Panel</title>
+<title>Admin Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-body{
-    font-family:Arial;
-    background:#f1f5f9;
+*{
     margin:0;
-    padding:20px;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:Arial;
+
+    background:#0f172a;
+
+    color:white;
+
+    display:flex;
+
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+
+    width:260px;
+
+    background:#111827;
+
+    padding:25px;
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.logo{
+
+    font-size:28px;
+
+    font-weight:bold;
+
+    margin-bottom:40px;
+
+    background:linear-gradient(
+        90deg,
+        #60a5fa,
+        #a855f7
+    );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+}
+
+.sideBtn{
+
+    width:100%;
+
+    padding:15px;
+
+    margin-bottom:15px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#1e293b;
+
+    color:white;
+
+    cursor:pointer;
+
+    text-align:left;
+
+    font-size:15px;
+
+    transition:0.2s;
+}
+
+.sideBtn:hover{
+
+    background:#2563eb;
+}
+
+.activeBtn{
+
+    background:linear-gradient(
+        90deg,
+        #3b82f6,
+        #8b5cf6
+    );
+}
+
+/* MAIN */
+
+.main{
+
+    flex:1;
+
+    padding:25px;
+
+    overflow-y:auto;
 }
 
 .card{
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
 
-.grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:20px;
+    background:#111827;
+
+    border-radius:18px;
+
+    padding:20px;
+
+    margin-bottom:25px;
 }
 
 .stats{
+
     display:grid;
-    grid-template-columns:1fr 1fr 1fr 1fr;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
     gap:15px;
 }
 
 .stat{
-    background:#dbeafe;
+
+    background:#1e293b;
+
     padding:20px;
-    border-radius:12px;
+
+    border-radius:15px;
+
     text-align:center;
 }
 
-input,select{
+.stat h3{
+
+    color:#94a3b8;
+
+    margin-bottom:10px;
+}
+
+.stat p{
+
+    font-size:24px;
+
+    font-weight:bold;
+}
+
+.grid{
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:20px;
+}
+
+input,
+select{
+
     width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:10px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
+
+    padding:14px;
+
+    margin-top:12px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#1e293b;
+
+    color:white;
 }
 
 button{
+
     width:100%;
+
     padding:14px;
-    margin-top:15px;
+
+    margin-top:18px;
+
     border:none;
-    border-radius:10px;
-    background:#2563eb;
+
+    border-radius:12px;
+
+    background:linear-gradient(
+        90deg,
+        #3b82f6,
+        #8b5cf6
+    );
+
     color:white;
-    font-size:16px;
+
     cursor:pointer;
+
+    font-size:16px;
 }
 
 table{
+
     width:100%;
+
     border-collapse:collapse;
+
+    margin-top:20px;
 }
 
 th,td{
-    border:1px solid #ddd;
-    padding:10px;
+
+    padding:14px;
+
     text-align:center;
+
+    border-bottom:1px solid #374151;
 }
 
 th{
-    background:#2563eb;
-    color:white;
+
+    color:#60a5fa;
 }
 
 canvas{
-    background:white;
+
+    background:#1e293b;
+
     border-radius:15px;
-    padding:10px;
+
+    padding:15px;
 }
 
 .userCard{
-    background:#f8fafc;
+
+    background:#1e293b;
+
     padding:15px;
-    border-radius:10px;
-    margin-top:10px;
+
+    border-radius:15px;
+
+    margin-top:15px;
+}
+
+.hidden{
+
+    display:none;
 }
 
 @media(max-width:900px){
 
-    .grid{
-        grid-template-columns:1fr;
+    body{
+
+        flex-direction:column;
+    }
+
+    .sidebar{
+
+        width:100%;
     }
 
     .stats{
-        grid-template-columns:1fr 1fr;
+
+        grid-template-columns:
+        1fr 1fr;
+    }
+
+    .grid{
+
+        grid-template-columns:
+        1fr;
     }
 }
 
@@ -124,13 +303,80 @@ if(
 
 </script>
 
-<h1>🐄 Dairy ERP Admin Panel</h1>
+<!-- SIDEBAR -->
 
-<!-- MONTH -->
+<div class="sidebar">
+
+<div class="logo">
+🐄 Dairy ERP
+</div>
+
+<button
+class="sideBtn activeBtn"
+onclick="showSection('dashboardSection',this)"
+>
+Dashboard
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('clientsSection',this)"
+>
+Clients
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('feedSection',this)"
+>
+Feed
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('monthlySection',this)"
+>
+Monthly Settings
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('managerSection',this)"
+>
+Managers
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('recordsSection',this)"
+>
+Records
+</button>
+
+<button
+class="sideBtn"
+onclick="logout()"
+>
+Logout
+</button>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<!-- DASHBOARD -->
+
+<div id="dashboardSection">
 
 <div class="card">
 
-<h2>Select Month</h2>
+<h1>
+📊 Admin Dashboard
+</h1>
+
+<br>
 
 <input
 type="month"
@@ -140,32 +386,46 @@ onchange="loadDashboard()"
 
 </div>
 
-<!-- ANALYTICS -->
-
-<div class="card">
-
-<h2>Farm Analytics</h2>
-
 <div class="stats">
 
 <div class="stat">
-<h3>Expense</h3>
-<p id="expense">₹0</p>
-</div>
 
-<div class="stat">
 <h3>Revenue</h3>
-<p id="revenue">₹0</p>
+
+<p id="revenue">
+₹0
+</p>
+
 </div>
 
 <div class="stat">
+
+<h3>Expense</h3>
+
+<p id="expense">
+₹0
+</p>
+
+</div>
+
+<div class="stat">
+
 <h3>Profit</h3>
-<p id="profit">₹0</p>
+
+<p id="profit">
+₹0
+</p>
+
 </div>
 
 <div class="stat">
+
 <h3>Total Milk</h3>
-<p id="milk">0 L</p>
+
+<p id="milk">
+0L
+</p>
+
 </div>
 
 </div>
@@ -175,70 +435,75 @@ onchange="loadDashboard()"
 <div class="stats">
 
 <div class="stat">
+
 <h3>AM Milk</h3>
-<p id="amMilk">0 L</p>
+
+<p id="amMilk">
+0L
+</p>
+
 </div>
 
 <div class="stat">
+
 <h3>PM Milk</h3>
-<p id="pmMilk">0 L</p>
+
+<p id="pmMilk">
+0L
+</p>
+
 </div>
 
 <div class="stat">
+
 <h3>Discarded</h3>
-<p id="discardMilk">0 L</p>
+
+<p id="discardMilk">
+0L
+</p>
+
 </div>
 
 <div class="stat">
-<h3>Milk Price</h3>
-<p id="milkPriceCard">₹0</p>
-</div>
+
+<h3>Managers</h3>
+
+<p id="managerCount">
+0
+</p>
 
 </div>
 
-<br><br>
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+Milk Analytics
+</h2>
+
+<br>
 
 <canvas id="milkChart"></canvas>
 
 </div>
 
-<!-- MONTHLY SETTINGS -->
+</div>
+
+<!-- CLIENTS -->
+
+<div
+id="clientsSection"
+class="hidden"
+>
 
 <div class="card">
 
-<h2>Monthly Settings</h2>
-
-<div class="grid">
-
-<div>
-<label>Milk Price Per Liter</label>
-<input
-type="number"
-id="milkPrice"
->
-</div>
-
-<div>
-<label>Total Monthly Expense</label>
-<input
-type="number"
-id="monthlyExpense"
->
-</div>
-
-</div>
-
-<button onclick="saveMonthly()">
-Save Monthly Settings
-</button>
-
-</div>
-
-<!-- CREATE CLIENT -->
-
-<div class="card">
-
-<h2>Create Client</h2>
+<h2>
+👥 Create Client
+</h2>
 
 <input
 type="text"
@@ -256,29 +521,149 @@ placeholder="Price Per Liter"
 Create Client
 </button>
 
-<h3>Clients</h3>
+</div>
+
+<div class="card">
+
+<h2>
+Client List
+</h2>
 
 <div id="clientList">
 </div>
 
 </div>
 
-<!-- PENDING USERS -->
+</div>
+
+<!-- FEED -->
+
+<div
+id="feedSection"
+class="hidden"
+>
 
 <div class="card">
 
-<h2>Pending Manager Requests</h2>
+<h2>
+🌾 Feed Management
+</h2>
+
+<div class="grid">
+
+<div>
+
+<label>Feed Name</label>
+
+<input
+type="text"
+id="feedName"
+placeholder="Feed Name"
+>
+
+</div>
+
+<div>
+
+<label>Feed Cost</label>
+
+<input
+type="number"
+id="feedCost"
+placeholder="Feed Cost"
+>
+
+</div>
+
+</div>
+
+<button>
+Save Feed
+</button>
+
+</div>
+
+</div>
+
+<!-- MONTHLY -->
+
+<div
+id="monthlySection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+📅 Monthly Settings
+</h2>
+
+<div class="grid">
+
+<div>
+
+<label>Milk Price</label>
+
+<input
+type="number"
+id="milkPrice"
+>
+
+</div>
+
+<div>
+
+<label>Monthly Expense</label>
+
+<input
+type="number"
+id="monthlyExpense"
+>
+
+</div>
+
+</div>
+
+<button onclick="saveMonthly()">
+Save Monthly Settings
+</button>
+
+</div>
+
+</div>
+
+<!-- MANAGERS -->
+
+<div
+id="managerSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+👨‍💼 Pending Manager Requests
+</h2>
 
 <div id="pendingUsers">
 </div>
 
 </div>
 
+</div>
+
 <!-- RECORDS -->
+
+<div
+id="recordsSection"
+class="hidden"
+>
 
 <div class="card">
 
-<h2>Milk Records</h2>
+<h2>
+📋 Milk Records
+</h2>
 
 <table>
 
@@ -289,11 +674,8 @@ Create Client
 <th>Date</th>
 <th>Client</th>
 <th>Manager</th>
-<th>AM</th>
-<th>PM</th>
-<th>Discard</th>
 <th>Total</th>
-<th>Cows</th>
+<th>Discard</th>
 
 </tr>
 
@@ -306,13 +688,63 @@ Create Client
 
 </div>
 
+</div>
+
+</div>
+
 <script>
 
 let milkChart;
 
-// ======================
-// LOAD DASHBOARD
-// ======================
+// =====================
+// SECTION SWITCH
+// =====================
+
+function showSection(id,btn){
+
+    document
+    .querySelectorAll(".main > div")
+    .forEach(sec => {
+
+        sec.classList.add(
+            "hidden"
+        );
+    });
+
+    document
+    .getElementById(id)
+    .classList.remove(
+        "hidden"
+    );
+
+    document
+    .querySelectorAll(".sideBtn")
+    .forEach(b => {
+
+        b.classList.remove(
+            "activeBtn"
+        );
+    });
+
+    btn.classList.add(
+        "activeBtn"
+    );
+}
+
+// =====================
+// LOGOUT
+// =====================
+
+function logout(){
+
+    localStorage.clear();
+
+    window.location = "/";
+}
+
+// =====================
+// DASHBOARD
+// =====================
 
 async function loadDashboard(){
 
@@ -334,7 +766,13 @@ async function loadDashboard(){
     const d =
         await res.json();
 
-    // STATS
+    document.getElementById(
+        "revenue"
+    ).innerText =
+        "₹" +
+        Number(
+            d.totalRevenue || 0
+        ).toFixed(2);
 
     document.getElementById(
         "expense"
@@ -342,14 +780,6 @@ async function loadDashboard(){
         "₹" +
         Number(
             d.totalExpense || 0
-        ).toFixed(2);
-
-    document.getElementById(
-        "revenue"
-    ).innerText =
-        "₹" +
-        Number(
-            d.totalRevenue || 0
         ).toFixed(2);
 
     document.getElementById(
@@ -365,36 +795,28 @@ async function loadDashboard(){
     ).innerText =
         Number(
             d.totalMilk || 0
-        ).toFixed(1) + " L";
+        ).toFixed(1) + "L";
 
     document.getElementById(
         "amMilk"
     ).innerText =
         Number(
             d.totalAMMilk || 0
-        ).toFixed(1) + " L";
+        ).toFixed(1) + "L";
 
     document.getElementById(
         "pmMilk"
     ).innerText =
         Number(
             d.totalPMMilk || 0
-        ).toFixed(1) + " L";
+        ).toFixed(1) + "L";
 
     document.getElementById(
         "discardMilk"
     ).innerText =
         Number(
             d.totalDiscardedMilk || 0
-        ).toFixed(1) + " L";
-
-    document.getElementById(
-        "milkPriceCard"
-    ).innerText =
-        "₹" +
-        Number(
-            d.milkPrice || 0
-        );
+        ).toFixed(1) + "L";
 
     // MONTH SETTINGS
 
@@ -434,37 +856,23 @@ async function loadDashboard(){
 
         <tr>
 
-        <td>${r.date || "-"}</td>
+        <td>${r.date}</td>
 
-        <td>${r.client || "-"}</td>
+        <td>${r.client}</td>
 
-        <td>${r.worker || "-"}</td>
-
-        <td>${Number(
-            r.milkAM || 0
-        ).toFixed(1)}</td>
-
-        <td>${Number(
-            r.milkPM || 0
-        ).toFixed(1)}</td>
-
-        <td>${Number(
-            r.discardedMilk || 0
-        ).toFixed(1)}</td>
+        <td>${r.worker}</td>
 
         <td>${Number(
             r.dailyMilk || 0
         ).toFixed(1)}</td>
 
         <td>${Number(
-            r.cows || 0
-        )}</td>
+            r.discardedMilk || 0
+        ).toFixed(1)}</td>
 
         </tr>
         `;
     });
-
-    // CHART
 
     if(milkChart){
         milkChart.destroy();
@@ -487,17 +895,22 @@ async function loadDashboard(){
 
                 datasets:[{
 
-                    label:"Milk Production",
+                    label:
+                    "Milk Production",
 
-                    data:milkData
+                    data:milkData,
+
+                    borderColor:"#60a5fa",
+
+                    tension:0.4
                 }]
             }
         });
 }
 
-// ======================
+// =====================
 // SAVE MONTHLY
-// ======================
+// =====================
 
 async function saveMonthly(){
 
@@ -552,89 +965,9 @@ async function saveMonthly(){
     loadDashboard();
 }
 
-// ======================
-// LOAD PENDING USERS
-// ======================
-
-async function loadPendingUsers(){
-
-    const res =
-        await fetch(
-            "/pending-users"
-        );
-
-    const users =
-        await res.json();
-
-    const div =
-        document.getElementById(
-            "pendingUsers"
-        );
-
-    div.innerHTML = "";
-
-    users.forEach(user => {
-
-        div.innerHTML += `
-
-        <div class="userCard">
-
-        <h3>${user.username}</h3>
-
-        <p>
-
-        Requested Permissions:
-        ${user.permissions.join(", ")}
-
-        </p>
-
-        <button
-        onclick="approveUser('${user._id}')"
-        >
-
-        Approve
-
-        </button>
-
-        </div>
-        `;
-    });
-}
-
-// ======================
-// APPROVE USER
-// ======================
-
-async function approveUser(id){
-
-    await fetch(
-        "/approve-user",
-
-        {
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
-
-            body:JSON.stringify({
-                id
-            })
-        }
-    );
-
-    alert(
-        "Manager Approved ✅"
-    );
-
-    loadPendingUsers();
-}
-
-// ======================
+// =====================
 // CREATE CLIENT
-// ======================
+// =====================
 
 async function createClient(){
 
@@ -685,14 +1018,6 @@ async function createClient(){
         }
     );
 
-    document.getElementById(
-        "clientName"
-    ).value = "";
-
-    document.getElementById(
-        "clientPrice"
-    ).value = "";
-
     alert(
         "Client Created ✅"
     );
@@ -700,9 +1025,9 @@ async function createClient(){
     loadClients();
 }
 
-// ======================
+// =====================
 // LOAD CLIENTS
-// ======================
+// =====================
 
 async function loadClients(){
 
@@ -728,8 +1053,7 @@ async function loadClients(){
         <h3>${c.name}</h3>
 
         <p>
-        Price/L:
-        ₹${c.pricePerLiter || 0}
+        ₹${c.pricePerLiter || 0}/L
         </p>
 
         <p>
@@ -742,9 +1066,94 @@ async function loadClients(){
     });
 }
 
-// ======================
+// =====================
+// LOAD PENDING USERS
+// =====================
+
+async function loadPendingUsers(){
+
+    const res =
+        await fetch(
+            "/pending-users"
+        );
+
+    const users =
+        await res.json();
+
+    document.getElementById(
+        "managerCount"
+    ).innerText =
+        users.length;
+
+    const div =
+        document.getElementById(
+            "pendingUsers"
+        );
+
+    div.innerHTML = "";
+
+    users.forEach(user => {
+
+        div.innerHTML += `
+
+        <div class="userCard">
+
+        <h3>${user.username}</h3>
+
+        <p>
+
+        Permissions:
+        ${user.permissions.join(", ")}
+
+        </p>
+
+        <button
+        onclick="approveUser('${user._id}')"
+        >
+
+        Approve
+
+        </button>
+
+        </div>
+        `;
+    });
+}
+
+// =====================
+// APPROVE
+// =====================
+
+async function approveUser(id){
+
+    await fetch(
+        "/approve-user",
+
+        {
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+                id
+            })
+        }
+    );
+
+    alert(
+        "Manager Approved ✅"
+    );
+
+    loadPendingUsers();
+}
+
+// =====================
 // INIT
-// ======================
+// =====================
 
 document.getElementById(
     "selectedMonth"
@@ -755,9 +1164,9 @@ document.getElementById(
 
 loadDashboard();
 
-loadPendingUsers();
-
 loadClients();
+
+loadPendingUsers();
 
 </script>
 

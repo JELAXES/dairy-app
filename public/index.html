@@ -6,46 +6,225 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dairy ERP Login</title>
+<title>Dairy ERP</title>
 
 <style>
 
-body{
-    font-family:Arial;
-    background:#f1f5f9;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
-}
-
-.card{
-    background:white;
-    padding:30px;
-    border-radius:15px;
-    width:350px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
-
-input{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
+*{
+    margin:0;
+    padding:0;
     box-sizing:border-box;
 }
 
-button{
-    width:100%;
-    padding:15px;
-    margin-top:20px;
-    border:none;
-    border-radius:10px;
-    background:#2563eb;
+body{
+
+    font-family:Arial;
+
+    background:#0f172a;
+
     color:white;
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    padding:20px;
+}
+
+.container{
+
+    width:100%;
+
+    max-width:1100px;
+
+    display:grid;
+
+    grid-template-columns:1fr 1fr;
+
+    gap:30px;
+}
+
+.card{
+
+    background:#111827;
+
+    border-radius:20px;
+
+    padding:35px;
+
+    box-shadow:
+    0 0 30px rgba(0,0,0,0.4);
+}
+
+.logo{
+
+    text-align:center;
+
+    margin-bottom:30px;
+}
+
+.logo h1{
+
+    font-size:40px;
+
+    background:linear-gradient(
+        90deg,
+        #60a5fa,
+        #a855f7
+    );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+}
+
+.logo p{
+
+    color:#94a3b8;
+
+    margin-top:10px;
+}
+
+h2{
+
+    margin-bottom:20px;
+
+    font-size:28px;
+}
+
+input{
+
+    width:100%;
+
+    padding:15px;
+
+    margin-top:15px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#1e293b;
+
+    color:white;
+
     font-size:16px;
+}
+
+input:focus{
+
+    outline:none;
+
+    border:1px solid #60a5fa;
+}
+
+button{
+
+    width:100%;
+
+    padding:15px;
+
+    margin-top:20px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:linear-gradient(
+        90deg,
+        #3b82f6,
+        #8b5cf6
+    );
+
+    color:white;
+
+    font-size:16px;
+
     cursor:pointer;
+
+    transition:0.2s;
+}
+
+button:hover{
+
+    transform:scale(1.02);
+}
+
+.permissions{
+
+    margin-top:20px;
+}
+
+.permissions h3{
+
+    margin-bottom:10px;
+}
+
+.permissions label{
+
+    display:block;
+
+    margin-top:10px;
+
+    color:#cbd5e1;
+}
+
+.success{
+
+    color:#22c55e;
+
+    margin-top:15px;
+
+    text-align:center;
+}
+
+.error{
+
+    color:#ef4444;
+
+    margin-top:15px;
+
+    text-align:center;
+}
+
+.topButtons{
+
+    display:flex;
+
+    gap:10px;
+
+    margin-bottom:25px;
+}
+
+.topButtons button{
+
+    margin-top:0;
+}
+
+.activeTab{
+
+    background:linear-gradient(
+        90deg,
+        #06b6d4,
+        #3b82f6
+    ) !important;
+}
+
+.hidden{
+
+    display:none;
+}
+
+@media(max-width:900px){
+
+    .container{
+
+        grid-template-columns:1fr;
+    }
 }
 
 </style>
@@ -54,15 +233,56 @@ button{
 
 <body>
 
+<div class="container">
+
+<!-- LEFT SIDE -->
+
 <div class="card">
 
-<h1>🐄 Dairy ERP Login</h1>
+<div class="logo">
 
-<input id="username" placeholder="Username">
+<h1>🐄 Dairy ERP</h1>
+
+<p>
+Multi User Dairy Management
+</p>
+
+</div>
+
+<div class="topButtons">
+
+<button
+id="loginTabBtn"
+class="activeTab"
+onclick="showLogin()"
+>
+Login
+</button>
+
+<button
+id="createTabBtn"
+onclick="showCreate()"
+>
+Create Account
+</button>
+
+</div>
+
+<!-- LOGIN -->
+
+<div id="loginSection">
+
+<h2>Login</h2>
+
+<input
+type="text"
+id="loginUsername"
+placeholder="Username"
+>
 
 <input
 type="password"
-id="password"
+id="loginPassword"
 placeholder="Password"
 >
 
@@ -70,59 +290,363 @@ placeholder="Password"
 Login
 </button>
 
+<p id="loginMessage"></p>
+
+</div>
+
+<!-- CREATE -->
+
+<div
+id="createSection"
+class="hidden"
+>
+
+<h2>Create Manager Account</h2>
+
+<input
+type="text"
+id="signupUsername"
+placeholder="Username"
+>
+
+<input
+type="password"
+id="signupPassword"
+placeholder="Password"
+>
+
+<div class="permissions">
+
+<h3>Request Permissions</h3>
+
+<label>
+<input
+type="checkbox"
+value="milk-entry"
+class="perm"
+>
+Milk Entry
+</label>
+
+<label>
+<input
+type="checkbox"
+value="analytics"
+class="perm"
+>
+Analytics
+</label>
+
+<label>
+<input
+type="checkbox"
+value="feed-entry"
+class="perm"
+>
+Feed Entry
+</label>
+
+<label>
+<input
+type="checkbox"
+value="client-delivery"
+class="perm"
+>
+Client Delivery
+</label>
+
+<label>
+<input
+type="checkbox"
+value="expenses"
+class="perm"
+>
+Expenses
+</label>
+
+</div>
+
+<button onclick="signup()">
+Create Account
+</button>
+
+<p id="signupMessage"></p>
+
+</div>
+
+</div>
+
+<!-- RIGHT SIDE -->
+
+<div class="card">
+
+<div class="logo">
+
+<h1>📊 Dashboard Features</h1>
+
+<p>
+Modern Dairy Management System
+</p>
+
+</div>
+
+<div style="margin-top:30px;line-height:2;">
+
+<p>
+✅ Multi Manager System
+</p>
+
+<p>
+✅ Client Based Tracking
+</p>
+
+<p>
+✅ Milk Analytics
+</p>
+
+<p>
+✅ Feed Management
+</p>
+
+<p>
+✅ Monthly Reports
+</p>
+
+<p>
+✅ Revenue Tracking
+</p>
+
+<p>
+✅ Approval System
+</p>
+
+<p>
+✅ Real Time Dashboard
+</p>
+
+<p>
+✅ Mobile Friendly
+</p>
+
+</div>
+
+</div>
+
 </div>
 
 <script>
 
-function login(){
+// =====================
+// TAB SWITCHING
+// =====================
 
-    const user =
+function showLogin(){
+
+    document.getElementById(
+        "loginSection"
+    ).classList.remove(
+        "hidden"
+    );
+
+    document.getElementById(
+        "createSection"
+    ).classList.add(
+        "hidden"
+    );
+
+    document.getElementById(
+        "loginTabBtn"
+    ).classList.add(
+        "activeTab"
+    );
+
+    document.getElementById(
+        "createTabBtn"
+    ).classList.remove(
+        "activeTab"
+    );
+}
+
+function showCreate(){
+
+    document.getElementById(
+        "createSection"
+    ).classList.remove(
+        "hidden"
+    );
+
+    document.getElementById(
+        "loginSection"
+    ).classList.add(
+        "hidden"
+    );
+
+    document.getElementById(
+        "createTabBtn"
+    ).classList.add(
+        "activeTab"
+    );
+
+    document.getElementById(
+        "loginTabBtn"
+    ).classList.remove(
+        "activeTab"
+    );
+}
+
+// =====================
+// LOGIN
+// =====================
+
+async function login(){
+
+    const username =
         document.getElementById(
-            "username"
+            "loginUsername"
         ).value;
 
-    const pass =
+    const password =
         document.getElementById(
-            "password"
+            "loginPassword"
         ).value;
 
-    // ADMIN
+    const res =
+        await fetch("/login",{
 
-    if(
-        user === "Praveen" &&
-        pass === "vishnu123"
-    ){
+            method:"POST",
 
-        localStorage.setItem(
-            "role",
-            "admin"
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+
+                username,
+                password
+            })
+        });
+
+    const data =
+        await res.json();
+
+    const msg =
+        document.getElementById(
+            "loginMessage"
         );
 
-        window.location =
-            "admin.html";
+    if(!data.success){
+
+        msg.className =
+            "error";
+
+        msg.innerText =
+            data.message;
 
         return;
     }
 
-    // WORKER
+    localStorage.setItem(
+        "username",
+        data.user.username
+    );
+
+    localStorage.setItem(
+        "role",
+        data.user.role
+    );
+
+    localStorage.setItem(
+        "permissions",
+
+        JSON.stringify(
+            data.user.permissions
+        )
+    );
 
     if(
-        user === "Sachin" &&
-        pass === "sachin@123"
+        data.user.role === "admin"
     ){
 
-        localStorage.setItem(
-            "role",
-            "worker"
-        );
+        window.location =
+            "/admin.html";
+
+    }else{
 
         window.location =
-            "worker.html";
+            "/worker.html";
+    }
+}
 
-        return;
+// =====================
+// SIGNUP
+// =====================
+
+async function signup(){
+
+    const username =
+        document.getElementById(
+            "signupUsername"
+        ).value;
+
+    const password =
+        document.getElementById(
+            "signupPassword"
+        ).value;
+
+    const perms =
+        document.querySelectorAll(
+            ".perm:checked"
+        );
+
+    const permissions = [];
+
+    perms.forEach(p => {
+
+        permissions.push(
+            p.value
+        );
+    });
+
+    const res =
+        await fetch("/signup",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+
+                username,
+                password,
+                permissions
+            })
+        });
+
+    const data =
+        await res.json();
+
+    const msg =
+        document.getElementById(
+            "signupMessage"
+        );
+
+    if(data.success){
+
+        msg.className =
+            "success";
+
+    }else{
+
+        msg.className =
+            "error";
     }
 
-    alert("Wrong Login");
+    msg.innerText =
+        data.message;
 }
 
 </script>

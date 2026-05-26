@@ -6,94 +6,292 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Manager Panel</title>
+<title>Manager Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 
-body{
-    font-family:Arial;
-    background:#f1f5f9;
+*{
     margin:0;
-    padding:20px;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:Arial;
+
+    background:#0f172a;
+
+    color:white;
+
+    display:flex;
+
+    min-height:100vh;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+
+    width:260px;
+
+    background:#111827;
+
+    padding:25px;
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.logo{
+
+    font-size:28px;
+
+    font-weight:bold;
+
+    margin-bottom:40px;
+
+    background:linear-gradient(
+        90deg,
+        #60a5fa,
+        #a855f7
+    );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+}
+
+.sideBtn{
+
+    width:100%;
+
+    padding:15px;
+
+    margin-bottom:15px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#1e293b;
+
+    color:white;
+
+    cursor:pointer;
+
+    text-align:left;
+
+    font-size:15px;
+
+    transition:0.2s;
+}
+
+.sideBtn:hover{
+
+    background:#2563eb;
+}
+
+.activeBtn{
+
+    background:linear-gradient(
+        90deg,
+        #3b82f6,
+        #8b5cf6
+    );
+}
+
+/* MAIN */
+
+.main{
+
+    flex:1;
+
+    padding:25px;
+
+    overflow-y:auto;
+}
+
+.topBar{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:25px;
+}
+
+.userCard{
+
+    background:#111827;
+
+    padding:18px;
+
+    border-radius:15px;
 }
 
 .card{
-    background:white;
+
+    background:#111827;
+
+    border-radius:18px;
+
     padding:20px;
-    border-radius:15px;
-    margin-bottom:20px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
+
+    margin-bottom:25px;
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-}
+.grid{
 
-th,td{
-    border:2px solid #000;
-    padding:10px;
-    text-align:center;
-}
+    display:grid;
 
-th{
-    background:yellow;
-}
+    grid-template-columns:1fr 1fr;
 
-input,select{
-    width:100%;
-    padding:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
-    text-align:center;
-}
-
-button{
-    width:100%;
-    padding:14px;
-    margin-top:15px;
-    border:none;
-    border-radius:10px;
-    background:#2563eb;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
+    gap:20px;
 }
 
 .stats{
+
     display:grid;
-    grid-template-columns:1fr 1fr 1fr 1fr;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
     gap:15px;
 }
 
 .stat{
-    background:#dbeafe;
+
+    background:#1e293b;
+
     padding:20px;
-    border-radius:12px;
+
+    border-radius:15px;
+
     text-align:center;
 }
 
-.userInfo{
-    background:#111827;
-    color:white;
-    padding:15px;
+.stat h3{
+
+    color:#94a3b8;
+
+    margin-bottom:10px;
+}
+
+.stat p{
+
+    font-size:26px;
+
+    font-weight:bold;
+}
+
+input,
+select{
+
+    width:100%;
+
+    padding:14px;
+
+    margin-top:12px;
+
+    border:none;
+
     border-radius:12px;
-    margin-bottom:20px;
+
+    background:#1e293b;
+
+    color:white;
+}
+
+button{
+
+    width:100%;
+
+    padding:14px;
+
+    margin-top:18px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:linear-gradient(
+        90deg,
+        #3b82f6,
+        #8b5cf6
+    );
+
+    color:white;
+
+    cursor:pointer;
+
+    font-size:16px;
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:20px;
+}
+
+th,td{
+
+    padding:14px;
+
+    text-align:center;
+
+    border-bottom:1px solid #374151;
+}
+
+th{
+
+    color:#60a5fa;
 }
 
 canvas{
-    background:white;
+
+    background:#1e293b;
+
     border-radius:15px;
-    padding:10px;
+
+    padding:15px;
+}
+
+.hidden{
+
+    display:none;
 }
 
 @media(max-width:900px){
 
+    body{
+
+        flex-direction:column;
+    }
+
+    .sidebar{
+
+        width:100%;
+    }
+
     .stats{
-        grid-template-columns:1fr 1fr;
+
+        grid-template-columns:
+        1fr 1fr;
+    }
+
+    .grid{
+
+        grid-template-columns:
+        1fr;
     }
 }
 
@@ -114,29 +312,148 @@ if(
 
 </script>
 
-<div class="userInfo">
+<!-- SIDEBAR -->
 
-<h2>
+<div class="sidebar">
+
+<div class="logo">
+🐄 Dairy ERP
+</div>
+
+<button
+class="sideBtn activeBtn"
+onclick="showSection('dashboardSection',this)"
+>
+Dashboard
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('milkSection',this)"
+>
+Milk Entry
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('recordsSection',this)"
+>
+Records
+</button>
+
+<button
+class="sideBtn"
+onclick="logout()"
+>
+Logout
+</button>
+
+</div>
+
+<!-- MAIN -->
+
+<div class="main">
+
+<div class="topBar">
+
+<div>
+
+<h1>
 👨‍💼 Manager Dashboard
-</h2>
+</h1>
+
+<p id="managerInfo"></p>
+
+</div>
+
+<div class="userCard">
 
 <p>
-Manager:
-<span id="managerName"></span>
+Permissions
 </p>
 
-<p>
-Permissions:
-<span id="permissionList"></span>
+<h3 id="permissionInfo"></h3>
+
+</div>
+
+</div>
+
+<!-- DASHBOARD -->
+
+<div id="dashboardSection">
+
+<div class="stats">
+
+<div class="stat">
+
+<h3>Total Milk</h3>
+
+<p id="dashboardMilk">
+0L
 </p>
 
 </div>
 
-<!-- CLIENT -->
+<div class="stat">
+
+<h3>AM Milk</h3>
+
+<p id="dashboardAM">
+0L
+</p>
+
+</div>
+
+<div class="stat">
+
+<h3>PM Milk</h3>
+
+<p id="dashboardPM">
+0L
+</p>
+
+</div>
+
+<div class="stat">
+
+<h3>Discarded</h3>
+
+<p id="dashboardDiscard">
+0L
+</p>
+
+</div>
+
+</div>
+
+<br>
 
 <div class="card">
 
-<h2>Select Client</h2>
+<h2>
+Milk Analytics
+</h2>
+
+<br>
+
+<canvas id="milkChart"></canvas>
+
+</div>
+
+</div>
+
+<!-- MILK ENTRY -->
+
+<div
+id="milkSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+🐄 Milk Entry
+</h2>
 
 <select id="clientSelect">
 
@@ -146,53 +463,16 @@ Select Client
 
 </select>
 
-<p>
-
-Client Milk Price:
-₹<span id="clientMilkPrice">0</span>/L
-
-</p>
-
-</div>
-
-<!-- MILK ENTRY -->
-
-<div
-class="card"
-id="milkSection"
->
-
-<h2>🐄 Dairy Milk Entry</h2>
-
-<table>
-
-<tr>
-
-<th colspan="4">
-
 <input
 type="date"
 id="date"
 >
 
-</th>
+<div class="grid">
 
-</tr>
+<div>
 
-<tr>
-
-<th></th>
-<th>AM</th>
-<th>PM</th>
-<th>Total</th>
-
-</tr>
-
-<tr>
-
-<td><b>Dairy</b></td>
-
-<td>
+<label>Dairy AM</label>
 
 <input
 type="number"
@@ -200,9 +480,11 @@ id="dairyAM"
 oninput="calculateTotals()"
 >
 
-</td>
+</div>
 
-<td>
+<div>
+
+<label>Dairy PM</label>
 
 <input
 type="number"
@@ -210,19 +492,11 @@ id="dairyPM"
 oninput="calculateTotals()"
 >
 
-</td>
+</div>
 
-<td id="dairyTotal">
-0
-</td>
+<div>
 
-</tr>
-
-<tr>
-
-<td><b>Staff</b></td>
-
-<td>
+<label>Staff AM</label>
 
 <input
 type="number"
@@ -231,9 +505,11 @@ value="0"
 oninput="calculateTotals()"
 >
 
-</td>
+</div>
 
-<td>
+<div>
+
+<label>Staff PM</label>
 
 <input
 type="number"
@@ -242,19 +518,11 @@ value="0"
 oninput="calculateTotals()"
 >
 
-</td>
+</div>
 
-<td id="staffTotal">
-0
-</td>
+<div>
 
-</tr>
-
-<tr>
-
-<td><b>Calf</b></td>
-
-<td>
+<label>Calf AM</label>
 
 <input
 type="number"
@@ -263,9 +531,11 @@ value="0"
 oninput="calculateTotals()"
 >
 
-</td>
+</div>
 
-<td>
+<div>
+
+<label>Calf PM</label>
 
 <input
 type="number"
@@ -274,19 +544,11 @@ value="0"
 oninput="calculateTotals()"
 >
 
-</td>
+</div>
 
-<td id="calfTotal">
-0
-</td>
+<div>
 
-</tr>
-
-<tr>
-
-<td><b>Discard</b></td>
-
-<td colspan="2">
+<label>Discarded Milk</label>
 
 <input
 type="number"
@@ -295,48 +557,66 @@ value="0"
 oninput="calculateTotals()"
 >
 
-</td>
+</div>
 
-<td id="discardTotal">
-0
-</td>
+<div>
 
-</tr>
-
-<tr>
-
-<td><b>No Of Cows</b></td>
-
-<td colspan="3">
+<label>No Of Cows</label>
 
 <input
 type="number"
 id="cowCount"
 >
 
-</td>
+</div>
 
-</tr>
+</div>
 
-<tr style="background:yellow;font-weight:bold;">
+<br>
 
-<td>TOTAL</td>
+<div class="stats">
 
-<td id="totalAM">
+<div class="stat">
+
+<h3>Total AM</h3>
+
+<p id="totalAM">
 0
-</td>
+</p>
 
-<td id="totalPM">
+</div>
+
+<div class="stat">
+
+<h3>Total PM</h3>
+
+<p id="totalPM">
 0
-</td>
+</p>
 
-<td id="grandTotal">
+</div>
+
+<div class="stat">
+
+<h3>Discard</h3>
+
+<p id="discardTotal">
 0
-</td>
+</p>
 
-</tr>
+</div>
 
-</table>
+<div class="stat">
+
+<h3>Final Total</h3>
+
+<p id="grandTotal">
+0
+</p>
+
+</div>
+
+</div>
 
 <button onclick="saveMilk()">
 Save Milk Entry
@@ -348,58 +628,20 @@ Share Today Report
 
 </div>
 
-<!-- ANALYTICS -->
-
-<div
-class="card"
-id="analyticsSection"
->
-
-<h2>📊 Analytics</h2>
-
-<div class="stats">
-
-<div class="stat">
-<h3>Total Milk</h3>
-<p id="dashboardMilk">
-0 L
-</p>
-</div>
-
-<div class="stat">
-<h3>AM Milk</h3>
-<p id="dashboardAM">
-0 L
-</p>
-</div>
-
-<div class="stat">
-<h3>PM Milk</h3>
-<p id="dashboardPM">
-0 L
-</p>
-</div>
-
-<div class="stat">
-<h3>Discarded</h3>
-<p id="dashboardDiscard">
-0 L
-</p>
-</div>
-
-</div>
-
-<br><br>
-
-<canvas id="milkChart"></canvas>
-
 </div>
 
 <!-- RECORDS -->
 
+<div
+id="recordsSection"
+class="hidden"
+>
+
 <div class="card">
 
-<h2>Milk Records</h2>
+<h2>
+Milk Records
+</h2>
 
 <table>
 
@@ -409,7 +651,6 @@ id="analyticsSection"
 
 <th>Date</th>
 <th>Client</th>
-<th>Manager</th>
 <th>AM</th>
 <th>PM</th>
 <th>Discard</th>
@@ -427,12 +668,16 @@ id="analyticsSection"
 
 </div>
 
+</div>
+
+</div>
+
 <script>
 
 let milkChart;
 
 // =====================
-// USER INFO
+// USER
 // =====================
 
 const username =
@@ -449,39 +694,62 @@ const permissions =
     );
 
 document.getElementById(
-    "managerName"
+    "managerInfo"
 ).innerText =
+    "Logged in as " +
     username;
 
 document.getElementById(
-    "permissionList"
+    "permissionInfo"
 ).innerText =
     permissions.join(", ");
 
 // =====================
-// PERMISSION CONTROL
+// SECTION SWITCH
 // =====================
 
-if(
-    !permissions.includes(
-        "milk-entry"
-    )
-){
+function showSection(id,btn){
 
-    document.getElementById(
-        "milkSection"
-    ).style.display = "none";
+    document
+    .querySelectorAll(".main > div[id]")
+    .forEach(sec => {
+
+        sec.classList.add(
+            "hidden"
+        );
+    });
+
+    document.getElementById(id)
+    .classList.remove(
+        "hidden"
+    );
+
+    document
+    .querySelectorAll(".sideBtn")
+    .forEach(b => {
+
+        b.classList.remove(
+            "activeBtn"
+        );
+    });
+
+    if(btn){
+
+        btn.classList.add(
+            "activeBtn"
+        );
+    }
 }
 
-if(
-    !permissions.includes(
-        "analytics"
-    )
-){
+// =====================
+// LOGOUT
+// =====================
 
-    document.getElementById(
-        "analyticsSection"
-    ).style.display = "none";
+function logout(){
+
+    localStorage.clear();
+
+    window.location = "/";
 }
 
 // =====================
@@ -499,7 +767,7 @@ function val(id){
 }
 
 // =====================
-// CALCULATE
+// TOTALS
 // =====================
 
 function calculateTotals(){
@@ -525,15 +793,6 @@ function calculateTotals(){
     const discard =
         val("discardedMilk");
 
-    const dairyTotal =
-        dairyAM + dairyPM;
-
-    const staffTotal =
-        staffAM + staffPM;
-
-    const calfTotal =
-        calfAM + calfPM;
-
     const totalAM =
         dairyAM +
         staffAM +
@@ -544,30 +803,10 @@ function calculateTotals(){
         staffPM +
         calfPM;
 
-    const grandTotal =
+    const finalTotal =
         totalAM +
         totalPM -
         discard;
-
-    document.getElementById(
-        "dairyTotal"
-    ).innerText =
-        dairyTotal.toFixed(1);
-
-    document.getElementById(
-        "staffTotal"
-    ).innerText =
-        staffTotal.toFixed(1);
-
-    document.getElementById(
-        "calfTotal"
-    ).innerText =
-        calfTotal.toFixed(1);
-
-    document.getElementById(
-        "discardTotal"
-    ).innerText =
-        discard.toFixed(1);
 
     document.getElementById(
         "totalAM"
@@ -580,15 +819,20 @@ function calculateTotals(){
         totalPM.toFixed(1);
 
     document.getElementById(
+        "discardTotal"
+    ).innerText =
+        discard.toFixed(1);
+
+    document.getElementById(
         "grandTotal"
     ).innerText =
-        grandTotal.toFixed(1);
+        finalTotal.toFixed(1);
 
     return {
 
         totalAM,
         totalPM,
-        grandTotal,
+        finalTotal,
         discard
     };
 }
@@ -602,32 +846,16 @@ async function saveMilk(){
     const calc =
         calculateTotals();
 
-    const clientSelect =
-        document.getElementById(
-            "clientSelect"
-        );
-
-    const selectedOption =
-        clientSelect.options[
-            clientSelect.selectedIndex
-        ];
-
-    const clientPrice =
-        Number(
-            selectedOption.dataset.price || 0
-        );
-
     const data = {
 
         type:"milk",
 
         client:
-            clientSelect.value,
+            document.getElementById(
+                "clientSelect"
+            ).value,
 
         worker:username,
-
-        clientPrice:
-            clientPrice,
 
         date:
             document.getElementById(
@@ -644,7 +872,7 @@ async function saveMilk(){
             calc.discard,
 
         dailyMilk:
-            calc.grandTotal,
+            calc.finalTotal,
 
         cows:
             val("cowCount")
@@ -688,17 +916,14 @@ ${document.getElementById("clientSelect").value}
 Date:
 ${document.getElementById("date").value}
 
-AM Milk:
+AM:
 ${document.getElementById("totalAM").innerText}
 
-PM Milk:
+PM:
 ${document.getElementById("totalPM").innerText}
 
 Total:
 ${document.getElementById("grandTotal").innerText}
-
-Discard:
-${document.getElementById("discardTotal").innerText}
 
 `;
 
@@ -710,15 +935,11 @@ ${document.getElementById("discardTotal").innerText}
 
             text:text
         });
-
-    }else{
-
-        alert(text);
     }
 }
 
 // =====================
-// LOAD CLIENTS
+// CLIENTS
 // =====================
 
 async function loadClients(){
@@ -735,6 +956,7 @@ async function loadClients(){
         );
 
     select.innerHTML = `
+
     <option value="">
     Select Client
     </option>
@@ -744,52 +966,15 @@ async function loadClients(){
 
         select.innerHTML += `
 
-        <option
-        value="${c.name}"
-        data-price="${c.pricePerLiter || 0}"
-        >
-
+        <option value="${c.name}">
         ${c.name}
-
         </option>
         `;
     });
 }
 
 // =====================
-// CLIENT CHANGE
-// =====================
-
-document.getElementById(
-    "clientSelect"
-).addEventListener(
-
-    "change",
-
-    ()=>{
-
-        const select =
-            document.getElementById(
-                "clientSelect"
-            );
-
-        const option =
-            select.options[
-                select.selectedIndex
-            ];
-
-        document.getElementById(
-            "clientMilkPrice"
-        ).innerText =
-
-            option.dataset.price || 0;
-
-        loadDashboard();
-    }
-);
-
-// =====================
-// LOAD DASHBOARD
+// DASHBOARD
 // =====================
 
 async function loadDashboard(){
@@ -821,28 +1006,28 @@ async function loadDashboard(){
     ).innerText =
         Number(
             d.totalMilk || 0
-        ).toFixed(1) + " L";
+        ).toFixed(1) + "L";
 
     document.getElementById(
         "dashboardAM"
     ).innerText =
         Number(
             d.totalAMMilk || 0
-        ).toFixed(1) + " L";
+        ).toFixed(1) + "L";
 
     document.getElementById(
         "dashboardPM"
     ).innerText =
         Number(
             d.totalPMMilk || 0
-        ).toFixed(1) + " L";
+        ).toFixed(1) + "L";
 
     document.getElementById(
         "dashboardDiscard"
     ).innerText =
         Number(
             d.totalDiscardedMilk || 0
-        ).toFixed(1) + " L";
+        ).toFixed(1) + "L";
 
     const table =
         document.getElementById(
@@ -868,9 +1053,7 @@ async function loadDashboard(){
 
         <td>${r.date}</td>
 
-        <td>${r.client || "-"}</td>
-
-        <td>${r.worker || "-"}</td>
+        <td>${r.client}</td>
 
         <td>${Number(
             r.milkAM || 0
@@ -920,11 +1103,24 @@ async function loadDashboard(){
                     label:
                     "Milk Production",
 
-                    data:milkData
+                    data:milkData,
+
+                    borderColor:"#60a5fa",
+
+                    tension:0.4
                 }]
             }
         });
 }
+
+document.getElementById(
+    "clientSelect"
+).addEventListener(
+
+    "change",
+
+    loadDashboard
+);
 
 loadClients();
 
