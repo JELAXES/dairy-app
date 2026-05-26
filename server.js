@@ -111,7 +111,7 @@ new mongoose.Schema({
 
     discardedMilk:Number,
 
-    // FEED ENTRY
+    // FEED RECORDS
 
     feedName:String,
 
@@ -119,7 +119,7 @@ new mongoose.Schema({
 
     cost:Number,
 
-    // OLD FEED DATA
+    // OLD MONTHLY FEED DATA
 
     feedData:Object
 });
@@ -303,7 +303,7 @@ app.post("/login", async (req,res)=>{
 });
 
 // ======================
-// PENDING USERS
+// GET PENDING USERS
 // ======================
 
 app.get("/pending-users", async (req,res)=>{
@@ -472,6 +472,11 @@ app.get("/feeds", async (req,res)=>{
         })
         .sort({_id:-1});
 
+        console.log(
+            "Feeds:",
+            feeds
+        );
+
         res.send(feeds);
 
     }catch(err){
@@ -607,7 +612,7 @@ app.get("/dashboard", async (req,res)=>{
             latestMonthly?.feedData || {};
 
         // ======================
-        // FIXED DAILY FEED COST
+        // DAILY FEED COST
         // ======================
 
         const dailyFeedCost =
@@ -729,9 +734,7 @@ app.get("/dashboard", async (req,res)=>{
             totalRevenue -
             totalExpense;
 
-        // ======================
         // RESPONSE
-        // ======================
 
         res.send({
 
