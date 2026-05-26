@@ -107,35 +107,21 @@ new mongoose.Schema({
 
     milkPM:Number,
 
-    discardedMilk:Number
+    discardedMilk:Number,
+
+    // FEED
+
+    feedName:String,
+
+    quantity:Number,
+
+    cost:Number
 });
 
 const Entry =
 mongoose.model(
     "Entry",
     EntrySchema
-);
-
-// ======================
-// FEED SCHEMA
-// ======================
-
-const FeedSchema =
-new mongoose.Schema({
-
-    feedName:String,
-
-    quantity:Number,
-
-    cost:Number,
-
-    date:String
-});
-
-const Feed =
-mongoose.model(
-    "Feed",
-    FeedSchema
 );
 
 // ======================
@@ -311,7 +297,7 @@ app.post("/login", async (req,res)=>{
 });
 
 // ======================
-// GET PENDING USERS
+// PENDING USERS
 // ======================
 
 app.get("/pending-users", async (req,res)=>{
@@ -432,7 +418,9 @@ app.post("/save-feed", async (req,res)=>{
 
     try{
 
-        await Feed.create({
+        await Entry.create({
+
+            type:"feed",
 
             feedName:
                 req.body.feedName,
@@ -472,7 +460,10 @@ app.get("/feeds", async (req,res)=>{
     try{
 
         const feeds =
-        await Feed.find()
+        await Entry.find({
+
+            type:"feed"
+        })
         .sort({_id:-1});
 
         res.send(feeds);
