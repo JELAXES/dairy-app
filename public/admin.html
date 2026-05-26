@@ -54,6 +54,7 @@ body{
 .logoText{
     font-size:28px;
     font-weight:bold;
+
     background:linear-gradient(
         90deg,
         #60a5fa,
@@ -133,8 +134,7 @@ body{
     gap:20px;
 }
 
-input,
-select{
+input{
     width:100%;
     padding:14px;
     margin-top:12px;
@@ -199,6 +199,8 @@ canvas{
 
 <body>
 
+<!-- SIDEBAR -->
+
 <div class="sidebar">
 
 <div class="logoBox">
@@ -254,6 +256,8 @@ Logout
 </button>
 
 </div>
+
+<!-- MAIN -->
 
 <div class="main">
 
@@ -361,18 +365,6 @@ Feed Management
 
 <div>
 
-<select id="feedClient">
-
-<option value="">
-Select Client
-</option>
-
-</select>
-
-</div>
-
-<div>
-
 <input
 type="text"
 id="feedName"
@@ -430,7 +422,6 @@ Feed Records
 
 <tr>
 
-<th>Client</th>
 <th>Feed</th>
 <th>Quantity</th>
 <th>Cost</th>
@@ -552,7 +543,6 @@ function showSection(id,btn){
 
     if(id === "feedSection"){
         loadFeeds();
-        loadFeedClients();
     }
 
     if(id === "managerSection"){
@@ -810,63 +800,12 @@ async function editClient(
 }
 
 // ======================
-// FEED CLIENTS
-// ======================
-
-async function loadFeedClients(){
-
-    const res =
-    await fetch("/clients");
-
-    const clients =
-    await res.json();
-
-    const select =
-    document.getElementById(
-        "feedClient"
-    );
-
-    select.innerHTML = `
-
-    <option value="">
-    Select Client
-    </option>
-    `;
-
-    clients.forEach(c => {
-
-        select.innerHTML += `
-
-        <option value="${c.name}">
-        ${c.name}
-        </option>
-        `;
-    });
-}
-
-// ======================
-// SAVE FEED
+// FEEDS
 // ======================
 
 async function saveFeed(){
 
-    const client =
-    document.getElementById(
-        "feedClient"
-    ).value;
-
-    if(!client){
-
-        alert(
-            "Select Client"
-        );
-
-        return;
-    }
-
     const data = {
-
-        client,
 
         feedName:
         document.getElementById(
@@ -910,10 +849,6 @@ async function saveFeed(){
     loadFeeds();
 }
 
-// ======================
-// LOAD FEEDS
-// ======================
-
 async function loadFeeds(){
 
     const res =
@@ -935,8 +870,6 @@ async function loadFeeds(){
         document.createElement("tr");
 
         row.innerHTML = `
-
-        <td>${feed.client}</td>
 
         <td>${feed.feedName}</td>
 
@@ -1008,7 +941,15 @@ async function editFeed(id){
     const cost =
     prompt("Cost");
 
-    if(!name || !qty || !cost) return;
+    const month =
+    prompt("Month YYYY-MM");
+
+    if(
+        !name ||
+        !qty ||
+        !cost ||
+        !month
+    ) return;
 
     await fetch("/edit-feed",{
 
@@ -1027,7 +968,9 @@ async function editFeed(id){
 
             quantity:Number(qty),
 
-            cost:Number(cost)
+            cost:Number(cost),
+
+            month
         })
     });
 
@@ -1230,7 +1173,6 @@ async function editMilk(id){
 
 loadDashboard();
 loadClients();
-loadFeedClients();
 loadFeeds();
 loadPendingUsers();
 loadRecords();
