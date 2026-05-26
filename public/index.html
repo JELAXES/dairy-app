@@ -4,9 +4,15 @@
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dairy ERP</title>
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+Kshiralaya Login
+</title>
 
 <style>
 
@@ -18,13 +24,9 @@
 
 body{
 
-    font-family:Arial;
+    font-family:Arial,sans-serif;
 
-    background:#0f172a;
-
-    color:white;
-
-    min-height:100vh;
+    height:100vh;
 
     display:flex;
 
@@ -32,38 +34,59 @@ body{
 
     align-items:center;
 
-    padding:20px;
+    background:
+    linear-gradient(
+        135deg,
+        #020617,
+        #0f172a,
+        #111827
+    );
+
+    overflow:hidden;
 }
 
-.container{
+.loginBox{
 
-    width:100%;
+    width:420px;
 
-    max-width:550px;
-}
+    background:
+    rgba(17,24,39,0.95);
 
-.card{
+    backdrop-filter:blur(20px);
 
-    background:#111827;
+    border-radius:30px;
 
-    border-radius:20px;
-
-    padding:35px;
+    padding:40px;
 
     box-shadow:
-    0 0 30px rgba(0,0,0,0.4);
+    0 0 40px rgba(0,0,0,0.5);
+
+    text-align:center;
+
+    animation:fadeIn 0.6s ease;
 }
 
 .logo{
 
-    text-align:center;
+    width:180px;
 
-    margin-bottom:30px;
+    margin:auto;
+
+    margin-bottom:15px;
+
+    border-radius:25px;
+
+    box-shadow:
+    0 0 30px rgba(255,255,255,0.08);
 }
 
-.logo h1{
+.brand{
 
-    font-size:40px;
+    font-size:42px;
+
+    font-weight:bold;
+
+    margin-bottom:8px;
 
     background:linear-gradient(
         90deg,
@@ -76,59 +99,57 @@ body{
     -webkit-text-fill-color:transparent;
 }
 
-.logo p{
+.tagline{
 
     color:#94a3b8;
 
-    margin-top:10px;
-}
+    margin-bottom:35px;
 
-h2{
+    font-size:15px;
 
-    margin-bottom:20px;
-
-    font-size:28px;
+    letter-spacing:1px;
 }
 
 input{
 
     width:100%;
 
-    padding:15px;
+    padding:16px;
 
-    margin-top:15px;
+    margin-top:16px;
 
     border:none;
 
-    border-radius:12px;
+    border-radius:15px;
 
     background:#1e293b;
 
     color:white;
 
-    font-size:16px;
-}
-
-input:focus{
+    font-size:15px;
 
     outline:none;
+}
 
-    border:1px solid #60a5fa;
+input::placeholder{
+
+    color:#94a3b8;
 }
 
 button{
 
     width:100%;
 
-    padding:15px;
+    padding:16px;
 
-    margin-top:20px;
+    margin-top:22px;
 
     border:none;
 
-    border-radius:12px;
+    border-radius:15px;
 
-    background:linear-gradient(
+    background:
+    linear-gradient(
         90deg,
         #3b82f6,
         #8b5cf6
@@ -137,6 +158,8 @@ button{
     color:white;
 
     font-size:16px;
+
+    font-weight:bold;
 
     cursor:pointer;
 
@@ -148,69 +171,37 @@ button:hover{
     transform:scale(1.02);
 }
 
-.permissions{
+.createBtn{
 
-    margin-top:20px;
+    background:#1e293b;
+
+    margin-top:12px;
 }
 
-.permissions h3{
+.note{
 
-    margin-bottom:10px;
+    margin-top:18px;
+
+    color:#94a3b8;
+
+    font-size:13px;
 }
 
-.permissions label{
+@keyframes fadeIn{
 
-    display:block;
+    from{
 
-    margin-top:10px;
+        opacity:0;
 
-    color:#cbd5e1;
-}
+        transform:translateY(20px);
+    }
 
-.success{
+    to{
 
-    color:#22c55e;
+        opacity:1;
 
-    margin-top:15px;
-
-    text-align:center;
-}
-
-.error{
-
-    color:#ef4444;
-
-    margin-top:15px;
-
-    text-align:center;
-}
-
-.topButtons{
-
-    display:flex;
-
-    gap:10px;
-
-    margin-bottom:25px;
-}
-
-.topButtons button{
-
-    margin-top:0;
-}
-
-.activeTab{
-
-    background:linear-gradient(
-        90deg,
-        #06b6d4,
-        #3b82f6
-    ) !important;
-}
-
-.hidden{
-
-    display:none;
+        transform:translateY(0);
+    }
 }
 
 </style>
@@ -219,226 +210,69 @@ button:hover{
 
 <body>
 
-<div class="container">
+<div class="loginBox">
 
-<div class="card">
+<!-- YOUR LOGO -->
 
-<div class="logo">
+<img
+src="logo.png"
+class="logo"
+>
 
-<h1>🐄 Dairy ERP</h1>
-
-<p>
-Multi User Dairy Management
-</p>
-
+<div class="brand">
+Kshiralaya
 </div>
 
-<div class="topButtons">
-
-<button
-id="loginTabBtn"
-class="activeTab"
-onclick="showLogin()"
->
-Login
-</button>
-
-<button
-id="createTabBtn"
-onclick="showCreate()"
->
-Create Account
-</button>
-
+<div class="tagline">
+PURE CARE PURE MILK
 </div>
-
-<!-- LOGIN -->
-
-<div id="loginSection">
-
-<h2>Login</h2>
 
 <input
 type="text"
-id="loginUsername"
+id="username"
 placeholder="Username"
->
+/>
 
 <input
 type="password"
-id="loginPassword"
+id="password"
 placeholder="Password"
->
+/>
 
 <button onclick="login()">
 Login
 </button>
 
-<p id="loginMessage"></p>
-
-</div>
-
-<!-- CREATE -->
-
-<div
-id="createSection"
-class="hidden"
+<button
+class="createBtn"
+onclick="window.location='signup.html'"
 >
-
-<h2>Create Manager Account</h2>
-
-<input
-type="text"
-id="signupUsername"
-placeholder="Username"
->
-
-<input
-type="password"
-id="signupPassword"
-placeholder="Password"
->
-
-<div class="permissions">
-
-<h3>Request Permissions</h3>
-
-<label>
-<input
-type="checkbox"
-value="milk-entry"
-class="perm"
->
-Milk Entry
-</label>
-
-<label>
-<input
-type="checkbox"
-value="analytics"
-class="perm"
->
-Analytics
-</label>
-
-<label>
-<input
-type="checkbox"
-value="feed-entry"
-class="perm"
->
-Feed Entry
-</label>
-
-<label>
-<input
-type="checkbox"
-value="client-delivery"
-class="perm"
->
-Client Delivery
-</label>
-
-<label>
-<input
-type="checkbox"
-value="expenses"
-class="perm"
->
-Expenses
-</label>
-
-</div>
-
-<button onclick="signup()">
 Create Account
 </button>
 
-<p id="signupMessage"></p>
-
-</div>
-
+<div class="note">
+Manager accounts require admin approval
 </div>
 
 </div>
 
 <script>
 
-// =====================
-// TAB SWITCHING
-// =====================
-
-function showLogin(){
-
-    document.getElementById(
-        "loginSection"
-    ).classList.remove(
-        "hidden"
-    );
-
-    document.getElementById(
-        "createSection"
-    ).classList.add(
-        "hidden"
-    );
-
-    document.getElementById(
-        "loginTabBtn"
-    ).classList.add(
-        "activeTab"
-    );
-
-    document.getElementById(
-        "createTabBtn"
-    ).classList.remove(
-        "activeTab"
-    );
-}
-
-function showCreate(){
-
-    document.getElementById(
-        "createSection"
-    ).classList.remove(
-        "hidden"
-    );
-
-    document.getElementById(
-        "loginSection"
-    ).classList.add(
-        "hidden"
-    );
-
-    document.getElementById(
-        "createTabBtn"
-    ).classList.add(
-        "activeTab"
-    );
-
-    document.getElementById(
-        "loginTabBtn"
-    ).classList.remove(
-        "activeTab"
-    );
-}
-
-// =====================
-// LOGIN
-// =====================
-
 async function login(){
 
-    const username =
+    try{
+
+        const username =
         document.getElementById(
-            "loginUsername"
+            "username"
         ).value;
 
-    const password =
+        const password =
         document.getElementById(
-            "loginPassword"
+            "password"
         ).value;
 
-    const res =
+        const res =
         await fetch("/login",{
 
             method:"POST",
@@ -455,126 +289,52 @@ async function login(){
             })
         });
 
-    const data =
+        const data =
         await res.json();
 
-    const msg =
-        document.getElementById(
-            "loginMessage"
+        console.log(data);
+
+        if(!data.success){
+
+            alert(
+                data.message ||
+                "Login Failed"
+            );
+
+            return;
+        }
+
+        localStorage.setItem(
+            "username",
+            data.user.username
         );
 
-    if(!data.success){
+        localStorage.setItem(
+            "role",
+            data.user.role
+        );
 
-        msg.className =
-            "error";
+        if(
+            data.user.role === "admin"
+        ){
 
-        msg.innerText =
-            data.message;
+            window.location =
+            "admin.html";
 
-        return;
+        }else{
+
+            window.location =
+            "worker.html";
+        }
+
+    }catch(err){
+
+        console.log(err);
+
+        alert(
+            "Server Error"
+        );
     }
-
-    localStorage.setItem(
-        "username",
-        data.user.username
-    );
-
-    localStorage.setItem(
-        "role",
-        data.user.role
-    );
-
-    localStorage.setItem(
-        "permissions",
-
-        JSON.stringify(
-            data.user.permissions
-        )
-    );
-
-    if(
-        data.user.role === "admin"
-    ){
-
-        window.location =
-            "/admin.html";
-
-    }else{
-
-        window.location =
-            "/worker.html";
-    }
-}
-
-// =====================
-// SIGNUP
-// =====================
-
-async function signup(){
-
-    const username =
-        document.getElementById(
-            "signupUsername"
-        ).value;
-
-    const password =
-        document.getElementById(
-            "signupPassword"
-        ).value;
-
-    const perms =
-        document.querySelectorAll(
-            ".perm:checked"
-        );
-
-    const permissions = [];
-
-    perms.forEach(p => {
-
-        permissions.push(
-            p.value
-        );
-    });
-
-    const res =
-        await fetch("/signup",{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
-
-            body:JSON.stringify({
-
-                username,
-                password,
-                permissions
-            })
-        });
-
-    const data =
-        await res.json();
-
-    const msg =
-        document.getElementById(
-            "signupMessage"
-        );
-
-    if(data.success){
-
-        msg.className =
-            "success";
-
-    }else{
-
-        msg.className =
-            "error";
-    }
-
-    msg.innerText =
-        data.message;
 }
 
 </script>
