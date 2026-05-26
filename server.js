@@ -405,41 +405,59 @@ app.post("/save-feed", async (req,res)=>{
     try{
 
         console.log(
-            "REQ BODY:",
+            "BODY RECEIVED:",
             req.body
         );
 
-        const feed =
-        new Entry({
+        // FORCE OBJECT CREATION
+
+        const feedEntry = {
 
             type:"feed",
 
             feedName:
-            req.body.feedName,
+                String(
+                    req.body.feedName || ""
+                ),
 
             quantity:
-            Number(
-                req.body.quantity
-            ) || 0,
+                Number(
+                    req.body.quantity || 0
+                ),
 
             cost:
-            Number(
-                req.body.cost
-            ) || 0,
+                Number(
+                    req.body.cost || 0
+                ),
 
             date:
-            req.body.date
-        });
-
-        await feed.save();
+                String(
+                    req.body.date || ""
+                )
+        };
 
         console.log(
-            "FEED SAVED ✅"
+            "SAVING:",
+            feedEntry
+        );
+
+        // DIRECT CREATE
+
+        const saved =
+        await Entry.create(
+            feedEntry
+        );
+
+        console.log(
+            "SAVED:",
+            saved
         );
 
         res.send({
 
-            success:true
+            success:true,
+
+            saved
         });
 
     }catch(err){
@@ -449,13 +467,12 @@ app.post("/save-feed", async (req,res)=>{
             err
         );
 
-        res.send({
+        res.status(500).send({
 
             success:false
         });
     }
 });
-
 // ======================
 // GET FEEDS
 // ======================
