@@ -66,9 +66,6 @@ body{
     border-radius:20px;
 
     margin-bottom:10px;
-
-    box-shadow:
-    0 0 25px rgba(255,255,255,0.08);
 }
 
 .logoText{
@@ -109,13 +106,9 @@ body{
     text-align:left;
 
     font-size:15px;
-
-    transition:0.2s;
 }
 
 .sideBtn:hover{
-
-    transform:scale(1.02);
 
     background:#2563eb;
 }
@@ -149,9 +142,6 @@ body{
     padding:20px;
 
     margin-bottom:25px;
-
-    box-shadow:
-    0 0 25px rgba(0,0,0,0.3);
 }
 
 .stats{
@@ -237,8 +227,6 @@ button{
     color:white;
 
     cursor:pointer;
-
-    font-size:16px;
 }
 
 table{
@@ -280,25 +268,15 @@ th{
     margin-top:15px;
 }
 
-@media(max-width:900px){
+canvas{
 
-    body{
-        flex-direction:column;
-    }
+    background:#1e293b;
 
-    .sidebar{
-        width:100%;
-    }
+    border-radius:15px;
 
-    .stats{
-        grid-template-columns:
-        1fr 1fr;
-    }
+    padding:15px;
 
-    .grid{
-        grid-template-columns:
-        1fr;
-    }
+    max-height:250px !important;
 }
 
 </style>
@@ -330,9 +308,37 @@ Dashboard
 
 <button
 class="sideBtn"
+onclick="showSection('clientsSection',this)"
+>
+Clients
+</button>
+
+<button
+class="sideBtn"
 onclick="showSection('feedSection',this)"
 >
 Feed
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('monthlySection',this)"
+>
+Monthly
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('managerSection',this)"
+>
+Managers
+</button>
+
+<button
+class="sideBtn"
+onclick="showSection('recordsSection',this)"
+>
+Records
 </button>
 
 <button
@@ -355,58 +361,87 @@ Logout
 <div class="stats">
 
 <div class="stat">
-
-<h3>
-Revenue
-</h3>
-
-<p id="revenue">
-₹0
-</p>
-
+<h3>Revenue</h3>
+<p id="revenue">₹0</p>
 </div>
 
 <div class="stat">
-
-<h3>
-Expense
-</h3>
-
-<p id="expense">
-₹0
-</p>
-
+<h3>Expense</h3>
+<p id="expense">₹0</p>
 </div>
 
 <div class="stat">
-
-<h3>
-Profit
-</h3>
-
-<p id="profit">
-₹0
-</p>
-
+<h3>Profit</h3>
+<p id="profit">₹0</p>
 </div>
 
 <div class="stat">
+<h3>Total Milk</h3>
+<p id="milk">0L</p>
+</div>
 
-<h3>
-Total Milk
-</h3>
+</div>
 
-<p id="milk">
-0L
-</p>
+<br>
+
+<div class="card">
+
+<h2>
+Milk Analytics
+</h2>
+
+<br>
+
+<canvas id="milkChart"></canvas>
 
 </div>
 
 </div>
 
+<!-- CLIENTS -->
+
+<div
+id="clientsSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+Create Client
+</h2>
+
+<input
+type="text"
+id="clientName"
+placeholder="Client Name"
+/>
+
+<input
+type="number"
+id="clientPrice"
+placeholder="Price Per Liter"
+/>
+
+<button onclick="createClient()">
+Create Client
+</button>
+
 </div>
 
-<!-- FEED SECTION -->
+<div class="card">
+
+<h2>
+Client List
+</h2>
+
+<div id="clientList"></div>
+
+</div>
+
+</div>
+
+<!-- FEED -->
 
 <div
 id="feedSection"
@@ -416,7 +451,7 @@ class="hidden"
 <div class="card">
 
 <h2>
-🌾 Feed Management
+Feed Management
 </h2>
 
 <div class="grid">
@@ -471,7 +506,7 @@ Save Feed
 <div class="card">
 
 <h2>
-📋 Feed Records
+Feed Records
 </h2>
 
 <table>
@@ -480,28 +515,100 @@ Save Feed
 
 <tr>
 
-<th>
-Feed
-</th>
-
-<th>
-Quantity
-</th>
-
-<th>
-Cost
-</th>
-
-<th>
-Date
-</th>
+<th>Feed</th>
+<th>Quantity</th>
+<th>Cost</th>
+<th>Date</th>
 
 </tr>
 
 </thead>
 
 <tbody id="feedRecords">
+</tbody>
 
+</table>
+
+</div>
+
+</div>
+
+<!-- MONTHLY -->
+
+<div
+id="monthlySection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+Monthly Settings
+</h2>
+
+<input
+type="number"
+id="monthlyExpense"
+placeholder="Monthly Expense"
+/>
+
+<button onclick="saveMonthly()">
+Save Monthly
+</button>
+
+</div>
+
+</div>
+
+<!-- MANAGERS -->
+
+<div
+id="managerSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+Pending Managers
+</h2>
+
+<div id="pendingUsers"></div>
+
+</div>
+
+</div>
+
+<!-- RECORDS -->
+
+<div
+id="recordsSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+Milk Records
+</h2>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Date</th>
+<th>Client</th>
+<th>Manager</th>
+<th>Total</th>
+<th>Discard</th>
+
+</tr>
+
+</thead>
+
+<tbody id="records">
 </tbody>
 
 </table>
@@ -514,8 +621,10 @@ Date
 
 <script>
 
+let milkChart;
+
 // ======================
-// SWITCH SECTION
+// SECTION SWITCH
 // ======================
 
 function showSection(id,btn){
@@ -549,8 +658,19 @@ function showSection(id,btn){
     );
 
     if(id === "feedSection"){
-
         loadFeeds();
+    }
+
+    if(id === "dashboardSection"){
+        loadDashboard();
+    }
+
+    if(id === "clientsSection"){
+        loadClients();
+    }
+
+    if(id === "managerSection"){
+        loadPendingUsers();
     }
 }
 
@@ -566,7 +686,7 @@ function logout(){
 }
 
 // ======================
-// SAVE FEED
+// FEEDS
 // ======================
 
 async function saveFeed(){
@@ -602,11 +722,6 @@ async function saveFeed(){
             ).value
         };
 
-        console.log(
-            "SENDING:",
-            data
-        );
-
         const res =
         await fetch("/save-feed",{
 
@@ -623,39 +738,19 @@ async function saveFeed(){
         const result =
         await res.json();
 
-        console.log(
-            "RESULT:",
-            result
+        console.log(result);
+
+        loadFeeds();
+
+        alert(
+            "Feed Saved ✅"
         );
-
-        if(result.success){
-
-            alert(
-                "Feed Saved ✅"
-            );
-
-            loadFeeds();
-
-        }else{
-
-            alert(
-                "Feed save failed"
-            );
-        }
 
     }catch(err){
 
         console.log(err);
-
-        alert(
-            "Feed Error ❌"
-        );
     }
 }
-
-// ======================
-// LOAD FEEDS
-// ======================
 
 async function loadFeeds(){
 
@@ -668,7 +763,7 @@ async function loadFeeds(){
         await res.json();
 
         console.log(
-            "FEEDS:",
+            "ALL FEEDS:",
             feeds
         );
 
@@ -679,7 +774,7 @@ async function loadFeeds(){
 
         tbody.innerHTML = "";
 
-        if(!feeds.length){
+        if(feeds.length === 0){
 
             tbody.innerHTML = `
 
@@ -699,9 +794,12 @@ async function loadFeeds(){
 
         feeds.forEach(feed => {
 
-            tbody.innerHTML += `
+            const row =
+            document.createElement(
+                "tr"
+            );
 
-            <tr>
+            row.innerHTML = `
 
                 <td>
                 ${feed.feedName || ""}
@@ -718,9 +816,9 @@ async function loadFeeds(){
                 <td>
                 ${feed.date || ""}
                 </td>
-
-            </tr>
             `;
+
+            tbody.appendChild(row);
         });
 
     }catch(err){
@@ -730,54 +828,261 @@ async function loadFeeds(){
 }
 
 // ======================
-// LOAD DASHBOARD
+// CLIENTS
+// ======================
+
+async function createClient(){
+
+    const data = {
+
+        name:
+        document.getElementById(
+            "clientName"
+        ).value,
+
+        pricePerLiter:Number(
+
+            document.getElementById(
+                "clientPrice"
+            ).value
+
+        ) || 0
+    };
+
+    await fetch("/create-client",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    loadClients();
+
+    alert(
+        "Client Created ✅"
+    );
+}
+
+async function loadClients(){
+
+    const res =
+    await fetch("/clients");
+
+    const clients =
+    await res.json();
+
+    const div =
+    document.getElementById(
+        "clientList"
+    );
+
+    div.innerHTML = "";
+
+    clients.forEach(c => {
+
+        div.innerHTML += `
+
+        <div class="userCard">
+
+        <h3>${c.name}</h3>
+
+        <p>
+
+        ₹${c.pricePerLiter}/L
+
+        </p>
+
+        </div>
+        `;
+    });
+}
+
+// ======================
+// MONTHLY
+// ======================
+
+async function saveMonthly(){
+
+    const data = {
+
+        type:"monthly",
+
+        month:
+        new Date()
+        .toISOString()
+        .slice(0,7),
+
+        monthlyExpense:Number(
+
+            document.getElementById(
+                "monthlyExpense"
+            ).value
+
+        ) || 0
+    };
+
+    await fetch("/add",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    alert(
+        "Monthly Saved ✅"
+    );
+}
+
+// ======================
+// USERS
+// ======================
+
+async function loadPendingUsers(){
+
+    const res =
+    await fetch("/pending-users");
+
+    const users =
+    await res.json();
+
+    const div =
+    document.getElementById(
+        "pendingUsers"
+    );
+
+    div.innerHTML = "";
+
+    users.forEach(user => {
+
+        div.innerHTML += `
+
+        <div class="userCard">
+
+        <h3>
+        ${user.username}
+        </h3>
+
+        <button
+        onclick="approveUser('${user._id}')"
+        >
+        Approve
+        </button>
+
+        </div>
+        `;
+    });
+}
+
+async function approveUser(id){
+
+    await fetch("/approve-user",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+            id
+        })
+    });
+
+    alert(
+        "Approved ✅"
+    );
+
+    loadPendingUsers();
+}
+
+// ======================
+// DASHBOARD
 // ======================
 
 async function loadDashboard(){
 
-    try{
+    const res =
+    await fetch("/dashboard");
 
-        const res =
-        await fetch("/dashboard");
+    const d =
+    await res.json();
 
-        const d =
-        await res.json();
+    document.getElementById(
+        "revenue"
+    ).innerText =
+    "₹" +
+    Number(
+        d.totalRevenue || 0
+    ).toFixed(2);
 
-        document.getElementById(
-            "revenue"
-        ).innerText =
-        "₹" +
-        Number(
-            d.totalRevenue || 0
-        ).toFixed(2);
+    document.getElementById(
+        "expense"
+    ).innerText =
+    "₹" +
+    Number(
+        d.totalExpense || 0
+    ).toFixed(2);
 
-        document.getElementById(
-            "expense"
-        ).innerText =
-        "₹" +
-        Number(
-            d.totalExpense || 0
-        ).toFixed(2);
+    document.getElementById(
+        "profit"
+    ).innerText =
+    "₹" +
+    Number(
+        d.totalProfit || 0
+    ).toFixed(2);
 
-        document.getElementById(
-            "profit"
-        ).innerText =
-        "₹" +
-        Number(
-            d.totalProfit || 0
-        ).toFixed(2);
+    document.getElementById(
+        "milk"
+    ).innerText =
+    Number(
+        d.totalMilk || 0
+    ).toFixed(1) + "L";
 
-        document.getElementById(
-            "milk"
-        ).innerText =
-        Number(
-            d.totalMilk || 0
-        ).toFixed(1) + "L";
-
-    }catch(err){
-
-        console.log(err);
+    if(milkChart){
+        milkChart.destroy();
     }
+
+    milkChart =
+    new Chart(
+
+        document.getElementById(
+            "milkChart"
+        ),
+
+        {
+
+            type:"line",
+
+            data:{
+
+                labels:["Milk"],
+
+                datasets:[{
+
+                    label:
+                    "Milk Production",
+
+                    data:[
+                        d.totalMilk || 0
+                    ],
+
+                    borderColor:"#60a5fa",
+
+                    tension:0.4
+                }]
+            }
+        });
 }
 
 // ======================
@@ -785,8 +1090,9 @@ async function loadDashboard(){
 // ======================
 
 loadDashboard();
-
 loadFeeds();
+loadClients();
+loadPendingUsers();
 
 </script>
 
