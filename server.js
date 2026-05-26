@@ -25,9 +25,7 @@ mongoose.connect(process.env.MONGO_URI)
 
 .then(() => {
 
-    console.log(
-        "MongoDB Connected ✅"
-    );
+    console.log("MongoDB Connected ✅");
 
 })
 
@@ -305,7 +303,7 @@ app.post("/login", async (req,res)=>{
 });
 
 // ======================
-// GET PENDING USERS
+// PENDING USERS
 // ======================
 
 app.get("/pending-users", async (req,res)=>{
@@ -608,59 +606,54 @@ app.get("/dashboard", async (req,res)=>{
         const feed =
             latestMonthly?.feedData || {};
 
+        // ======================
+        // FIXED DAILY FEED COST
+        // ======================
+
         const dailyFeedCost =
 
-            (
-                (feed.silagePrice || 0) *
-                (feed.silageKg || 0)
+            ((feed.silagePrice || 0) *
+            (feed.silageKg || 0))
 
-            ) +
+            +
 
-            (
-                (feed.feedPrice || 0) *
-                (feed.feedKg || 0)
+            ((feed.feedPrice || 0) *
+            (feed.feedKg || 0))
 
-            ) +
+            +
 
-            (
-                (feed.bhusaPrice || 0) *
-                (feed.bhusaKg || 0)
+            ((feed.bhusaPrice || 0) *
+            (feed.bhusaKg || 0))
 
-            ) +
+            +
 
-            (
-                (feed.mineralPrice || 0) *
-                (feed.mineralKg || 0)
+            ((feed.mineralPrice || 0) *
+            (feed.mineralKg || 0))
 
-            ) +
+            +
 
-            (
-                (feed.yeastPrice || 0) *
-                (feed.yeastKg || 0)
+            ((feed.yeastPrice || 0) *
+            (feed.yeastKg || 0))
 
-            ) +
+            +
 
-            (
-                (feed.bufferPrice || 0) *
-                (feed.bufferKg || 0)
+            ((feed.bufferPrice || 0) *
+            (feed.bufferKg || 0))
 
-            ) +
+            +
 
-            (
-                (feed.glycolPrice || 0) *
-                (feed.glycolKg || 0)
+            ((feed.glycolPrice || 0) *
+            (feed.glycolKg || 0))
 
-            ) +
+            +
 
-            (
-                (feed.sodaPrice || 0) *
-                (feed.sodaKg || 0)
+            ((feed.sodaPrice || 0) *
+            (feed.sodaKg || 0))
 
-            ) +
+            +
 
-            (
-                (feed.dcpPrice || 0) *
-                (feed.dcpKg || 0);
+            ((feed.dcpPrice || 0) *
+            (feed.dcpKg || 0));
 
         const cows =
             Number(
