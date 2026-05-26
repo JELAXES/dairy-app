@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Milk Entry Panel</title>
+<title>Dairy Worker Panel</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -25,15 +25,46 @@ body{
     border-radius:15px;
     margin-bottom:20px;
     box-shadow:0 4px 10px rgba(0,0,0,0.1);
-    max-width:900px;
+    max-width:1100px;
     margin-left:auto;
     margin-right:auto;
 }
 
-.grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:15px;
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    border:2px solid #000;
+    padding:12px;
+    text-align:center;
+    font-size:18px;
+}
+
+th{
+    background:yellow;
+}
+
+input{
+    width:100%;
+    padding:10px;
+    border:none;
+    text-align:center;
+    font-size:18px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin-top:20px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
 }
 
 .stats{
@@ -49,54 +80,26 @@ body{
     text-align:center;
 }
 
-input{
-    width:100%;
-    padding:12px;
-    margin-top:10px;
-    border-radius:8px;
-    border:1px solid #ccc;
-    box-sizing:border-box;
-}
-
-button{
-    width:100%;
-    padding:15px;
-    margin-top:20px;
-    border:none;
-    border-radius:10px;
-    background:#2563eb;
-    color:white;
-    font-size:16px;
-    cursor:pointer;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-}
-
-th,td{
-    border:1px solid #ddd;
-    padding:10px;
-    text-align:center;
-}
-
-th{
-    background:#2563eb;
-    color:white;
-}
-
 canvas{
     background:white;
     border-radius:15px;
     padding:10px;
 }
 
-@media(max-width:900px){
+.reportCard{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    margin-top:20px;
+    border:3px solid black;
+}
 
-    .grid{
-        grid-template-columns:1fr;
-    }
+.yellow{
+    background:yellow;
+    font-weight:bold;
+}
+
+@media(max-width:900px){
 
     .stats{
         grid-template-columns:1fr 1fr;
@@ -122,82 +125,181 @@ if(
 
 <div class="card">
 
-<h1>🐄 Daily Milk Entry</h1>
+<h1>🐄 Dairy Milk Entry</h1>
 
-<div class="grid">
+<table>
 
-<div>
-<label>Date</label>
+<tr>
+<th colspan="4">
 <input type="date" id="date">
-</div>
+</th>
+</tr>
 
-<div>
-<label>No Of Cows</label>
-<input type="number" id="cowCount">
-</div>
+<tr>
+<th></th>
+<th>Milk AM</th>
+<th>Milk PM</th>
+<th>Total</th>
+</tr>
 
-<div>
-<label>Milk AM</label>
+<tr>
+
+<td><b>Dairy</b></td>
+
+<td>
 <input
 type="number"
-id="milkAM"
-oninput="updateMilkTotal()"
+id="dairyAM"
+oninput="calculateTotals()"
 >
-</div>
+</td>
 
-<div>
-<label>Milk PM</label>
+<td>
 <input
 type="number"
-id="milkPM"
-oninput="updateMilkTotal()"
+id="dairyPM"
+oninput="calculateTotals()"
 >
-</div>
+</td>
 
-<div>
-<label>Discarded Milk</label>
+<td id="dairyTotal">0</td>
+
+</tr>
+
+<tr>
+
+<td><b>Staff</b></td>
+
+<td>
+<input
+type="number"
+id="staffAM"
+oninput="calculateTotals()"
+value="0"
+>
+</td>
+
+<td>
+<input
+type="number"
+id="staffPM"
+oninput="calculateTotals()"
+value="0"
+>
+</td>
+
+<td id="staffTotal">0</td>
+
+</tr>
+
+<tr>
+
+<td><b>Calf</b></td>
+
+<td>
+<input
+type="number"
+id="calfAM"
+oninput="calculateTotals()"
+value="0"
+>
+</td>
+
+<td>
+<input
+type="number"
+id="calfPM"
+oninput="calculateTotals()"
+value="0"
+>
+</td>
+
+<td id="calfTotal">0</td>
+
+</tr>
+
+<tr>
+
+<td><b>Discard</b></td>
+
+<td colspan="2">
+
 <input
 type="number"
 id="discardedMilk"
 value="0"
-oninput="updateMilkTotal()"
+oninput="calculateTotals()"
 >
-</div>
 
-</div>
+</td>
+
+<td id="discardTotal">0</td>
+
+</tr>
+
+<tr class="yellow">
+
+<td><b>TOTAL</b></td>
+
+<td id="totalAM">0</td>
+
+<td id="totalPM">0</td>
+
+<td id="grandTotal">0</td>
+
+</tr>
+
+<tr>
+
+<td><b>No Of Cows</b></td>
+
+<td colspan="3">
+
+<input
+type="number"
+id="cowCount"
+>
+
+</td>
+
+</tr>
+
+</table>
 
 <button onclick="saveMilk()">
 Save Milk Entry
 </button>
 
-</div>
+<button onclick="shareTodayReport()">
+Share Today Report
+</button>
 
-<!-- MILK ANALYTICS -->
+</div>
 
 <div class="card">
 
-<h2>Milk Dashboard</h2>
+<h2>Milk Analytics</h2>
 
 <div class="stats">
 
 <div class="stat">
-<h3>Total AM Milk</h3>
-<p id="totalAM">0 L</p>
-</div>
-
-<div class="stat">
-<h3>Total PM Milk</h3>
-<p id="totalPM">0 L</p>
-</div>
-
-<div class="stat">
 <h3>Total Milk</h3>
-<p id="totalMilkDashboard">0 L</p>
+<p id="dashboardMilk">0 L</p>
 </div>
 
 <div class="stat">
-<h3>Discarded Milk</h3>
-<p id="totalDiscarded">0 L</p>
+<h3>Total AM</h3>
+<p id="dashboardAM">0 L</p>
+</div>
+
+<div class="stat">
+<h3>Total PM</h3>
+<p id="dashboardPM">0 L</p>
+</div>
+
+<div class="stat">
+<h3>Discarded</h3>
+<p id="dashboardDiscard">0 L</p>
 </div>
 
 </div>
@@ -208,11 +310,9 @@ Save Milk Entry
 
 </div>
 
-<!-- RECORDS -->
-
 <div class="card">
 
-<h2>Milk Records</h2>
+<h2>Daily Records</h2>
 
 <table>
 
@@ -222,7 +322,7 @@ Save Milk Entry
 <th>Date</th>
 <th>AM</th>
 <th>PM</th>
-<th>Discarded</th>
+<th>Discard</th>
 <th>Total</th>
 <th>Cows</th>
 </tr>
@@ -240,8 +340,6 @@ Save Milk Entry
 
 let milkChart;
 
-// GET VALUE
-
 function val(id){
 
     return Number(
@@ -249,32 +347,101 @@ function val(id){
     ) || 0;
 }
 
-// AUTO TOTAL
+function calculateTotals(){
 
-function updateMilkTotal(){
+    const dairyAM =
+        val("dairyAM");
 
-    const am =
-        val("milkAM");
+    const dairyPM =
+        val("dairyPM");
 
-    const pm =
-        val("milkPM");
+    const staffAM =
+        val("staffAM");
 
-    const discarded =
+    const staffPM =
+        val("staffPM");
+
+    const calfAM =
+        val("calfAM");
+
+    const calfPM =
+        val("calfPM");
+
+    const discard =
         val("discardedMilk");
 
-    return (
-        am +
-        pm +
-        discarded
-    );
-}
+    const dairyTotal =
+        dairyAM + dairyPM;
 
-// SAVE ENTRY
+    const staffTotal =
+        staffAM + staffPM;
+
+    const calfTotal =
+        calfAM + calfPM;
+
+    const totalAM =
+        dairyAM +
+        staffAM +
+        calfAM;
+
+    const totalPM =
+        dairyPM +
+        staffPM +
+        calfPM;
+
+    const grandTotal =
+        totalAM +
+        totalPM -
+        discard;
+
+    document.getElementById(
+        "dairyTotal"
+    ).innerText =
+        dairyTotal.toFixed(1);
+
+    document.getElementById(
+        "staffTotal"
+    ).innerText =
+        staffTotal.toFixed(1);
+
+    document.getElementById(
+        "calfTotal"
+    ).innerText =
+        calfTotal.toFixed(1);
+
+    document.getElementById(
+        "discardTotal"
+    ).innerText =
+        discard.toFixed(1);
+
+    document.getElementById(
+        "totalAM"
+    ).innerText =
+        totalAM.toFixed(1);
+
+    document.getElementById(
+        "totalPM"
+    ).innerText =
+        totalPM.toFixed(1);
+
+    document.getElementById(
+        "grandTotal"
+    ).innerText =
+        grandTotal.toFixed(1);
+
+    return {
+
+        totalAM,
+        totalPM,
+        grandTotal,
+        discard
+    };
+}
 
 async function saveMilk(){
 
-    const total =
-        updateMilkTotal();
+    const calc =
+        calculateTotals();
 
     const data = {
 
@@ -286,15 +453,16 @@ async function saveMilk(){
             ).value,
 
         milkAM:
-            val("milkAM"),
+            calc.totalAM,
 
         milkPM:
-            val("milkPM"),
+            calc.totalPM,
 
         discardedMilk:
-            val("discardedMilk"),
+            calc.discard,
 
-        dailyMilk:total,
+        dailyMilk:
+            calc.grandTotal,
 
         cows:
             val("cowCount")
@@ -318,7 +486,46 @@ async function saveMilk(){
     loadDashboard();
 }
 
-// LOAD DASHBOARD
+async function shareTodayReport(){
+
+    const text = `
+
+🐄 DAIRY REPORT
+
+Date:
+${document.getElementById("date").value}
+
+AM Milk:
+${document.getElementById("totalAM").innerText}
+
+PM Milk:
+${document.getElementById("totalPM").innerText}
+
+Total Milk:
+${document.getElementById("grandTotal").innerText}
+
+Discarded:
+${document.getElementById("discardTotal").innerText}
+
+No Of Cows:
+${val("cowCount")}
+
+`;
+
+    if(navigator.share){
+
+        navigator.share({
+
+            title:"Dairy Report",
+
+            text:text
+        });
+
+    }else{
+
+        alert(text);
+    }
+}
 
 async function loadDashboard(){
 
@@ -336,9 +543,33 @@ async function loadDashboard(){
     const d =
         await res.json();
 
-    let totalAM = 0;
-    let totalPM = 0;
-    let totalDiscarded = 0;
+    document.getElementById(
+        "dashboardMilk"
+    ).innerText =
+        Number(
+            d.totalMilk || 0
+        ).toFixed(1) + " L";
+
+    document.getElementById(
+        "dashboardAM"
+    ).innerText =
+        Number(
+            d.totalAMMilk || 0
+        ).toFixed(1) + " L";
+
+    document.getElementById(
+        "dashboardPM"
+    ).innerText =
+        Number(
+            d.totalPMMilk || 0
+        ).toFixed(1) + " L";
+
+    document.getElementById(
+        "dashboardDiscard"
+    ).innerText =
+        Number(
+            d.totalDiscardedMilk || 0
+        ).toFixed(1) + " L";
 
     const labels = [];
     const milkData = [];
@@ -352,42 +583,31 @@ async function loadDashboard(){
 
     (d.records || []).forEach(r => {
 
-        totalAM +=
-            Number(r.milkAM || 0);
-
-        totalPM +=
-            Number(r.milkPM || 0);
-
-        totalDiscarded +=
-            Number(r.discardedMilk || 0);
-
         labels.push(r.date);
 
-        milkData.push(
-            Number(r.dailyMilk || 0)
-        );
+        milkData.push(r.dailyMilk);
 
         table.innerHTML += `
 
         <tr>
 
-        <td>${r.date || "-"}</td>
+        <td>${r.date}</td>
 
         <td>${Number(
             r.milkAM || 0
-        ).toFixed(2)}</td>
+        ).toFixed(1)}</td>
 
         <td>${Number(
             r.milkPM || 0
-        ).toFixed(2)}</td>
+        ).toFixed(1)}</td>
 
         <td>${Number(
             r.discardedMilk || 0
-        ).toFixed(2)}</td>
+        ).toFixed(1)}</td>
 
         <td>${Number(
             r.dailyMilk || 0
-        ).toFixed(2)}</td>
+        ).toFixed(1)}</td>
 
         <td>${Number(
             r.cows || 0
@@ -396,26 +616,6 @@ async function loadDashboard(){
         </tr>
         `;
     });
-
-    document.getElementById(
-        "totalAM"
-    ).innerText =
-        totalAM.toFixed(2) + " L";
-
-    document.getElementById(
-        "totalPM"
-    ).innerText =
-        totalPM.toFixed(2) + " L";
-
-    document.getElementById(
-        "totalMilkDashboard"
-    ).innerText =
-        d.totalMilk.toFixed(2) + " L";
-
-    document.getElementById(
-        "totalDiscarded"
-    ).innerText =
-        totalDiscarded.toFixed(2) + " L";
 
     if(milkChart){
         milkChart.destroy();
