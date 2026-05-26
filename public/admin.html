@@ -1,11 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Kshiralaya Admin</title>
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+Kshiralaya Admin
+</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -54,14 +61,14 @@ body{
 
 .logoBox img{
 
-    width:140px;
+    width:150px;
 
     border-radius:20px;
 
     margin-bottom:10px;
 
     box-shadow:
-    0 0 25px rgba(255,255,255,0.1);
+    0 0 25px rgba(255,255,255,0.08);
 }
 
 .logoText{
@@ -257,17 +264,6 @@ th{
     color:#60a5fa;
 }
 
-canvas{
-
-    background:#1e293b;
-
-    border-radius:15px;
-
-    padding:15px;
-
-    max-height:250px !important;
-}
-
 .hidden{
 
     display:none;
@@ -334,37 +330,9 @@ Dashboard
 
 <button
 class="sideBtn"
-onclick="showSection('clientsSection',this)"
->
-Clients
-</button>
-
-<button
-class="sideBtn"
 onclick="showSection('feedSection',this)"
 >
 Feed
-</button>
-
-<button
-class="sideBtn"
-onclick="showSection('monthlySection',this)"
->
-Monthly
-</button>
-
-<button
-class="sideBtn"
-onclick="showSection('managerSection',this)"
->
-Managers
-</button>
-
-<button
-class="sideBtn"
-onclick="showSection('recordsSection',this)"
->
-Records
 </button>
 
 <button
@@ -387,81 +355,58 @@ Logout
 <div class="stats">
 
 <div class="stat">
-<h3>Revenue</h3>
-<p id="revenue">₹0</p>
+
+<h3>
+Revenue
+</h3>
+
+<p id="revenue">
+₹0
+</p>
+
 </div>
 
 <div class="stat">
-<h3>Expense</h3>
-<p id="expense">₹0</p>
+
+<h3>
+Expense
+</h3>
+
+<p id="expense">
+₹0
+</p>
+
 </div>
 
 <div class="stat">
-<h3>Profit</h3>
-<p id="profit">₹0</p>
+
+<h3>
+Profit
+</h3>
+
+<p id="profit">
+₹0
+</p>
+
 </div>
 
 <div class="stat">
-<h3>Total Milk</h3>
-<p id="milk">0L</p>
-</div>
 
-</div>
+<h3>
+Total Milk
+</h3>
 
-<br>
-
-<div class="card">
-
-<h2>Milk Analytics</h2>
-
-<br>
-
-<canvas id="milkChart"></canvas>
+<p id="milk">
+0L
+</p>
 
 </div>
 
 </div>
 
-<!-- CLIENTS -->
-
-<div
-id="clientsSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>Create Client</h2>
-
-<input
-type="text"
-id="clientName"
-placeholder="Client Name"
->
-
-<input
-type="number"
-id="clientPrice"
-placeholder="Price Per Liter"
->
-
-<button onclick="createClient()">
-Create Client
-</button>
-
 </div>
 
-<div class="card">
-
-<h2>Client List</h2>
-
-<div id="clientList"></div>
-
-</div>
-
-</div>
-
-<!-- FEED -->
+<!-- FEED SECTION -->
 
 <div
 id="feedSection"
@@ -470,7 +415,9 @@ class="hidden"
 
 <div class="card">
 
-<h2>Feed Management</h2>
+<h2>
+🌾 Feed Management
+</h2>
 
 <div class="grid">
 
@@ -480,7 +427,7 @@ class="hidden"
 type="text"
 id="feedName"
 placeholder="Feed Name"
->
+/>
 
 </div>
 
@@ -490,7 +437,7 @@ placeholder="Feed Name"
 type="number"
 id="feedQty"
 placeholder="Quantity"
->
+/>
 
 </div>
 
@@ -500,7 +447,7 @@ placeholder="Quantity"
 type="number"
 id="feedCost"
 placeholder="Cost"
->
+/>
 
 </div>
 
@@ -509,7 +456,7 @@ placeholder="Cost"
 <input
 type="date"
 id="feedDate"
->
+/>
 
 </div>
 
@@ -523,7 +470,9 @@ Save Feed
 
 <div class="card">
 
-<h2>Feed Records</h2>
+<h2>
+📋 Feed Records
+</h2>
 
 <table>
 
@@ -531,94 +480,28 @@ Save Feed
 
 <tr>
 
-<th>Feed</th>
-<th>Quantity</th>
-<th>Cost</th>
-<th>Date</th>
+<th>
+Feed
+</th>
+
+<th>
+Quantity
+</th>
+
+<th>
+Cost
+</th>
+
+<th>
+Date
+</th>
 
 </tr>
 
 </thead>
 
 <tbody id="feedRecords">
-</tbody>
 
-</table>
-
-</div>
-
-</div>
-
-<!-- MONTHLY -->
-
-<div
-id="monthlySection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>Monthly Settings</h2>
-
-<input
-type="number"
-id="monthlyExpense"
-placeholder="Monthly Expense"
->
-
-<button onclick="saveMonthly()">
-Save Monthly
-</button>
-
-</div>
-
-</div>
-
-<!-- MANAGERS -->
-
-<div
-id="managerSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>Pending Managers</h2>
-
-<div id="pendingUsers"></div>
-
-</div>
-
-</div>
-
-<!-- RECORDS -->
-
-<div
-id="recordsSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>Milk Records</h2>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Date</th>
-<th>Client</th>
-<th>Manager</th>
-<th>Total</th>
-<th>Discard</th>
-
-</tr>
-
-</thead>
-
-<tbody id="records">
 </tbody>
 
 </table>
@@ -630,8 +513,6 @@ class="hidden"
 </div>
 
 <script>
-
-let milkChart;
 
 // ======================
 // SWITCH SECTION
@@ -668,19 +549,8 @@ function showSection(id,btn){
     );
 
     if(id === "feedSection"){
+
         loadFeeds();
-    }
-
-    if(id === "dashboardSection"){
-        loadDashboard();
-    }
-
-    if(id === "clientsSection"){
-        loadClients();
-    }
-
-    if(id === "managerSection"){
-        loadPendingUsers();
     }
 }
 
@@ -696,355 +566,218 @@ function logout(){
 }
 
 // ======================
-// FEEDS
+// SAVE FEED
 // ======================
 
 async function saveFeed(){
 
-    const data = {
+    try{
 
-        feedName:
-        document.getElementById(
-            "feedName"
-        ).value,
+        const data = {
 
-        quantity:Number(
-
+            feedName:
             document.getElementById(
-                "feedQty"
-            ).value
+                "feedName"
+            ).value,
 
-        ),
+            quantity:Number(
 
-        cost:Number(
+                document.getElementById(
+                    "feedQty"
+                ).value
 
+            ) || 0,
+
+            cost:Number(
+
+                document.getElementById(
+                    "feedCost"
+                ).value
+
+            ) || 0,
+
+            date:
             document.getElementById(
-                "feedCost"
+                "feedDate"
             ).value
+        };
 
-        ),
+        console.log(
+            "SENDING:",
+            data
+        );
 
-        date:
-        document.getElementById(
-            "feedDate"
-        ).value
-    };
+        const res =
+        await fetch("/save-feed",{
 
-    await fetch("/save-feed",{
+            method:"POST",
 
-        method:"POST",
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
 
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
+            body:JSON.stringify(data)
+        });
 
-        body:JSON.stringify(data)
-    });
+        const result =
+        await res.json();
 
-    alert("Feed Saved ✅");
+        console.log(
+            "RESULT:",
+            result
+        );
 
-    loadFeeds();
+        if(result.success){
+
+            alert(
+                "Feed Saved ✅"
+            );
+
+            loadFeeds();
+
+        }else{
+
+            alert(
+                "Feed save failed"
+            );
+        }
+
+    }catch(err){
+
+        console.log(err);
+
+        alert(
+            "Feed Error ❌"
+        );
+    }
 }
+
+// ======================
+// LOAD FEEDS
+// ======================
 
 async function loadFeeds(){
 
-    const res =
-    await fetch("/feeds");
+    try{
 
-    const feeds =
-    await res.json();
+        const res =
+        await fetch("/feeds");
 
-    const table =
-    document.getElementById(
-        "feedRecords"
-    );
+        const feeds =
+        await res.json();
 
-    table.innerHTML = "";
+        console.log(
+            "FEEDS:",
+            feeds
+        );
 
-    if(feeds.length === 0){
-
-        table.innerHTML = `
-
-        <tr>
-
-        <td colspan="4">
-
-        No feed records found
-
-        </td>
-
-        </tr>
-        `;
-
-        return;
-    }
-
-    feeds.forEach(f => {
-
-        table.innerHTML += `
-
-        <tr>
-
-        <td>${f.feedName}</td>
-
-        <td>${f.quantity}</td>
-
-        <td>₹${f.cost}</td>
-
-        <td>${f.date}</td>
-
-        </tr>
-        `;
-    });
-}
-
-// ======================
-// CLIENTS
-// ======================
-
-async function createClient(){
-
-    const data = {
-
-        name:
+        const tbody =
         document.getElementById(
-            "clientName"
-        ).value,
+            "feedRecords"
+        );
 
-        pricePerLiter:Number(
+        tbody.innerHTML = "";
 
-            document.getElementById(
-                "clientPrice"
-            ).value
+        if(!feeds.length){
 
-        )
-    };
+            tbody.innerHTML = `
 
-    await fetch("/create-client",{
+            <tr>
 
-        method:"POST",
+            <td colspan="4">
 
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
+            No feed records found
 
-        body:JSON.stringify(data)
-    });
+            </td>
 
-    alert("Client Created ✅");
+            </tr>
+            `;
 
-    loadClients();
-}
+            return;
+        }
 
-async function loadClients(){
+        feeds.forEach(feed => {
 
-    const res =
-    await fetch("/clients");
+            tbody.innerHTML += `
 
-    const clients =
-    await res.json();
+            <tr>
 
-    const div =
-    document.getElementById(
-        "clientList"
-    );
+                <td>
+                ${feed.feedName || ""}
+                </td>
 
-    div.innerHTML = "";
+                <td>
+                ${feed.quantity || 0}
+                </td>
 
-    clients.forEach(c => {
+                <td>
+                ₹${feed.cost || 0}
+                </td>
 
-        div.innerHTML += `
+                <td>
+                ${feed.date || ""}
+                </td>
 
-        <div class="userCard">
+            </tr>
+            `;
+        });
 
-        <h3>${c.name}</h3>
+    }catch(err){
 
-        <p>
-        ₹${c.pricePerLiter}/L
-        </p>
-
-        </div>
-        `;
-    });
+        console.log(err);
+    }
 }
 
 // ======================
-// MONTHLY
-// ======================
-
-async function saveMonthly(){
-
-    const data = {
-
-        type:"monthly",
-
-        month:
-        new Date()
-        .toISOString()
-        .slice(0,7),
-
-        monthlyExpense:Number(
-
-            document.getElementById(
-                "monthlyExpense"
-            ).value
-
-        )
-    };
-
-    await fetch("/add",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify(data)
-    });
-
-    alert("Monthly Saved ✅");
-}
-
-// ======================
-// USERS
-// ======================
-
-async function loadPendingUsers(){
-
-    const res =
-    await fetch("/pending-users");
-
-    const users =
-    await res.json();
-
-    const div =
-    document.getElementById(
-        "pendingUsers"
-    );
-
-    div.innerHTML = "";
-
-    users.forEach(user => {
-
-        div.innerHTML += `
-
-        <div class="userCard">
-
-        <h3>${user.username}</h3>
-
-        <button
-        onclick="approveUser('${user._id}')"
-        >
-        Approve
-        </button>
-
-        </div>
-        `;
-    });
-}
-
-async function approveUser(id){
-
-    await fetch("/approve-user",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-            id
-        })
-    });
-
-    alert("Approved ✅");
-
-    loadPendingUsers();
-}
-
-// ======================
-// DASHBOARD
+// LOAD DASHBOARD
 // ======================
 
 async function loadDashboard(){
 
-    const res =
-    await fetch("/dashboard");
+    try{
 
-    const d =
-    await res.json();
+        const res =
+        await fetch("/dashboard");
 
-    document.getElementById(
-        "revenue"
-    ).innerText =
-    "₹" +
-    Number(
-        d.totalRevenue || 0
-    ).toFixed(2);
-
-    document.getElementById(
-        "expense"
-    ).innerText =
-    "₹" +
-    Number(
-        d.totalExpense || 0
-    ).toFixed(2);
-
-    document.getElementById(
-        "profit"
-    ).innerText =
-    "₹" +
-    Number(
-        d.totalProfit || 0
-    ).toFixed(2);
-
-    document.getElementById(
-        "milk"
-    ).innerText =
-    Number(
-        d.totalMilk || 0
-    ).toFixed(1) + "L";
-
-    if(milkChart){
-        milkChart.destroy();
-    }
-
-    milkChart =
-    new Chart(
+        const d =
+        await res.json();
 
         document.getElementById(
-            "milkChart"
-        ),
+            "revenue"
+        ).innerText =
+        "₹" +
+        Number(
+            d.totalRevenue || 0
+        ).toFixed(2);
 
-        {
+        document.getElementById(
+            "expense"
+        ).innerText =
+        "₹" +
+        Number(
+            d.totalExpense || 0
+        ).toFixed(2);
 
-            type:"line",
+        document.getElementById(
+            "profit"
+        ).innerText =
+        "₹" +
+        Number(
+            d.totalProfit || 0
+        ).toFixed(2);
 
-            data:{
+        document.getElementById(
+            "milk"
+        ).innerText =
+        Number(
+            d.totalMilk || 0
+        ).toFixed(1) + "L";
 
-                labels:["Milk"],
+    }catch(err){
 
-                datasets:[{
-
-                    label:
-                    "Milk Production",
-
-                    data:[
-                        d.totalMilk || 0
-                    ],
-
-                    borderColor:"#60a5fa",
-
-                    tension:0.4
-                }]
-            }
-        });
+        console.log(err);
+    }
 }
 
 // ======================
@@ -1052,11 +785,11 @@ async function loadDashboard(){
 // ======================
 
 loadDashboard();
+
 loadFeeds();
-loadClients();
-loadPendingUsers();
 
 </script>
 
 </body>
+
 </html>
