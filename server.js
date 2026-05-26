@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 const app = express();
 
 // ======================
-// MIDDLEWARE
+// IMPORTANT MIDDLEWARE
 // ======================
 
 app.use(express.json());
@@ -25,7 +25,9 @@ mongoose.connect(process.env.MONGO_URI)
 
 .then(() => {
 
-    console.log("MongoDB Connected ✅");
+    console.log(
+        "MongoDB Connected ✅"
+    );
 
 })
 
@@ -111,15 +113,11 @@ new mongoose.Schema({
 
     discardedMilk:Number,
 
-    // FEED RECORDS
-
     feedName:String,
 
     quantity:Number,
 
     cost:Number,
-
-    // OLD MONTHLY FEED DATA
 
     feedData:Object
 });
@@ -131,7 +129,7 @@ mongoose.model(
 );
 
 // ======================
-// CREATE DEFAULT ADMIN
+// DEFAULT ADMIN
 // ======================
 
 async function createAdmin(){
@@ -162,7 +160,7 @@ async function createAdmin(){
             });
 
             console.log(
-                "Default admin created ✅"
+                "Default Admin Created ✅"
             );
         }
 
@@ -173,6 +171,62 @@ async function createAdmin(){
 }
 
 createAdmin();
+
+// ======================
+// LOGIN
+// ======================
+
+app.post("/login", async (req,res)=>{
+
+    try{
+
+        const user =
+        await User.findOne({
+
+            username:req.body.username,
+
+            password:req.body.password
+        });
+
+        if(!user){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "Invalid credentials"
+            });
+        }
+
+        if(!user.approved){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "Approval pending"
+            });
+        }
+
+        res.send({
+
+            success:true,
+
+            user
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
 
 // ======================
 // SIGNUP
@@ -195,39 +249,33 @@ app.post("/signup", async (req,res)=>{
                 success:false,
 
                 message:
-                "User already exists"
+                "User exists"
             });
         }
 
         await User.create({
 
-            username:
-                req.body.username,
+            username:req.body.username,
 
-            password:
-                req.body.password,
+            password:req.body.password,
 
             role:"worker",
 
             approved:false,
 
-            permissions:
-                req.body.permissions || []
+            permissions:[]
         });
 
         res.send({
 
-            success:true,
-
-            message:
-            "Account request sent to admin"
+            success:true
         });
 
     }catch(err){
 
         console.log(err);
 
-        res.status(500).send({
+        res.send({
 
             success:false
         });
@@ -235,75 +283,7 @@ app.post("/signup", async (req,res)=>{
 });
 
 // ======================
-// LOGIN
-// ======================
-
-app.post("/login", async (req,res)=>{
-
-    try{
-
-        const user =
-        await User.findOne({
-
-            username:
-                req.body.username,
-
-            password:
-                req.body.password
-        });
-
-        if(!user){
-
-            return res.send({
-
-                success:false,
-
-                message:
-                "Invalid credentials"
-            });
-        }
-
-        if(!user.approved){
-
-            return res.send({
-
-                success:false,
-
-                message:
-                "Admin approval pending"
-            });
-        }
-
-        res.send({
-
-            success:true,
-
-            user:{
-
-                username:
-                    user.username,
-
-                role:
-                    user.role,
-
-                permissions:
-                    user.permissions
-            }
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.status(500).send({
-
-            success:false
-        });
-    }
-});
-
-// ======================
-// GET PENDING USERS
+// PENDING USERS
 // ======================
 
 app.get("/pending-users", async (req,res)=>{
@@ -322,7 +302,7 @@ app.get("/pending-users", async (req,res)=>{
 
         console.log(err);
 
-        res.status(500).send([]);
+        res.send([]);
     }
 });
 
@@ -353,7 +333,7 @@ app.post("/approve-user", async (req,res)=>{
 
         console.log(err);
 
-        res.status(500).send({
+        res.send({
 
             success:false
         });
@@ -373,10 +353,10 @@ app.post("/create-client", async (req,res)=>{
             name:req.body.name,
 
             pricePerLiter:
-                req.body.pricePerLiter || 0,
+            req.body.pricePerLiter,
 
             createdBy:
-                req.body.createdBy
+            req.body.createdBy
         });
 
         res.send({
@@ -388,7 +368,7 @@ app.post("/create-client", async (req,res)=>{
 
         console.log(err);
 
-        res.status(500).send({
+        res.send({
 
             success:false
         });
@@ -412,13 +392,9 @@ app.get("/clients", async (req,res)=>{
 
         console.log(err);
 
-        res.status(500).send([]);
+        res.send([]);
     }
 });
-
-// ======================
-// SAVE FEED
-// ======================
 
 // ======================
 // SAVE FEED
@@ -429,36 +405,36 @@ app.post("/save-feed", async (req,res)=>{
     try{
 
         console.log(
-            "BODY:",
+            "REQ BODY:",
             req.body
         );
 
-        const newFeed =
+        const feed =
         new Entry({
 
             type:"feed",
 
             feedName:
-                req.body.feedName,
+            req.body.feedName,
 
             quantity:
-                Number(
-                    req.body.quantity
-                ) || 0,
+            Number(
+                req.body.quantity
+            ) || 0,
 
             cost:
-                Number(
-                    req.body.cost
-                ) || 0,
+            Number(
+                req.body.cost
+            ) || 0,
 
             date:
-                req.body.date
+            req.body.date
         });
 
-        await newFeed.save();
+        await feed.save();
 
         console.log(
-            "FEED SAVED"
+            "FEED SAVED ✅"
         );
 
         res.send({
@@ -473,7 +449,7 @@ app.post("/save-feed", async (req,res)=>{
             err
         );
 
-        res.status(500).send({
+        res.send({
 
             success:false
         });
@@ -496,7 +472,7 @@ app.get("/feeds", async (req,res)=>{
         .sort({_id:-1});
 
         console.log(
-            "Feeds:",
+            "FEEDS:",
             feeds
         );
 
@@ -506,7 +482,7 @@ app.get("/feeds", async (req,res)=>{
 
         console.log(err);
 
-        res.status(500).send([]);
+        res.send([]);
     }
 });
 
@@ -518,33 +494,9 @@ app.post("/add", async (req,res)=>{
 
     try{
 
-        // OVERWRITE SAME DATE + CLIENT
-
-        if(req.body.type === "milk"){
-
-            await Entry.deleteMany({
-
-                type:"milk",
-
-                date:req.body.date,
-
-                client:req.body.client
-            });
-        }
-
-        // OVERWRITE MONTHLY
-
-        if(req.body.type === "monthly"){
-
-            await Entry.deleteMany({
-
-                type:"monthly",
-
-                month:req.body.month
-            });
-        }
-
-        await Entry.create(req.body);
+        await Entry.create(
+            req.body
+        );
 
         res.send({
 
@@ -555,7 +507,7 @@ app.post("/add", async (req,res)=>{
 
         console.log(err);
 
-        res.status(500).send({
+        res.send({
 
             success:false
         });
@@ -570,173 +522,28 @@ app.get("/dashboard", async (req,res)=>{
 
     try{
 
-        const selectedMonth =
-            req.query.month;
-
-        const selectedClient =
-            req.query.client;
-
-        // MONTHLY
-
-        const monthlyEntries =
-        await Entry.find({
-
-            type:"monthly",
-
-            ...(selectedMonth && {
-
-                month:selectedMonth
-            })
-        });
-
-        // MILK
-
         const milkEntries =
         await Entry.find({
 
-            type:"milk",
-
-            ...(selectedMonth && {
-
-                date:{
-                    $regex:
-                    "^" + selectedMonth
-                }
-            }),
-
-            ...(selectedClient && {
-
-                client:selectedClient
-            })
+            type:"milk"
         });
 
-        const latestMonthly =
-            monthlyEntries[
-                monthlyEntries.length - 1
-            ];
+        const monthly =
+        await Entry.findOne({
 
-        // ======================
-        // OLD MONTHLY FORMAT
-        // ======================
-
-        const monthlyExpense =
-            Number(
-                latestMonthly
-                ?.monthlyExpense || 0
-            );
-
-        const salary =
-            Number(
-                latestMonthly
-                ?.salary || 0
-            );
-
-        const feed =
-            latestMonthly?.feedData || {};
-
-        // ======================
-        // DAILY FEED COST
-        // ======================
-
-        const dailyFeedCost =
-
-            ((feed.silagePrice || 0) *
-            (feed.silageKg || 0))
-
-            +
-
-            ((feed.feedPrice || 0) *
-            (feed.feedKg || 0))
-
-            +
-
-            ((feed.bhusaPrice || 0) *
-            (feed.bhusaKg || 0))
-
-            +
-
-            ((feed.mineralPrice || 0) *
-            (feed.mineralKg || 0))
-
-            +
-
-            ((feed.yeastPrice || 0) *
-            (feed.yeastKg || 0))
-
-            +
-
-            ((feed.bufferPrice || 0) *
-            (feed.bufferKg || 0))
-
-            +
-
-            ((feed.glycolPrice || 0) *
-            (feed.glycolKg || 0))
-
-            +
-
-            ((feed.sodaPrice || 0) *
-            (feed.sodaKg || 0))
-
-            +
-
-            ((feed.dcpPrice || 0) *
-            (feed.dcpKg || 0));
-
-        const cows =
-            Number(
-                latestMonthly?.cows || 0
-            );
-
-        const monthlyFeedExpense =
-
-            dailyFeedCost *
-            cows *
-            30;
-
-        const totalExpense =
-
-            monthlyExpense +
-            salary +
-            monthlyFeedExpense;
-
-        // ======================
-        // MILK STATS
-        // ======================
+            type:"monthly"
+        });
 
         let totalMilk = 0;
-
-        let totalAMMilk = 0;
-
-        let totalPMMilk = 0;
-
-        let totalDiscardedMilk = 0;
 
         let totalRevenue = 0;
 
         for(const entry of milkEntries){
 
-            const milk =
-                Number(
-                    entry.dailyMilk || 0
-                );
-
-            totalMilk += milk;
-
-            totalAMMilk +=
-                Number(
-                    entry.milkAM || 0
-                );
-
-            totalPMMilk +=
-                Number(
-                    entry.milkPM || 0
-                );
-
-            totalDiscardedMilk +=
-                Number(
-                    entry.discardedMilk || 0
-                );
+            totalMilk +=
+            Number(
+                entry.dailyMilk || 0
+            );
 
             const client =
             await Client.findOne({
@@ -744,39 +551,38 @@ app.get("/dashboard", async (req,res)=>{
                 name:entry.client
             });
 
-            const clientPrice =
-                Number(
-                    client?.pricePerLiter || 0
-                );
+            const rate =
+            Number(
+                client
+                ?.pricePerLiter || 0
+            );
 
             totalRevenue +=
-                milk * clientPrice;
+            rate *
+            Number(
+                entry.dailyMilk || 0
+            );
         }
 
-        const totalProfit =
-            totalRevenue -
-            totalExpense;
+        const totalExpense =
+        Number(
+            monthly
+            ?.monthlyExpense || 0
+        );
 
-        // RESPONSE
+        const totalProfit =
+        totalRevenue -
+        totalExpense;
 
         res.send({
 
-            totalExpense,
-
             totalMilk,
-
-            totalAMMilk,
-
-            totalPMMilk,
-
-            totalDiscardedMilk,
 
             totalRevenue,
 
-            totalProfit,
+            totalExpense,
 
-            monthlySettings:
-                latestMonthly || {},
+            totalProfit,
 
             records:milkEntries
         });
@@ -785,7 +591,7 @@ app.get("/dashboard", async (req,res)=>{
 
         console.log(err);
 
-        res.status(500).send({
+        res.send({
 
             success:false
         });
@@ -808,7 +614,7 @@ app.get("/health",(req,res)=>{
 // ======================
 
 const PORT =
-    process.env.PORT || 3000;
+process.env.PORT || 3000;
 
 app.listen(
     PORT,
@@ -816,7 +622,7 @@ app.listen(
     ()=>{
 
         console.log(
-            `Server running on port ${PORT}`
+            `Server running on ${PORT}`
         );
     }
 );
