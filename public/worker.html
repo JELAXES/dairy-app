@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Dairy Worker Panel</title>
+<title>Worker Panel</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -15,8 +15,8 @@
 body{
     font-family:Arial;
     background:#f1f5f9;
-    padding:20px;
     margin:0;
+    padding:20px;
 }
 
 .card{
@@ -25,9 +25,6 @@ body{
     border-radius:15px;
     margin-bottom:20px;
     box-shadow:0 4px 10px rgba(0,0,0,0.1);
-    max-width:1100px;
-    margin-left:auto;
-    margin-right:auto;
 }
 
 table{
@@ -37,33 +34,32 @@ table{
 
 th,td{
     border:2px solid #000;
-    padding:12px;
+    padding:10px;
     text-align:center;
-    font-size:18px;
 }
 
 th{
     background:yellow;
 }
 
-input{
+input,select{
     width:100%;
     padding:10px;
-    border:none;
-    text-align:center;
-    font-size:18px;
+    border-radius:8px;
+    border:1px solid #ccc;
     box-sizing:border-box;
+    text-align:center;
 }
 
 button{
     width:100%;
-    padding:15px;
-    margin-top:20px;
+    padding:14px;
+    margin-top:15px;
     border:none;
     border-radius:10px;
     background:#2563eb;
     color:white;
-    font-size:18px;
+    font-size:16px;
     cursor:pointer;
 }
 
@@ -80,23 +76,22 @@ button{
     text-align:center;
 }
 
+.userInfo{
+    background:#111827;
+    color:white;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:20px;
+}
+
+.permissionBox{
+    margin-top:10px;
+}
+
 canvas{
     background:white;
     border-radius:15px;
     padding:10px;
-}
-
-.reportCard{
-    background:white;
-    padding:20px;
-    border-radius:15px;
-    margin-top:20px;
-    border:3px solid black;
-}
-
-.yellow{
-    background:yellow;
-    font-weight:bold;
 }
 
 @media(max-width:900px){
@@ -123,23 +118,69 @@ if(
 
 </script>
 
+<div class="userInfo">
+
+<h2>
+👷 Worker Dashboard
+</h2>
+
+<p>
+Worker:
+<span id="workerName"></span>
+</p>
+
+<p>
+Permissions:
+<span id="permissionList"></span>
+</p>
+
+</div>
+
+<!-- CLIENT -->
+
 <div class="card">
 
-<h1>🐄 Dairy Milk Entry</h1>
+<h2>Select Client</h2>
+
+<select id="clientSelect">
+<option value="">
+Select Client
+</option>
+</select>
+
+</div>
+
+<!-- MILK ENTRY -->
+
+<div
+class="card"
+id="milkSection"
+>
+
+<h2>🐄 Dairy Milk Entry</h2>
 
 <table>
 
 <tr>
+
 <th colspan="4">
-<input type="date" id="date">
+
+<input
+type="date"
+id="date"
+>
+
 </th>
+
 </tr>
 
 <tr>
+
 <th></th>
-<th>Milk AM</th>
-<th>Milk PM</th>
+<th>AM</th>
+<th>PM</th>
 <th>Total</th>
+
 </tr>
 
 <tr>
@@ -147,22 +188,28 @@ if(
 <td><b>Dairy</b></td>
 
 <td>
+
 <input
 type="number"
 id="dairyAM"
 oninput="calculateTotals()"
 >
+
 </td>
 
 <td>
+
 <input
 type="number"
 id="dairyPM"
 oninput="calculateTotals()"
 >
+
 </td>
 
-<td id="dairyTotal">0</td>
+<td id="dairyTotal">
+0
+</td>
 
 </tr>
 
@@ -171,24 +218,30 @@ oninput="calculateTotals()"
 <td><b>Staff</b></td>
 
 <td>
+
 <input
 type="number"
 id="staffAM"
-oninput="calculateTotals()"
 value="0"
+oninput="calculateTotals()"
 >
+
 </td>
 
 <td>
+
 <input
 type="number"
 id="staffPM"
-oninput="calculateTotals()"
 value="0"
+oninput="calculateTotals()"
 >
+
 </td>
 
-<td id="staffTotal">0</td>
+<td id="staffTotal">
+0
+</td>
 
 </tr>
 
@@ -197,24 +250,30 @@ value="0"
 <td><b>Calf</b></td>
 
 <td>
+
 <input
 type="number"
 id="calfAM"
-oninput="calculateTotals()"
 value="0"
+oninput="calculateTotals()"
 >
+
 </td>
 
 <td>
+
 <input
 type="number"
 id="calfPM"
-oninput="calculateTotals()"
 value="0"
+oninput="calculateTotals()"
 >
+
 </td>
 
-<td id="calfTotal">0</td>
+<td id="calfTotal">
+0
+</td>
 
 </tr>
 
@@ -233,19 +292,9 @@ oninput="calculateTotals()"
 
 </td>
 
-<td id="discardTotal">0</td>
-
-</tr>
-
-<tr class="yellow">
-
-<td><b>TOTAL</b></td>
-
-<td id="totalAM">0</td>
-
-<td id="totalPM">0</td>
-
-<td id="grandTotal">0</td>
+<td id="discardTotal">
+0
+</td>
 
 </tr>
 
@@ -264,6 +313,24 @@ id="cowCount"
 
 </tr>
 
+<tr style="background:yellow;font-weight:bold;">
+
+<td>TOTAL</td>
+
+<td id="totalAM">
+0
+</td>
+
+<td id="totalPM">
+0
+</td>
+
+<td id="grandTotal">
+0
+</td>
+
+</tr>
+
 </table>
 
 <button onclick="saveMilk()">
@@ -276,30 +343,43 @@ Share Today Report
 
 </div>
 
-<div class="card">
+<!-- ANALYTICS -->
 
-<h2>Milk Analytics</h2>
+<div
+class="card"
+id="analyticsSection"
+>
+
+<h2>📊 Analytics</h2>
 
 <div class="stats">
 
 <div class="stat">
 <h3>Total Milk</h3>
-<p id="dashboardMilk">0 L</p>
+<p id="dashboardMilk">
+0 L
+</p>
 </div>
 
 <div class="stat">
-<h3>Total AM</h3>
-<p id="dashboardAM">0 L</p>
+<h3>AM Milk</h3>
+<p id="dashboardAM">
+0 L
+</p>
 </div>
 
 <div class="stat">
-<h3>Total PM</h3>
-<p id="dashboardPM">0 L</p>
+<h3>PM Milk</h3>
+<p id="dashboardPM">
+0 L
+</p>
 </div>
 
 <div class="stat">
 <h3>Discarded</h3>
-<p id="dashboardDiscard">0 L</p>
+<p id="dashboardDiscard">
+0 L
+</p>
 </div>
 
 </div>
@@ -310,21 +390,26 @@ Share Today Report
 
 </div>
 
+<!-- RECORDS -->
+
 <div class="card">
 
-<h2>Daily Records</h2>
+<h2>Milk Records</h2>
 
 <table>
 
 <thead>
 
 <tr>
+
 <th>Date</th>
+<th>Client</th>
 <th>AM</th>
 <th>PM</th>
 <th>Discard</th>
 <th>Total</th>
 <th>Cows</th>
+
 </tr>
 
 </thead>
@@ -340,12 +425,76 @@ Share Today Report
 
 let milkChart;
 
+// =====================
+// USER INFO
+// =====================
+
+const username =
+    localStorage.getItem(
+        "username"
+    );
+
+const permissions =
+    JSON.parse(
+
+        localStorage.getItem(
+            "permissions"
+        ) || "[]"
+    );
+
+document.getElementById(
+    "workerName"
+).innerText =
+    username;
+
+document.getElementById(
+    "permissionList"
+).innerText =
+    permissions.join(", ");
+
+// =====================
+// PERMISSION CONTROL
+// =====================
+
+if(
+    !permissions.includes(
+        "milk-entry"
+    )
+){
+
+    document.getElementById(
+        "milkSection"
+    ).style.display = "none";
+}
+
+if(
+    !permissions.includes(
+        "analytics"
+    )
+){
+
+    document.getElementById(
+        "analyticsSection"
+    ).style.display = "none";
+}
+
+// =====================
+// GET VALUE
+// =====================
+
 function val(id){
 
     return Number(
-        document.getElementById(id).value
+
+        document.getElementById(id)
+        .value
+
     ) || 0;
 }
+
+// =====================
+// CALCULATE TOTALS
+// =====================
 
 function calculateTotals(){
 
@@ -438,6 +587,10 @@ function calculateTotals(){
     };
 }
 
+// =====================
+// SAVE MILK
+// =====================
+
 async function saveMilk(){
 
     const calc =
@@ -446,6 +599,13 @@ async function saveMilk(){
     const data = {
 
         type:"milk",
+
+        client:
+            document.getElementById(
+                "clientSelect"
+            ).value,
+
+        worker:username,
 
         date:
             document.getElementById(
@@ -473,7 +633,8 @@ async function saveMilk(){
         method:"POST",
 
         headers:{
-            "Content-Type":"application/json"
+            "Content-Type":
+            "application/json"
         },
 
         body:JSON.stringify(data)
@@ -486,11 +647,21 @@ async function saveMilk(){
     loadDashboard();
 }
 
+// =====================
+// SHARE REPORT
+// =====================
+
 async function shareTodayReport(){
 
     const text = `
 
-🐄 DAIRY REPORT
+🐄 Dairy Report
+
+Worker:
+${username}
+
+Client:
+${document.getElementById("clientSelect").value}
 
 Date:
 ${document.getElementById("date").value}
@@ -501,14 +672,11 @@ ${document.getElementById("totalAM").innerText}
 PM Milk:
 ${document.getElementById("totalPM").innerText}
 
-Total Milk:
+Total:
 ${document.getElementById("grandTotal").innerText}
 
-Discarded:
+Discard:
 ${document.getElementById("discardTotal").innerText}
-
-No Of Cows:
-${val("cowCount")}
 
 `;
 
@@ -527,17 +695,57 @@ ${val("cowCount")}
     }
 }
 
+// =====================
+// LOAD CLIENTS
+// =====================
+
+async function loadClients(){
+
+    const res =
+        await fetch("/clients");
+
+    const clients =
+        await res.json();
+
+    const select =
+        document.getElementById(
+            "clientSelect"
+        );
+
+    clients.forEach(c => {
+
+        select.innerHTML += `
+
+        <option value="${c.name}">
+        ${c.name}
+        </option>
+        `;
+    });
+}
+
+// =====================
+// LOAD DASHBOARD
+// =====================
+
 async function loadDashboard(){
 
-    const currentMonth =
+    const month =
         new Date()
         .toISOString()
         .slice(0,7);
 
+    const client =
+        document.getElementById(
+            "clientSelect"
+        ).value;
+
     const res =
         await fetch(
+
             "/dashboard?month=" +
-            currentMonth
+            month +
+            "&client=" +
+            client
         );
 
     const d =
@@ -571,9 +779,6 @@ async function loadDashboard(){
             d.totalDiscardedMilk || 0
         ).toFixed(1) + " L";
 
-    const labels = [];
-    const milkData = [];
-
     const table =
         document.getElementById(
             "records"
@@ -581,17 +786,24 @@ async function loadDashboard(){
 
     table.innerHTML = "";
 
+    const labels = [];
+    const milkData = [];
+
     (d.records || []).forEach(r => {
 
         labels.push(r.date);
 
-        milkData.push(r.dailyMilk);
+        milkData.push(
+            r.dailyMilk
+        );
 
         table.innerHTML += `
 
         <tr>
 
         <td>${r.date}</td>
+
+        <td>${r.client || "-"}</td>
 
         <td>${Number(
             r.milkAM || 0
@@ -638,13 +850,25 @@ async function loadDashboard(){
 
                 datasets:[{
 
-                    label:"Milk Production",
+                    label:
+                    "Milk Production",
 
                     data:milkData
                 }]
             }
         });
 }
+
+document.getElementById(
+    "clientSelect"
+).addEventListener(
+
+    "change",
+
+    loadDashboard
+);
+
+loadClients();
 
 loadDashboard();
 

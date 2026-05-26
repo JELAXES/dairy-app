@@ -5,7 +5,9 @@ const mongoose = require("mongoose");
 
 const app = express();
 
-// ===== MIDDLEWARE =====
+// ======================
+// MIDDLEWARE
+// ======================
 
 app.use(express.json());
 
@@ -15,7 +17,9 @@ app.use(express.urlencoded({
 
 app.use(express.static("public"));
 
-// ===== MONGODB =====
+// ======================
+// MONGODB
+// ======================
 
 mongoose.connect(process.env.MONGO_URI)
 
@@ -29,13 +33,54 @@ mongoose.connect(process.env.MONGO_URI)
 
 .catch((err) => {
 
-    console.log(
-        "MongoDB Error:",
-        err
-    );
+    console.log(err);
 });
 
-// ===== SCHEMA =====
+// ======================
+// USER SCHEMA
+// ======================
+
+const UserSchema =
+new mongoose.Schema({
+
+    username:String,
+
+    password:String,
+
+    role:String,
+
+    approved:Boolean,
+
+    permissions:[String]
+});
+
+const User =
+mongoose.model(
+    "User",
+    UserSchema
+);
+
+// ======================
+// CLIENT SCHEMA
+// ======================
+
+const ClientSchema =
+new mongoose.Schema({
+
+    name:String,
+
+    createdBy:String
+});
+
+const Client =
+mongoose.model(
+    "Client",
+    ClientSchema
+);
+
+// ======================
+// ENTRY SCHEMA
+// ======================
 
 const EntrySchema =
 new mongoose.Schema({
@@ -45,6 +90,10 @@ new mongoose.Schema({
     month:String,
 
     date:String,
+
+    client:String,
+
+    worker:String,
 
     cows:Number,
 
@@ -71,23 +120,296 @@ mongoose.model(
     EntrySchema
 );
 
-// ===== HOME ROUTE =====
+// ======================
+// CREATE DEFAULT ADMIN
+// ======================
 
-app.get("/",(req,res)=>{
+async function createAdmin(){
 
-    res.sendFile(
-        __dirname +
-        "/public/index.html"
-    );
+    try{
+
+        const existing =
+        await User.findOne({
+
+            username:"Praveen"
+        });
+
+        if(!existing){
+
+            await User.create({
+
+                username:"Praveen",
+
+                password:"vishnu123",
+
+                role:"admin",
+
+                approved:true,
+
+                permissions:[
+                    "all"
+                ]
+            });
+
+            console.log(
+                "Default admin created ✅"
+            );
+        }
+
+    }catch(err){
+
+        console.log(err);
+    }
+}
+
+createAdmin();
+
+// ======================
+// SIGNUP
+// ======================
+
+app.post("/signup", async (req,res)=>{
+
+    try{
+
+        const existing =
+        await User.findOne({
+
+            username:req.body.username
+        });
+
+        if(existing){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "User already exists"
+            });
+        }
+
+        await User.create({
+
+            username:
+                req.body.username,
+
+            password:
+                req.body.password,
+
+            role:"worker",
+
+            approved:false,
+
+            permissions:
+                req.body.permissions || []
+        });
+
+        res.send({
+
+            success:true,
+
+            message:
+            "Waiting for admin approval"
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).send({
+
+            success:false
+        });
+    }
 });
 
-// ===== ADD ENTRY =====
+// ======================
+// LOGIN
+// ======================
+
+app.post("/login", async (req,res)=>{
+
+    try{
+
+        const user =
+        await User.findOne({
+
+            username:
+                req.body.username,
+
+            password:
+                req.body.password
+        });
+
+        if(!user){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "Invalid credentials"
+            });
+        }
+
+        if(!user.approved){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "Admin approval pending"
+            });
+        }
+
+        res.send({
+
+            success:true,
+
+            user:{
+
+                username:
+                    user.username,
+
+                role:
+                    user.role,
+
+                permissions:
+                    user.permissions
+            }
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// PENDING USERS
+// ======================
+
+app.get("/pending-users", async (req,res)=>{
+
+    try{
+
+        const users =
+        await User.find({
+
+            approved:false
+        });
+
+        res.send(users);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).send([]);
+    }
+});
+
+// ======================
+// APPROVE USER
+// ======================
+
+app.post("/approve-user", async (req,res)=>{
+
+    try{
+
+        await User.findByIdAndUpdate(
+
+            req.body.id,
+
+            {
+
+                approved:true
+            }
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// CREATE CLIENT
+// ======================
+
+app.post("/create-client", async (req,res)=>{
+
+    try{
+
+        await Client.create({
+
+            name:req.body.name,
+
+            createdBy:
+                req.body.createdBy
+        });
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// GET CLIENTS
+// ======================
+
+app.get("/clients", async (req,res)=>{
+
+    try{
+
+        const clients =
+        await Client.find();
+
+        res.send(clients);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.status(500).send([]);
+    }
+});
+
+// ======================
+// ADD ENTRY
+// ======================
 
 app.post("/add", async (req,res)=>{
 
     try{
-
-        // OVERWRITE SAME DAY MILK ENTRY
 
         if(req.body.type === "milk"){
 
@@ -95,11 +417,11 @@ app.post("/add", async (req,res)=>{
 
                 type:"milk",
 
-                date:req.body.date
+                date:req.body.date,
+
+                client:req.body.client
             });
         }
-
-        // OVERWRITE SAME MONTH SETTINGS
 
         if(req.body.type === "monthly"){
 
@@ -111,11 +433,10 @@ app.post("/add", async (req,res)=>{
             });
         }
 
-        // SAVE ENTRY
-
         await Entry.create(req.body);
 
         res.send({
+
             success:true
         });
 
@@ -125,14 +446,14 @@ app.post("/add", async (req,res)=>{
 
         res.status(500).send({
 
-            success:false,
-
-            error:err.message
+            success:false
         });
     }
 });
 
-// ===== DASHBOARD =====
+// ======================
+// DASHBOARD
+// ======================
 
 app.get("/dashboard", async (req,res)=>{
 
@@ -141,48 +462,43 @@ app.get("/dashboard", async (req,res)=>{
         const selectedMonth =
             req.query.month;
 
-        const data =
-            await Entry.find()
-            .sort({_id:1});
-
-        // MONTH SETTINGS
+        const selectedClient =
+            req.query.client;
 
         const monthlyEntries =
-            data.filter(d =>
+        await Entry.find({
 
-                d.type === "monthly" &&
+            type:"monthly",
 
-                (
-                    !selectedMonth ||
+            ...(selectedMonth && {
 
-                    d.month === selectedMonth
-                )
-            );
-
-        // MILK ENTRIES
+                month:selectedMonth
+            })
+        });
 
         const milkEntries =
-            data.filter(d =>
+        await Entry.find({
 
-                d.type === "milk" &&
+            type:"milk",
 
-                (
-                    !selectedMonth ||
+            ...(selectedMonth && {
 
-                    d.date?.startsWith(
-                        selectedMonth
-                    )
-                )
-            );
+                date:{
+                    $regex:
+                    "^" + selectedMonth
+                }
+            }),
 
-        // LATEST MONTH SETTINGS
+            ...(selectedClient && {
+
+                client:selectedClient
+            })
+        });
 
         const latestMonthly =
             monthlyEntries[
                 monthlyEntries.length - 1
             ];
-
-        // EXPENSE
 
         const totalExpense =
             Number(
@@ -190,14 +506,9 @@ app.get("/dashboard", async (req,res)=>{
                 ?.monthlyExpense || 0
             );
 
-        // MILK TOTALS
-
         let totalMilk = 0;
-
         let totalAMMilk = 0;
-
         let totalPMMilk = 0;
-
         let totalDiscardedMilk = 0;
 
         milkEntries.forEach(entry => {
@@ -223,27 +534,19 @@ app.get("/dashboard", async (req,res)=>{
                 );
         });
 
-        // MILK PRICE
-
         const milkPrice =
             Number(
                 latestMonthly
                 ?.milkPrice || 0
             );
 
-        // REVENUE
-
         const totalRevenue =
             totalMilk *
             milkPrice;
 
-        // PROFIT
-
         const totalProfit =
             totalRevenue -
             totalExpense;
-
-        // SEND RESPONSE
 
         res.send({
 
@@ -275,21 +578,25 @@ app.get("/dashboard", async (req,res)=>{
 
         res.status(500).send({
 
-            success:false,
-
-            error:err.message
+            success:false
         });
     }
 });
 
-// ===== HEALTH CHECK =====
+// ======================
+// HEALTH
+// ======================
 
 app.get("/health",(req,res)=>{
 
-    res.send("Server Running ✅");
+    res.send(
+        "Server Running ✅"
+    );
 });
 
-// ===== START SERVER =====
+// ======================
+// START SERVER
+// ======================
 
 const PORT =
     process.env.PORT || 3000;
