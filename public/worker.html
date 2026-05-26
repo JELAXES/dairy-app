@@ -1,16 +1,18 @@
-<!-- REPLACE ENTIRE public/worker.html WITH THIS -->
-
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Manager Dashboard</title>
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<title>
+Kshiralaya Manager
+</title>
 
 <style>
 
@@ -22,7 +24,7 @@
 
 body{
 
-    font-family:Arial;
+    font-family:Arial,sans-serif;
 
     background:#0f172a;
 
@@ -33,28 +35,40 @@ body{
     min-height:100vh;
 }
 
-/* SIDEBAR */
-
 .sidebar{
 
-    width:260px;
+    width:250px;
 
     background:#111827;
 
-    padding:25px;
+    padding:20px;
 
     display:flex;
 
     flex-direction:column;
 }
 
-.logo{
+.logoBox{
+
+    text-align:center;
+
+    margin-bottom:30px;
+}
+
+.logoBox img{
+
+    width:140px;
+
+    border-radius:20px;
+
+    margin-bottom:10px;
+}
+
+.logoText{
 
     font-size:28px;
 
     font-weight:bold;
-
-    margin-bottom:40px;
 
     background:linear-gradient(
         90deg,
@@ -88,8 +102,6 @@ body{
     text-align:left;
 
     font-size:15px;
-
-    transition:0.2s;
 }
 
 .sideBtn:hover{
@@ -106,8 +118,6 @@ body{
     );
 }
 
-/* MAIN */
-
 .main{
 
     flex:1;
@@ -115,26 +125,6 @@ body{
     padding:25px;
 
     overflow-y:auto;
-}
-
-.topBar{
-
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    margin-bottom:25px;
-}
-
-.userCard{
-
-    background:#111827;
-
-    padding:18px;
-
-    border-radius:15px;
 }
 
 .card{
@@ -152,44 +142,10 @@ body{
 
     display:grid;
 
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:
+    1fr 1fr;
 
     gap:20px;
-}
-
-.stats{
-
-    display:grid;
-
-    grid-template-columns:
-    repeat(4,1fr);
-
-    gap:15px;
-}
-
-.stat{
-
-    background:#1e293b;
-
-    padding:20px;
-
-    border-radius:15px;
-
-    text-align:center;
-}
-
-.stat h3{
-
-    color:#94a3b8;
-
-    margin-bottom:10px;
-}
-
-.stat p{
-
-    font-size:26px;
-
-    font-weight:bold;
 }
 
 input,
@@ -231,8 +187,6 @@ button{
     color:white;
 
     cursor:pointer;
-
-    font-size:16px;
 }
 
 table{
@@ -258,47 +212,9 @@ th{
     color:#60a5fa;
 }
 
-canvas{
-
-    background:#1e293b;
-
-    border-radius:15px;
-
-    padding:15px;
-
-    max-height:250px !important;
-
-    width:100% !important;
-}
-
 .hidden{
 
     display:none;
-}
-
-@media(max-width:900px){
-
-    body{
-
-        flex-direction:column;
-    }
-
-    .sidebar{
-
-        width:100%;
-    }
-
-    .stats{
-
-        grid-template-columns:
-        1fr 1fr;
-    }
-
-    .grid{
-
-        grid-template-columns:
-        1fr;
-    }
 }
 
 </style>
@@ -307,37 +223,30 @@ canvas{
 
 <body>
 
-<script>
-
-if(
-    localStorage.getItem("role")
-    !== "worker"
-){
-    window.location = "/";
-}
-
-</script>
-
-<!-- SIDEBAR -->
-
 <div class="sidebar">
 
-<div class="logo">
-🐄 Dairy ERP
+<div class="logoBox">
+
+<img src="logo.png">
+
+<div class="logoText">
+Kshiralaya
+</div>
+
 </div>
 
 <button
 class="sideBtn activeBtn"
-onclick="showSection('dashboardSection',this)"
+onclick="showSection('milkSection',this)"
 >
-Dashboard
+Milk Entry
 </button>
 
 <button
 class="sideBtn"
-onclick="showSection('milkSection',this)"
+onclick="showSection('feedSection',this)"
 >
-Milk Entry
+Feed Entry
 </button>
 
 <button
@@ -356,112 +265,23 @@ Logout
 
 </div>
 
-<!-- MAIN -->
-
 <div class="main">
 
-<div class="topBar">
+<!-- MILK -->
+
+<div id="milkSection">
+
+<div class="card">
+
+<h2>
+Milk Entry
+</h2>
+
+<div class="grid">
 
 <div>
 
-<h1>
-👨‍💼 Manager Dashboard
-</h1>
-
-<p id="managerInfo"></p>
-
-</div>
-
-<div class="userCard">
-
-<p>
-Permissions
-</p>
-
-<h3 id="permissionInfo"></h3>
-
-</div>
-
-</div>
-
-<!-- DASHBOARD -->
-
-<div id="dashboardSection">
-
-<div class="stats">
-
-<div class="stat">
-
-<h3>Total Milk</h3>
-
-<p id="dashboardMilk">
-0L
-</p>
-
-</div>
-
-<div class="stat">
-
-<h3>AM Milk</h3>
-
-<p id="dashboardAM">
-0L
-</p>
-
-</div>
-
-<div class="stat">
-
-<h3>PM Milk</h3>
-
-<p id="dashboardPM">
-0L
-</p>
-
-</div>
-
-<div class="stat">
-
-<h3>Discarded</h3>
-
-<p id="dashboardDiscard">
-0L
-</p>
-
-</div>
-
-</div>
-
-<br>
-
-<div class="card">
-
-<h2>
-Milk Analytics
-</h2>
-
-<br>
-
-<canvas id="milkChart"></canvas>
-
-</div>
-
-</div>
-
-<!-- MILK ENTRY -->
-
-<div
-id="milkSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-🐄 Milk Entry
-</h2>
-
-<select id="clientSelect">
+<select id="milkClient">
 
 <option value="">
 Select Client
@@ -469,156 +289,54 @@ Select Client
 
 </select>
 
+</div>
+
+<div>
+
 <input
 type="date"
-id="date"
->
-
-<div class="grid">
-
-<div>
-
-<label>Dairy AM</label>
-
-<input
-type="number"
-id="dairyAM"
-oninput="calculateTotals()"
->
+id="milkDate"
+/>
 
 </div>
 
 <div>
 
-<label>Dairy PM</label>
-
 <input
 type="number"
-id="dairyPM"
-oninput="calculateTotals()"
->
+id="milkAM"
+placeholder="AM Milk"
+/>
 
 </div>
 
 <div>
 
-<label>Staff AM</label>
-
 <input
 type="number"
-id="staffAM"
-value="0"
-oninput="calculateTotals()"
->
+id="milkPM"
+placeholder="PM Milk"
+/>
 
 </div>
 
 <div>
 
-<label>Staff PM</label>
-
 <input
 type="number"
-id="staffPM"
-value="0"
-oninput="calculateTotals()"
->
+id="discardMilk"
+placeholder="Discard Milk"
+/>
 
 </div>
 
 <div>
-
-<label>Calf AM</label>
-
-<input
-type="number"
-id="calfAM"
-value="0"
-oninput="calculateTotals()"
->
-
-</div>
-
-<div>
-
-<label>Calf PM</label>
-
-<input
-type="number"
-id="calfPM"
-value="0"
-oninput="calculateTotals()"
->
-
-</div>
-
-<div>
-
-<label>Discarded Milk</label>
-
-<input
-type="number"
-id="discardedMilk"
-value="0"
-oninput="calculateTotals()"
->
-
-</div>
-
-<div>
-
-<label>No Of Cows</label>
 
 <input
 type="number"
 id="cowCount"
->
-
-</div>
-
-</div>
-
-<br>
-
-<div class="stats">
-
-<div class="stat">
-
-<h3>Total AM</h3>
-
-<p id="totalAM">
-0
-</p>
-
-</div>
-
-<div class="stat">
-
-<h3>Total PM</h3>
-
-<p id="totalPM">
-0
-</p>
-
-</div>
-
-<div class="stat">
-
-<h3>Discard</h3>
-
-<p id="discardTotal">
-0
-</p>
-
-</div>
-
-<div class="stat">
-
-<h3>Final Total</h3>
-
-<p id="grandTotal">
-0
-</p>
+placeholder="Cow Count"
+/>
 
 </div>
 
@@ -628,8 +346,80 @@ id="cowCount"
 Save Milk Entry
 </button>
 
-<button onclick="shareTodayReport()">
-Share Today Report
+</div>
+
+</div>
+
+<!-- FEED -->
+
+<div
+id="feedSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+Feed Entry
+</h2>
+
+<div class="grid">
+
+<div>
+
+<select id="feedClient">
+
+<option value="">
+Select Client
+</option>
+
+</select>
+
+</div>
+
+<div>
+
+<input
+type="text"
+id="feedName"
+placeholder="Feed Name"
+/>
+
+</div>
+
+<div>
+
+<input
+type="number"
+id="feedQty"
+placeholder="Quantity KG"
+/>
+
+</div>
+
+<div>
+
+<input
+type="number"
+id="feedCost"
+placeholder="Cost"
+/>
+
+</div>
+
+<div>
+
+<input
+type="month"
+id="feedMonth"
+/>
+
+</div>
+
+</div>
+
+<button onclick="saveFeed()">
+Save Feed Entry
 </button>
 
 </div>
@@ -662,12 +452,47 @@ Milk Records
 <th>Discard</th>
 <th>Total</th>
 <th>Cows</th>
+<th>Actions</th>
 
 </tr>
 
 </thead>
 
-<tbody id="records">
+<tbody id="milkRecords">
+
+</tbody>
+
+</table>
+
+</div>
+
+<br>
+
+<div class="card">
+
+<h2>
+Feed Records
+</h2>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Client</th>
+<th>Feed</th>
+<th>Quantity</th>
+<th>Cost</th>
+<th>Month</th>
+<th>Actions</th>
+
+</tr>
+
+</thead>
+
+<tbody id="feedRecords">
+
 </tbody>
 
 </table>
@@ -680,36 +505,14 @@ Milk Records
 
 <script>
 
-let milkChart;
-
-const username =
-    localStorage.getItem(
-        "username"
-    );
-
-const permissions =
-    JSON.parse(
-
-        localStorage.getItem(
-            "permissions"
-        ) || "[]"
-    );
-
-document.getElementById(
-    "managerInfo"
-).innerText =
-    "Logged in as " +
-    username;
-
-document.getElementById(
-    "permissionInfo"
-).innerText =
-    permissions.join(", ");
+// ======================
+// SWITCH
+// ======================
 
 function showSection(id,btn){
 
     document
-    .querySelectorAll(".main > div[id]")
+    .querySelectorAll(".main > div")
     .forEach(sec => {
 
         sec.classList.add(
@@ -717,7 +520,8 @@ function showSection(id,btn){
         );
     });
 
-    document.getElementById(id)
+    document
+    .getElementById(id)
     .classList.remove(
         "hidden"
     );
@@ -731,13 +535,21 @@ function showSection(id,btn){
         );
     });
 
-    if(btn){
+    btn.classList.add(
+        "activeBtn"
+    );
 
-        btn.classList.add(
-            "activeBtn"
-        );
+    if(id === "recordsSection"){
+
+        loadMilkRecords();
+
+        loadFeedRecords();
     }
 }
+
+// ======================
+// LOGOUT
+// ======================
 
 function logout(){
 
@@ -746,118 +558,134 @@ function logout(){
     window.location = "/";
 }
 
-function val(id){
+// ======================
+// CLIENTS
+// ======================
 
-    return Number(
+async function loadClients(){
 
-        document.getElementById(id)
-        .value
+    const res =
+    await fetch("/clients");
 
-    ) || 0;
+    const clients =
+    await res.json();
+
+    const milkSelect =
+    document.getElementById(
+        "milkClient"
+    );
+
+    const feedSelect =
+    document.getElementById(
+        "feedClient"
+    );
+
+    milkSelect.innerHTML = `
+    <option value="">
+    Select Client
+    </option>
+    `;
+
+    feedSelect.innerHTML = `
+    <option value="">
+    Select Client
+    </option>
+    `;
+
+    clients.forEach(c => {
+
+        milkSelect.innerHTML += `
+
+        <option value="${c.name}">
+        ${c.name}
+        </option>
+        `;
+
+        feedSelect.innerHTML += `
+
+        <option value="${c.name}">
+        ${c.name}
+        </option>
+        `;
+    });
 }
 
-function calculateTotals(){
-
-    const dairyAM =
-        val("dairyAM");
-
-    const dairyPM =
-        val("dairyPM");
-
-    const staffAM =
-        val("staffAM");
-
-    const staffPM =
-        val("staffPM");
-
-    const calfAM =
-        val("calfAM");
-
-    const calfPM =
-        val("calfPM");
-
-    const discard =
-        val("discardedMilk");
-
-    const totalAM =
-        dairyAM +
-        staffAM +
-        calfAM;
-
-    const totalPM =
-        dairyPM +
-        staffPM +
-        calfPM;
-
-    const finalTotal =
-        totalAM +
-        totalPM -
-        discard;
-
-    document.getElementById(
-        "totalAM"
-    ).innerText =
-        totalAM.toFixed(1);
-
-    document.getElementById(
-        "totalPM"
-    ).innerText =
-        totalPM.toFixed(1);
-
-    document.getElementById(
-        "discardTotal"
-    ).innerText =
-        discard.toFixed(1);
-
-    document.getElementById(
-        "grandTotal"
-    ).innerText =
-        finalTotal.toFixed(1);
-
-    return {
-
-        totalAM,
-        totalPM,
-        finalTotal,
-        discard
-    };
-}
+// ======================
+// SAVE MILK
+// ======================
 
 async function saveMilk(){
 
-    const calc =
-        calculateTotals();
+    const client =
+    document.getElementById(
+        "milkClient"
+    ).value;
+
+    if(!client){
+
+        alert(
+            "Select Client"
+        );
+
+        return;
+    }
+
+    const milkAM =
+    Number(
+
+        document.getElementById(
+            "milkAM"
+        ).value
+
+    ) || 0;
+
+    const milkPM =
+    Number(
+
+        document.getElementById(
+            "milkPM"
+        ).value
+
+    ) || 0;
 
     const data = {
 
         type:"milk",
 
-        client:
-            document.getElementById(
-                "clientSelect"
-            ).value,
+        client,
 
-        worker:username,
+        worker:
+        localStorage.getItem(
+            "username"
+        ) || "Manager",
 
         date:
+        document.getElementById(
+            "milkDate"
+        ).value,
+
+        milkAM,
+
+        milkPM,
+
+        discardedMilk:Number(
+
             document.getElementById(
-                "date"
-            ).value,
+                "discardMilk"
+            ).value
 
-        milkAM:
-            calc.totalAM,
+        ) || 0,
 
-        milkPM:
-            calc.totalPM,
+        cows:Number(
 
-        discardedMilk:
-            calc.discard,
+            document.getElementById(
+                "cowCount"
+            ).value
+
+        ) || 0,
 
         dailyMilk:
-            calc.finalTotal,
-
-        cows:
-            val("cowCount")
+        milkAM + milkPM
     };
 
     await fetch("/add",{
@@ -876,227 +704,359 @@ async function saveMilk(){
         "Milk Entry Saved ✅"
     );
 
-    loadDashboard();
+    loadMilkRecords();
 }
 
-async function shareTodayReport(){
+// ======================
+// SAVE FEED
+// ======================
 
-    const text = `
-
-🐄 Dairy Report
-
-Manager:
-${username}
-
-Client:
-${document.getElementById("clientSelect").value}
-
-Date:
-${document.getElementById("date").value}
-
-AM:
-${document.getElementById("totalAM").innerText}
-
-PM:
-${document.getElementById("totalPM").innerText}
-
-Total:
-${document.getElementById("grandTotal").innerText}
-
-`;
-
-    if(navigator.share){
-
-        navigator.share({
-
-            title:"Dairy Report",
-
-            text:text
-        });
-    }
-}
-
-async function loadClients(){
-
-    const res =
-        await fetch("/clients");
-
-    const clients =
-        await res.json();
-
-    const select =
-        document.getElementById(
-            "clientSelect"
-        );
-
-    select.innerHTML = `
-
-    <option value="">
-    Select Client
-    </option>
-    `;
-
-    clients.forEach(c => {
-
-        select.innerHTML += `
-
-        <option value="${c.name}">
-        ${c.name}
-        </option>
-        `;
-    });
-}
-
-async function loadDashboard(){
-
-    const month =
-        new Date()
-        .toISOString()
-        .slice(0,7);
+async function saveFeed(){
 
     const client =
+    document.getElementById(
+        "feedClient"
+    ).value;
+
+    if(!client){
+
+        alert(
+            "Select Client"
+        );
+
+        return;
+    }
+
+    const data = {
+
+        client,
+
+        feedName:
         document.getElementById(
-            "clientSelect"
-        ).value;
+            "feedName"
+        ).value,
+
+        quantity:Number(
+
+            document.getElementById(
+                "feedQty"
+            ).value
+
+        ) || 0,
+
+        cost:Number(
+
+            document.getElementById(
+                "feedCost"
+            ).value
+
+        ) || 0,
+
+        month:
+        document.getElementById(
+            "feedMonth"
+        ).value
+    };
+
+    await fetch("/save-feed",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    alert(
+        "Feed Saved ✅"
+    );
+
+    loadFeedRecords();
+}
+
+// ======================
+// LOAD MILK RECORDS
+// ======================
+
+async function loadMilkRecords(){
 
     const res =
-        await fetch(
+    await fetch("/dashboard");
 
-            "/dashboard?month=" +
-            month +
-            "&client=" +
-            client
-        );
+    const data =
+    await res.json();
 
-    const d =
-        await res.json();
-
+    const tbody =
     document.getElementById(
-        "dashboardMilk"
-    ).innerText =
-        Number(
-            d.totalMilk || 0
-        ).toFixed(1) + "L";
+        "milkRecords"
+    );
 
-    document.getElementById(
-        "dashboardAM"
-    ).innerText =
-        Number(
-            d.totalAMMilk || 0
-        ).toFixed(1) + "L";
+    tbody.innerHTML = "";
 
-    document.getElementById(
-        "dashboardPM"
-    ).innerText =
-        Number(
-            d.totalPMMilk || 0
-        ).toFixed(1) + "L";
+    data.records.forEach(r => {
 
-    document.getElementById(
-        "dashboardDiscard"
-    ).innerText =
-        Number(
-            d.totalDiscardedMilk || 0
-        ).toFixed(1) + "L";
-
-    const table =
-        document.getElementById(
-            "records"
-        );
-
-    table.innerHTML = "";
-
-    const labels = [];
-    const milkData = [];
-
-    (d.records || []).forEach(r => {
-
-        labels.push(r.date);
-
-        milkData.push(
-            r.dailyMilk
-        );
-
-        table.innerHTML += `
+        tbody.innerHTML += `
 
         <tr>
 
-        <td>${r.date}</td>
+        <td>${r.date || ""}</td>
 
-        <td>${r.client}</td>
+        <td>${r.client || ""}</td>
 
-        <td>${Number(
-            r.milkAM || 0
-        ).toFixed(1)}</td>
+        <td>${r.milkAM || 0}</td>
 
-        <td>${Number(
-            r.milkPM || 0
-        ).toFixed(1)}</td>
+        <td>${r.milkPM || 0}</td>
 
-        <td>${Number(
-            r.discardedMilk || 0
-        ).toFixed(1)}</td>
+        <td>${r.discardedMilk || 0}</td>
 
-        <td>${Number(
-            r.dailyMilk || 0
-        ).toFixed(1)}</td>
+        <td>${r.dailyMilk || 0}</td>
 
-        <td>${Number(
-            r.cows || 0
-        )}</td>
+        <td>${r.cows || 0}</td>
+
+        <td>
+
+        <button
+        onclick="editMilk('${r._id}')"
+        >
+        Edit
+        </button>
+
+        <button
+        onclick="deleteMilk('${r._id}')"
+        style="
+        background:#dc2626;
+        margin-top:8px;
+        "
+        >
+        Delete
+        </button>
+
+        </td>
 
         </tr>
         `;
     });
-
-    if(milkChart){
-        milkChart.destroy();
-    }
-
-    milkChart =
-        new Chart(
-
-        document.getElementById(
-            "milkChart"
-        ),
-
-        {
-
-            type:"line",
-
-            data:{
-
-                labels:labels,
-
-                datasets:[{
-
-                    label:
-                    "Milk Production",
-
-                    data:milkData,
-
-                    borderColor:"#60a5fa",
-
-                    tension:0.4
-                }]
-            }
-        });
 }
 
-document.getElementById(
-    "clientSelect"
-).addEventListener(
+// ======================
+// LOAD FEED RECORDS
+// ======================
 
-    "change",
+async function loadFeedRecords(){
 
-    loadDashboard
-);
+    const res =
+    await fetch("/feeds");
+
+    const feeds =
+    await res.json();
+
+    const tbody =
+    document.getElementById(
+        "feedRecords"
+    );
+
+    tbody.innerHTML = "";
+
+    feeds.forEach(feed => {
+
+        tbody.innerHTML += `
+
+        <tr>
+
+        <td>${feed.client}</td>
+
+        <td>${feed.feedName}</td>
+
+        <td>${feed.quantity} KG</td>
+
+        <td>₹${feed.cost}</td>
+
+        <td>${feed.month}</td>
+
+        <td>
+
+        <button
+        onclick="editFeed('${feed._id}')"
+        >
+        Edit
+        </button>
+
+        <button
+        onclick="deleteFeed('${feed._id}')"
+        style="
+        background:#dc2626;
+        margin-top:8px;
+        "
+        >
+        Delete
+        </button>
+
+        </td>
+
+        </tr>
+        `;
+    });
+}
+
+// ======================
+// EDIT MILK
+// ======================
+
+async function editMilk(id){
+
+    const am =
+    prompt("AM Milk");
+
+    const pm =
+    prompt("PM Milk");
+
+    const discard =
+    prompt("Discard");
+
+    if(!am || !pm) return;
+
+    await fetch("/edit-milk",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+            id,
+
+            milkAM:Number(am),
+
+            milkPM:Number(pm),
+
+            discardedMilk:Number(discard),
+
+            dailyMilk:
+            Number(am) +
+            Number(pm)
+        })
+    });
+
+    loadMilkRecords();
+}
+
+// ======================
+// DELETE MILK
+// ======================
+
+async function deleteMilk(id){
+
+    const sure =
+    confirm(
+        "Delete Milk Entry?"
+    );
+
+    if(!sure) return;
+
+    await fetch("/delete-milk",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+            id
+        })
+    });
+
+    loadMilkRecords();
+}
+
+// ======================
+// EDIT FEED
+// ======================
+
+async function editFeed(id){
+
+    const name =
+    prompt("Feed Name");
+
+    const qty =
+    prompt("Quantity KG");
+
+    const cost =
+    prompt("Cost");
+
+    if(!name || !qty || !cost) return;
+
+    await fetch("/edit-feed",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+            id,
+
+            feedName:name,
+
+            quantity:Number(qty),
+
+            cost:Number(cost)
+        })
+    });
+
+    loadFeedRecords();
+}
+
+// ======================
+// DELETE FEED
+// ======================
+
+async function deleteFeed(id){
+
+    const sure =
+    confirm(
+        "Delete Feed Entry?"
+    );
+
+    if(!sure) return;
+
+    await fetch("/delete-feed",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+            id
+        })
+    });
+
+    loadFeedRecords();
+}
+
+// ======================
+// INIT
+// ======================
 
 loadClients();
-
-loadDashboard();
+loadMilkRecords();
+loadFeedRecords();
 
 </script>
 
 </body>
+
 </html>
