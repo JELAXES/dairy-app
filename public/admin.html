@@ -1,12 +1,20 @@
+<!-- REPLACE ENTIRE public/admin.html WITH THIS -->
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
 
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Admin Dashboard</title>
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+Admin Dashboard
+</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -163,7 +171,8 @@ body{
 
     display:grid;
 
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:
+    1fr 1fr;
 
     gap:20px;
 }
@@ -338,7 +347,7 @@ Feed
 class="sideBtn"
 onclick="showSection('monthlySection',this)"
 >
-Monthly Settings
+Monthly
 </button>
 
 <button
@@ -378,13 +387,11 @@ Logout
 📊 Admin Dashboard
 </h1>
 
-<br>
-
 <input
 type="month"
 id="selectedMonth"
 onchange="loadDashboard()"
->
+/>
 
 </div>
 
@@ -392,7 +399,9 @@ onchange="loadDashboard()"
 
 <div class="stat">
 
-<h3>Revenue</h3>
+<h3>
+Revenue
+</h3>
 
 <p id="revenue">
 ₹0
@@ -402,7 +411,9 @@ onchange="loadDashboard()"
 
 <div class="stat">
 
-<h3>Expense</h3>
+<h3>
+Expense
+</h3>
 
 <p id="expense">
 ₹0
@@ -412,7 +423,9 @@ onchange="loadDashboard()"
 
 <div class="stat">
 
-<h3>Profit</h3>
+<h3>
+Profit
+</h3>
 
 <p id="profit">
 ₹0
@@ -422,56 +435,12 @@ onchange="loadDashboard()"
 
 <div class="stat">
 
-<h3>Total Milk</h3>
+<h3>
+Total Milk
+</h3>
 
 <p id="milk">
 0L
-</p>
-
-</div>
-
-</div>
-
-<br>
-
-<div class="stats">
-
-<div class="stat">
-
-<h3>AM Milk</h3>
-
-<p id="amMilk">
-0L
-</p>
-
-</div>
-
-<div class="stat">
-
-<h3>PM Milk</h3>
-
-<p id="pmMilk">
-0L
-</p>
-
-</div>
-
-<div class="stat">
-
-<h3>Discarded</h3>
-
-<p id="discardMilk">
-0L
-</p>
-
-</div>
-
-<div class="stat">
-
-<h3>Managers</h3>
-
-<p id="managerCount">
-0
 </p>
 
 </div>
@@ -511,13 +480,13 @@ class="hidden"
 type="text"
 id="clientName"
 placeholder="Client Name"
->
+/>
 
 <input
 type="number"
 id="clientPrice"
 placeholder="Price Per Liter"
->
+/>
 
 <button onclick="createClient()">
 Create Client
@@ -531,8 +500,7 @@ Create Client
 Client List
 </h2>
 
-<div id="clientList">
-</div>
+<div id="clientList"></div>
 
 </div>
 
@@ -555,48 +523,56 @@ class="hidden"
 
 <div>
 
-<label>Feed Name</label>
+<label>
+Feed Name
+</label>
 
 <input
 type="text"
 id="feedName"
 placeholder="Feed Name"
->
+/>
 
 </div>
 
 <div>
 
-<label>Quantity</label>
+<label>
+Quantity
+</label>
 
 <input
 type="number"
 id="feedQty"
 placeholder="Quantity"
->
+/>
 
 </div>
 
 <div>
 
-<label>Cost</label>
+<label>
+Cost
+</label>
 
 <input
 type="number"
 id="feedCost"
-placeholder="Feed Cost"
->
+placeholder="Cost"
+/>
 
 </div>
 
 <div>
 
-<label>Date</label>
+<label>
+Date
+</label>
 
 <input
 type="date"
 id="feedDate"
->
+/>
 
 </div>
 
@@ -620,10 +596,21 @@ Feed Records
 
 <tr>
 
-<th>Feed</th>
-<th>Quantity</th>
-<th>Cost</th>
-<th>Date</th>
+<th>
+Feed
+</th>
+
+<th>
+Quantity
+</th>
+
+<th>
+Cost
+</th>
+
+<th>
+Date
+</th>
 
 </tr>
 
@@ -651,15 +638,14 @@ class="hidden"
 📅 Monthly Settings
 </h2>
 
-<label>Monthly Expense</label>
-
 <input
 type="number"
 id="monthlyExpense"
->
+placeholder="Monthly Expense"
+/>
 
 <button onclick="saveMonthly()">
-Save Monthly Settings
+Save Monthly
 </button>
 
 </div>
@@ -676,11 +662,10 @@ class="hidden"
 <div class="card">
 
 <h2>
-👨‍💼 Pending Manager Requests
+👨‍💼 Pending Managers
 </h2>
 
-<div id="pendingUsers">
-</div>
+<div id="pendingUsers"></div>
 
 </div>
 
@@ -705,11 +690,25 @@ class="hidden"
 
 <tr>
 
-<th>Date</th>
-<th>Client</th>
-<th>Manager</th>
-<th>Total</th>
-<th>Discard</th>
+<th>
+Date
+</th>
+
+<th>
+Client
+</th>
+
+<th>
+Manager
+</th>
+
+<th>
+Total
+</th>
+
+<th>
+Discard
+</th>
 
 </tr>
 
@@ -731,7 +730,7 @@ class="hidden"
 let milkChart;
 
 // ======================
-// SECTION SWITCH
+// SWITCH SECTION
 // ======================
 
 function showSection(id,btn){
@@ -797,155 +796,137 @@ function logout(){
 
 async function loadDashboard(){
 
-    const month =
-        document.getElementById(
-            "selectedMonth"
-        ).value ||
+    try{
 
-        new Date()
-        .toISOString()
-        .slice(0,7);
+        const month =
+            document.getElementById(
+                "selectedMonth"
+            ).value ||
 
-    const res =
+            new Date()
+            .toISOString()
+            .slice(0,7);
+
+        const res =
         await fetch(
             "/dashboard?month=" +
             month
         );
 
-    const d =
+        const d =
         await res.json();
 
-    document.getElementById(
-        "revenue"
-    ).innerText =
-        "₹" +
-        Number(
-            d.totalRevenue || 0
-        ).toFixed(2);
-
-    document.getElementById(
-        "expense"
-    ).innerText =
-        "₹" +
-        Number(
-            d.totalExpense || 0
-        ).toFixed(2);
-
-    document.getElementById(
-        "profit"
-    ).innerText =
-        "₹" +
-        Number(
-            d.totalProfit || 0
-        ).toFixed(2);
-
-    document.getElementById(
-        "milk"
-    ).innerText =
-        Number(
-            d.totalMilk || 0
-        ).toFixed(1) + "L";
-
-    document.getElementById(
-        "amMilk"
-    ).innerText =
-        Number(
-            d.totalAMMilk || 0
-        ).toFixed(1) + "L";
-
-    document.getElementById(
-        "pmMilk"
-    ).innerText =
-        Number(
-            d.totalPMMilk || 0
-        ).toFixed(1) + "L";
-
-    document.getElementById(
-        "discardMilk"
-    ).innerText =
-        Number(
-            d.totalDiscardedMilk || 0
-        ).toFixed(1) + "L";
-
-    document.getElementById(
-        "monthlyExpense"
-    ).value =
-        d.monthlySettings
-        ?.monthlyExpense || "";
-
-    const table =
         document.getElementById(
-            "records"
-        );
+            "revenue"
+        ).innerText =
+            "₹" +
+            Number(
+                d.totalRevenue || 0
+            ).toFixed(2);
 
-    table.innerHTML = "";
+        document.getElementById(
+            "expense"
+        ).innerText =
+            "₹" +
+            Number(
+                d.totalExpense || 0
+            ).toFixed(2);
 
-    const labels = [];
-    const milkData = [];
+        document.getElementById(
+            "profit"
+        ).innerText =
+            "₹" +
+            Number(
+                d.totalProfit || 0
+            ).toFixed(2);
 
-    (d.records || []).forEach(r => {
+        document.getElementById(
+            "milk"
+        ).innerText =
+            Number(
+                d.totalMilk || 0
+            ).toFixed(1) + "L";
 
-        labels.push(r.date);
+    }catch(err){
 
-        milkData.push(
-            r.dailyMilk
-        );
-
-        table.innerHTML += `
-
-        <tr>
-
-        <td>${r.date}</td>
-
-        <td>${r.client}</td>
-
-        <td>${r.worker}</td>
-
-        <td>${Number(
-            r.dailyMilk || 0
-        ).toFixed(1)}</td>
-
-        <td>${Number(
-            r.discardedMilk || 0
-        ).toFixed(1)}</td>
-
-        </tr>
-        `;
-    });
-
-    if(milkChart){
-        milkChart.destroy();
+        console.log(err);
     }
-
-    milkChart =
-        new Chart(
-
-        document.getElementById(
-            "milkChart"
-        ),
-
-        {
-
-            type:"line",
-
-            data:{
-
-                labels:labels,
-
-                datasets:[{
-
-                    label:
-                    "Milk Production",
-
-                    data:milkData,
-
-                    borderColor:"#60a5fa",
-
-                    tension:0.4
-                }]
-            }
-        });
 }
+
+// ======================
+// SAVE FEED
+// ======================
+
+async function saveFeed(){
+
+    try{
+
+        const data = {
+
+            feedName:
+                document.getElementById(
+                    "feedName"
+                ).value,
+
+            quantity:Number(
+
+                document.getElementById(
+                    "feedQty"
+                ).value
+
+            ) || 0,
+
+            cost:Number(
+
+                document.getElementById(
+                    "feedCost"
+                ).value
+
+            ) || 0,
+
+            date:
+                document.getElementById(
+                    "feedDate"
+                ).value
+        };
+
+        const res =
+        await fetch("/save-feed",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify(data)
+        });
+
+        const result =
+        await res.json();
+
+        console.log(result);
+
+        alert(
+            "Feed Saved ✅"
+        );
+
+        loadFeeds();
+
+    }catch(err){
+
+        console.log(err);
+
+        alert(
+            "Feed Save Failed ❌"
+        );
+    }
+}
+
+// ======================
+// LOAD FEEDS
+// ======================
 
 async function loadFeeds(){
 
@@ -956,6 +937,8 @@ async function loadFeeds(){
 
         const feeds =
         await res.json();
+
+        console.log(feeds);
 
         const table =
         document.getElementById(
@@ -989,27 +972,19 @@ async function loadFeeds(){
             <tr>
 
             <td>
-
             ${f.feedName || ""}
-
             </td>
 
             <td>
-
             ${f.quantity || 0}
-
             </td>
 
             <td>
-
             ₹${f.cost || 0}
-
             </td>
 
             <td>
-
             ${f.date || ""}
-
             </td>
 
             </tr>
@@ -1021,6 +996,264 @@ async function loadFeeds(){
         console.log(err);
     }
 }
+
+// ======================
+// CREATE CLIENT
+// ======================
+
+async function createClient(){
+
+    try{
+
+        const data = {
+
+            name:
+                document.getElementById(
+                    "clientName"
+                ).value,
+
+            pricePerLiter:Number(
+
+                document.getElementById(
+                    "clientPrice"
+                ).value
+
+            ) || 0,
+
+            createdBy:
+                localStorage.getItem(
+                    "username"
+                )
+        };
+
+        await fetch("/create-client",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify(data)
+        });
+
+        alert(
+            "Client Created ✅"
+        );
+
+        loadClients();
+
+    }catch(err){
+
+        console.log(err);
+    }
+}
+
+// ======================
+// LOAD CLIENTS
+// ======================
+
+async function loadClients(){
+
+    try{
+
+        const res =
+        await fetch("/clients");
+
+        const clients =
+        await res.json();
+
+        const div =
+        document.getElementById(
+            "clientList"
+        );
+
+        div.innerHTML = "";
+
+        clients.forEach(c => {
+
+            div.innerHTML += `
+
+            <div class="userCard">
+
+            <h3>
+            ${c.name}
+            </h3>
+
+            <p>
+
+            ₹${c.pricePerLiter}/L
+
+            </p>
+
+            </div>
+            `;
+        });
+
+    }catch(err){
+
+        console.log(err);
+    }
+}
+
+// ======================
+// SAVE MONTHLY
+// ======================
+
+async function saveMonthly(){
+
+    try{
+
+        const month =
+            document.getElementById(
+                "selectedMonth"
+            ).value ||
+
+            new Date()
+            .toISOString()
+            .slice(0,7);
+
+        const data = {
+
+            type:"monthly",
+
+            month:month,
+
+            monthlyExpense:Number(
+
+                document.getElementById(
+                    "monthlyExpense"
+                ).value
+
+            ) || 0
+        };
+
+        await fetch("/add",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify(data)
+        });
+
+        alert(
+            "Monthly Saved ✅"
+        );
+
+        loadDashboard();
+
+    }catch(err){
+
+        console.log(err);
+    }
+}
+
+// ======================
+// LOAD USERS
+// ======================
+
+async function loadPendingUsers(){
+
+    try{
+
+        const res =
+        await fetch("/pending-users");
+
+        const users =
+        await res.json();
+
+        const div =
+        document.getElementById(
+            "pendingUsers"
+        );
+
+        div.innerHTML = "";
+
+        users.forEach(user => {
+
+            div.innerHTML += `
+
+            <div class="userCard">
+
+            <h3>
+            ${user.username}
+            </h3>
+
+            <button
+            onclick="approveUser('${user._id}')"
+            >
+
+            Approve
+
+            </button>
+
+            </div>
+            `;
+        });
+
+    }catch(err){
+
+        console.log(err);
+    }
+}
+
+// ======================
+// APPROVE USER
+// ======================
+
+async function approveUser(id){
+
+    try{
+
+        await fetch("/approve-user",{
+
+            method:"POST",
+
+            headers:{
+                "Content-Type":
+                "application/json"
+            },
+
+            body:JSON.stringify({
+                id
+            })
+        });
+
+        alert(
+            "Approved ✅"
+        );
+
+        loadPendingUsers();
+
+    }catch(err){
+
+        console.log(err);
+    }
+}
+
+// ======================
+// INIT
+// ======================
+
+document.getElementById(
+    "selectedMonth"
+).value =
+    new Date()
+    .toISOString()
+    .slice(0,7);
+
+loadDashboard();
+
+loadClients();
+
+loadFeeds();
+
+loadPendingUsers();
 
 </script>
 
