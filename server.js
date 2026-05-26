@@ -420,11 +420,21 @@ app.get("/clients", async (req,res)=>{
 // SAVE FEED
 // ======================
 
+// ======================
+// SAVE FEED
+// ======================
+
 app.post("/save-feed", async (req,res)=>{
 
     try{
 
-        await Entry.create({
+        console.log(
+            "BODY:",
+            req.body
+        );
+
+        const newFeed =
+        new Entry({
 
             type:"feed",
 
@@ -432,14 +442,24 @@ app.post("/save-feed", async (req,res)=>{
                 req.body.feedName,
 
             quantity:
-                req.body.quantity,
+                Number(
+                    req.body.quantity
+                ) || 0,
 
             cost:
-                req.body.cost,
+                Number(
+                    req.body.cost
+                ) || 0,
 
             date:
                 req.body.date
         });
+
+        await newFeed.save();
+
+        console.log(
+            "FEED SAVED"
+        );
 
         res.send({
 
@@ -448,7 +468,10 @@ app.post("/save-feed", async (req,res)=>{
 
     }catch(err){
 
-        console.log(err);
+        console.log(
+            "SAVE FEED ERROR:",
+            err
+        );
 
         res.status(500).send({
 
