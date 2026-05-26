@@ -1,20 +1,11 @@
-<!-- REPLACE ENTIRE public/admin.html WITH THIS -->
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
 
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
-
-<title>
-Admin Dashboard
-</title>
+<title>Kshiralaya Admin</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -28,7 +19,7 @@ Admin Dashboard
 
 body{
 
-    font-family:Arial;
+    font-family:Arial,sans-serif;
 
     background:#0f172a;
 
@@ -47,20 +38,37 @@ body{
 
     background:#111827;
 
-    padding:25px;
+    padding:20px;
 
     display:flex;
 
     flex-direction:column;
 }
 
-.logo{
+.logoBox{
+
+    text-align:center;
+
+    margin-bottom:30px;
+}
+
+.logoBox img{
+
+    width:140px;
+
+    border-radius:20px;
+
+    margin-bottom:10px;
+
+    box-shadow:
+    0 0 25px rgba(255,255,255,0.1);
+}
+
+.logoText{
 
     font-size:28px;
 
     font-weight:bold;
-
-    margin-bottom:40px;
 
     background:linear-gradient(
         90deg,
@@ -94,9 +102,13 @@ body{
     text-align:left;
 
     font-size:15px;
+
+    transition:0.2s;
 }
 
 .sideBtn:hover{
+
+    transform:scale(1.02);
 
     background:#2563eb;
 }
@@ -130,6 +142,9 @@ body{
     padding:20px;
 
     margin-bottom:25px;
+
+    box-shadow:
+    0 0 25px rgba(0,0,0,0.3);
 }
 
 .stats{
@@ -177,8 +192,7 @@ body{
     gap:20px;
 }
 
-input,
-select{
+input{
 
     width:100%;
 
@@ -252,8 +266,11 @@ canvas{
     padding:15px;
 
     max-height:250px !important;
+}
 
-    width:100% !important;
+.hidden{
+
+    display:none;
 }
 
 .userCard{
@@ -262,36 +279,27 @@ canvas{
 
     padding:15px;
 
-    border-radius:15px;
+    border-radius:12px;
 
     margin-top:15px;
-}
-
-.hidden{
-
-    display:none;
 }
 
 @media(max-width:900px){
 
     body{
-
         flex-direction:column;
     }
 
     .sidebar{
-
         width:100%;
     }
 
     .stats{
-
         grid-template-columns:
         1fr 1fr;
     }
 
     .grid{
-
         grid-template-columns:
         1fr;
     }
@@ -303,23 +311,18 @@ canvas{
 
 <body>
 
-<script>
-
-if(
-    localStorage.getItem("role")
-    !== "admin"
-){
-    window.location = "/";
-}
-
-</script>
-
 <!-- SIDEBAR -->
 
 <div class="sidebar">
 
-<div class="logo">
-🐄 Dairy ERP
+<div class="logoBox">
+
+<img src="logo.png">
+
+<div class="logoText">
+Kshiralaya
+</div>
+
 </div>
 
 <button
@@ -381,68 +384,26 @@ Logout
 
 <div id="dashboardSection">
 
-<div class="card">
-
-<h1>
-📊 Admin Dashboard
-</h1>
-
-<input
-type="month"
-id="selectedMonth"
-onchange="loadDashboard()"
-/>
-
-</div>
-
 <div class="stats">
 
 <div class="stat">
-
-<h3>
-Revenue
-</h3>
-
-<p id="revenue">
-₹0
-</p>
-
+<h3>Revenue</h3>
+<p id="revenue">₹0</p>
 </div>
 
 <div class="stat">
-
-<h3>
-Expense
-</h3>
-
-<p id="expense">
-₹0
-</p>
-
+<h3>Expense</h3>
+<p id="expense">₹0</p>
 </div>
 
 <div class="stat">
-
-<h3>
-Profit
-</h3>
-
-<p id="profit">
-₹0
-</p>
-
+<h3>Profit</h3>
+<p id="profit">₹0</p>
 </div>
 
 <div class="stat">
-
-<h3>
-Total Milk
-</h3>
-
-<p id="milk">
-0L
-</p>
-
+<h3>Total Milk</h3>
+<p id="milk">0L</p>
 </div>
 
 </div>
@@ -451,9 +412,7 @@ Total Milk
 
 <div class="card">
 
-<h2>
-Milk Analytics
-</h2>
+<h2>Milk Analytics</h2>
 
 <br>
 
@@ -472,21 +431,19 @@ class="hidden"
 
 <div class="card">
 
-<h2>
-👥 Create Client
-</h2>
+<h2>Create Client</h2>
 
 <input
 type="text"
 id="clientName"
 placeholder="Client Name"
-/>
+>
 
 <input
 type="number"
 id="clientPrice"
 placeholder="Price Per Liter"
-/>
+>
 
 <button onclick="createClient()">
 Create Client
@@ -496,9 +453,7 @@ Create Client
 
 <div class="card">
 
-<h2>
-Client List
-</h2>
+<h2>Client List</h2>
 
 <div id="clientList"></div>
 
@@ -515,64 +470,46 @@ class="hidden"
 
 <div class="card">
 
-<h2>
-🌾 Feed Management
-</h2>
+<h2>Feed Management</h2>
 
 <div class="grid">
 
 <div>
 
-<label>
-Feed Name
-</label>
-
 <input
 type="text"
 id="feedName"
 placeholder="Feed Name"
-/>
+>
 
 </div>
 
 <div>
-
-<label>
-Quantity
-</label>
 
 <input
 type="number"
 id="feedQty"
 placeholder="Quantity"
-/>
+>
 
 </div>
 
 <div>
-
-<label>
-Cost
-</label>
 
 <input
 type="number"
 id="feedCost"
 placeholder="Cost"
-/>
+>
 
 </div>
 
 <div>
 
-<label>
-Date
-</label>
-
 <input
 type="date"
 id="feedDate"
-/>
+>
 
 </div>
 
@@ -586,9 +523,7 @@ Save Feed
 
 <div class="card">
 
-<h2>
-Feed Records
-</h2>
+<h2>Feed Records</h2>
 
 <table>
 
@@ -596,21 +531,10 @@ Feed Records
 
 <tr>
 
-<th>
-Feed
-</th>
-
-<th>
-Quantity
-</th>
-
-<th>
-Cost
-</th>
-
-<th>
-Date
-</th>
+<th>Feed</th>
+<th>Quantity</th>
+<th>Cost</th>
+<th>Date</th>
 
 </tr>
 
@@ -634,15 +558,13 @@ class="hidden"
 
 <div class="card">
 
-<h2>
-📅 Monthly Settings
-</h2>
+<h2>Monthly Settings</h2>
 
 <input
 type="number"
 id="monthlyExpense"
 placeholder="Monthly Expense"
-/>
+>
 
 <button onclick="saveMonthly()">
 Save Monthly
@@ -661,9 +583,7 @@ class="hidden"
 
 <div class="card">
 
-<h2>
-👨‍💼 Pending Managers
-</h2>
+<h2>Pending Managers</h2>
 
 <div id="pendingUsers"></div>
 
@@ -680,9 +600,7 @@ class="hidden"
 
 <div class="card">
 
-<h2>
-📋 Milk Records
-</h2>
+<h2>Milk Records</h2>
 
 <table>
 
@@ -690,25 +608,11 @@ class="hidden"
 
 <tr>
 
-<th>
-Date
-</th>
-
-<th>
-Client
-</th>
-
-<th>
-Manager
-</th>
-
-<th>
-Total
-</th>
-
-<th>
-Discard
-</th>
+<th>Date</th>
+<th>Client</th>
+<th>Manager</th>
+<th>Total</th>
+<th>Discard</th>
 
 </tr>
 
@@ -764,18 +668,19 @@ function showSection(id,btn){
     );
 
     if(id === "feedSection"){
-
         loadFeeds();
     }
 
-    if(id === "managerSection"){
-
-        loadPendingUsers();
+    if(id === "dashboardSection"){
+        loadDashboard();
     }
 
-    if(id === "dashboardSection"){
+    if(id === "clientsSection"){
+        loadClients();
+    }
 
-        loadDashboard();
+    if(id === "managerSection"){
+        loadPendingUsers();
     }
 }
 
@@ -791,468 +696,364 @@ function logout(){
 }
 
 // ======================
+// FEEDS
+// ======================
+
+async function saveFeed(){
+
+    const data = {
+
+        feedName:
+        document.getElementById(
+            "feedName"
+        ).value,
+
+        quantity:Number(
+
+            document.getElementById(
+                "feedQty"
+            ).value
+
+        ),
+
+        cost:Number(
+
+            document.getElementById(
+                "feedCost"
+            ).value
+
+        ),
+
+        date:
+        document.getElementById(
+            "feedDate"
+        ).value
+    };
+
+    await fetch("/save-feed",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    alert("Feed Saved ✅");
+
+    loadFeeds();
+}
+
+async function loadFeeds(){
+
+    const res =
+    await fetch("/feeds");
+
+    const feeds =
+    await res.json();
+
+    const table =
+    document.getElementById(
+        "feedRecords"
+    );
+
+    table.innerHTML = "";
+
+    if(feeds.length === 0){
+
+        table.innerHTML = `
+
+        <tr>
+
+        <td colspan="4">
+
+        No feed records found
+
+        </td>
+
+        </tr>
+        `;
+
+        return;
+    }
+
+    feeds.forEach(f => {
+
+        table.innerHTML += `
+
+        <tr>
+
+        <td>${f.feedName}</td>
+
+        <td>${f.quantity}</td>
+
+        <td>₹${f.cost}</td>
+
+        <td>${f.date}</td>
+
+        </tr>
+        `;
+    });
+}
+
+// ======================
+// CLIENTS
+// ======================
+
+async function createClient(){
+
+    const data = {
+
+        name:
+        document.getElementById(
+            "clientName"
+        ).value,
+
+        pricePerLiter:Number(
+
+            document.getElementById(
+                "clientPrice"
+            ).value
+
+        )
+    };
+
+    await fetch("/create-client",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    alert("Client Created ✅");
+
+    loadClients();
+}
+
+async function loadClients(){
+
+    const res =
+    await fetch("/clients");
+
+    const clients =
+    await res.json();
+
+    const div =
+    document.getElementById(
+        "clientList"
+    );
+
+    div.innerHTML = "";
+
+    clients.forEach(c => {
+
+        div.innerHTML += `
+
+        <div class="userCard">
+
+        <h3>${c.name}</h3>
+
+        <p>
+        ₹${c.pricePerLiter}/L
+        </p>
+
+        </div>
+        `;
+    });
+}
+
+// ======================
+// MONTHLY
+// ======================
+
+async function saveMonthly(){
+
+    const data = {
+
+        type:"monthly",
+
+        month:
+        new Date()
+        .toISOString()
+        .slice(0,7),
+
+        monthlyExpense:Number(
+
+            document.getElementById(
+                "monthlyExpense"
+            ).value
+
+        )
+    };
+
+    await fetch("/add",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    alert("Monthly Saved ✅");
+}
+
+// ======================
+// USERS
+// ======================
+
+async function loadPendingUsers(){
+
+    const res =
+    await fetch("/pending-users");
+
+    const users =
+    await res.json();
+
+    const div =
+    document.getElementById(
+        "pendingUsers"
+    );
+
+    div.innerHTML = "";
+
+    users.forEach(user => {
+
+        div.innerHTML += `
+
+        <div class="userCard">
+
+        <h3>${user.username}</h3>
+
+        <button
+        onclick="approveUser('${user._id}')"
+        >
+        Approve
+        </button>
+
+        </div>
+        `;
+    });
+}
+
+async function approveUser(id){
+
+    await fetch("/approve-user",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+            id
+        })
+    });
+
+    alert("Approved ✅");
+
+    loadPendingUsers();
+}
+
+// ======================
 // DASHBOARD
 // ======================
 
 async function loadDashboard(){
 
-    try{
+    const res =
+    await fetch("/dashboard");
 
-        const month =
-            document.getElementById(
-                "selectedMonth"
-            ).value ||
+    const d =
+    await res.json();
 
-            new Date()
-            .toISOString()
-            .slice(0,7);
+    document.getElementById(
+        "revenue"
+    ).innerText =
+    "₹" +
+    Number(
+        d.totalRevenue || 0
+    ).toFixed(2);
 
-        const res =
-        await fetch(
-            "/dashboard?month=" +
-            month
-        );
+    document.getElementById(
+        "expense"
+    ).innerText =
+    "₹" +
+    Number(
+        d.totalExpense || 0
+    ).toFixed(2);
 
-        const d =
-        await res.json();
+    document.getElementById(
+        "profit"
+    ).innerText =
+    "₹" +
+    Number(
+        d.totalProfit || 0
+    ).toFixed(2);
+
+    document.getElementById(
+        "milk"
+    ).innerText =
+    Number(
+        d.totalMilk || 0
+    ).toFixed(1) + "L";
+
+    if(milkChart){
+        milkChart.destroy();
+    }
+
+    milkChart =
+    new Chart(
 
         document.getElementById(
-            "revenue"
-        ).innerText =
-            "₹" +
-            Number(
-                d.totalRevenue || 0
-            ).toFixed(2);
+            "milkChart"
+        ),
 
-        document.getElementById(
-            "expense"
-        ).innerText =
-            "₹" +
-            Number(
-                d.totalExpense || 0
-            ).toFixed(2);
+        {
 
-        document.getElementById(
-            "profit"
-        ).innerText =
-            "₹" +
-            Number(
-                d.totalProfit || 0
-            ).toFixed(2);
+            type:"line",
 
-        document.getElementById(
-            "milk"
-        ).innerText =
-            Number(
-                d.totalMilk || 0
-            ).toFixed(1) + "L";
+            data:{
 
-    }catch(err){
+                labels:["Milk"],
 
-        console.log(err);
-    }
-}
+                datasets:[{
 
-// ======================
-// SAVE FEED
-// ======================
+                    label:
+                    "Milk Production",
 
-async function saveFeed(){
+                    data:[
+                        d.totalMilk || 0
+                    ],
 
-    try{
+                    borderColor:"#60a5fa",
 
-        const data = {
-
-            feedName:
-                document.getElementById(
-                    "feedName"
-                ).value,
-
-            quantity:Number(
-
-                document.getElementById(
-                    "feedQty"
-                ).value
-
-            ) || 0,
-
-            cost:Number(
-
-                document.getElementById(
-                    "feedCost"
-                ).value
-
-            ) || 0,
-
-            date:
-                document.getElementById(
-                    "feedDate"
-                ).value
-        };
-
-        const res =
-        await fetch("/save-feed",{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
-
-            body:JSON.stringify(data)
+                    tension:0.4
+                }]
+            }
         });
-
-        const result =
-        await res.json();
-
-        console.log(result);
-
-        alert(
-            "Feed Saved ✅"
-        );
-
-        loadFeeds();
-
-    }catch(err){
-
-        console.log(err);
-
-        alert(
-            "Feed Save Failed ❌"
-        );
-    }
-}
-
-// ======================
-// LOAD FEEDS
-// ======================
-
-async function loadFeeds(){
-
-    try{
-
-        const res =
-        await fetch("/feeds");
-
-        const feeds =
-        await res.json();
-
-        console.log(feeds);
-
-        const table =
-        document.getElementById(
-            "feedRecords"
-        );
-
-        table.innerHTML = "";
-
-        if(feeds.length === 0){
-
-            table.innerHTML = `
-
-            <tr>
-
-            <td colspan="4">
-
-            No feed records found
-
-            </td>
-
-            </tr>
-            `;
-
-            return;
-        }
-
-        feeds.forEach(f => {
-
-            table.innerHTML += `
-
-            <tr>
-
-            <td>
-            ${f.feedName || ""}
-            </td>
-
-            <td>
-            ${f.quantity || 0}
-            </td>
-
-            <td>
-            ₹${f.cost || 0}
-            </td>
-
-            <td>
-            ${f.date || ""}
-            </td>
-
-            </tr>
-            `;
-        });
-
-    }catch(err){
-
-        console.log(err);
-    }
-}
-
-// ======================
-// CREATE CLIENT
-// ======================
-
-async function createClient(){
-
-    try{
-
-        const data = {
-
-            name:
-                document.getElementById(
-                    "clientName"
-                ).value,
-
-            pricePerLiter:Number(
-
-                document.getElementById(
-                    "clientPrice"
-                ).value
-
-            ) || 0,
-
-            createdBy:
-                localStorage.getItem(
-                    "username"
-                )
-        };
-
-        await fetch("/create-client",{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
-
-            body:JSON.stringify(data)
-        });
-
-        alert(
-            "Client Created ✅"
-        );
-
-        loadClients();
-
-    }catch(err){
-
-        console.log(err);
-    }
-}
-
-// ======================
-// LOAD CLIENTS
-// ======================
-
-async function loadClients(){
-
-    try{
-
-        const res =
-        await fetch("/clients");
-
-        const clients =
-        await res.json();
-
-        const div =
-        document.getElementById(
-            "clientList"
-        );
-
-        div.innerHTML = "";
-
-        clients.forEach(c => {
-
-            div.innerHTML += `
-
-            <div class="userCard">
-
-            <h3>
-            ${c.name}
-            </h3>
-
-            <p>
-
-            ₹${c.pricePerLiter}/L
-
-            </p>
-
-            </div>
-            `;
-        });
-
-    }catch(err){
-
-        console.log(err);
-    }
-}
-
-// ======================
-// SAVE MONTHLY
-// ======================
-
-async function saveMonthly(){
-
-    try{
-
-        const month =
-            document.getElementById(
-                "selectedMonth"
-            ).value ||
-
-            new Date()
-            .toISOString()
-            .slice(0,7);
-
-        const data = {
-
-            type:"monthly",
-
-            month:month,
-
-            monthlyExpense:Number(
-
-                document.getElementById(
-                    "monthlyExpense"
-                ).value
-
-            ) || 0
-        };
-
-        await fetch("/add",{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
-
-            body:JSON.stringify(data)
-        });
-
-        alert(
-            "Monthly Saved ✅"
-        );
-
-        loadDashboard();
-
-    }catch(err){
-
-        console.log(err);
-    }
-}
-
-// ======================
-// LOAD USERS
-// ======================
-
-async function loadPendingUsers(){
-
-    try{
-
-        const res =
-        await fetch("/pending-users");
-
-        const users =
-        await res.json();
-
-        const div =
-        document.getElementById(
-            "pendingUsers"
-        );
-
-        div.innerHTML = "";
-
-        users.forEach(user => {
-
-            div.innerHTML += `
-
-            <div class="userCard">
-
-            <h3>
-            ${user.username}
-            </h3>
-
-            <button
-            onclick="approveUser('${user._id}')"
-            >
-
-            Approve
-
-            </button>
-
-            </div>
-            `;
-        });
-
-    }catch(err){
-
-        console.log(err);
-    }
-}
-
-// ======================
-// APPROVE USER
-// ======================
-
-async function approveUser(id){
-
-    try{
-
-        await fetch("/approve-user",{
-
-            method:"POST",
-
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
-
-            body:JSON.stringify({
-                id
-            })
-        });
-
-        alert(
-            "Approved ✅"
-        );
-
-        loadPendingUsers();
-
-    }catch(err){
-
-        console.log(err);
-    }
 }
 
 // ======================
 // INIT
 // ======================
 
-document.getElementById(
-    "selectedMonth"
-).value =
-    new Date()
-    .toISOString()
-    .slice(0,7);
-
 loadDashboard();
-
-loadClients();
-
 loadFeeds();
-
+loadClients();
 loadPendingUsers();
 
 </script>
