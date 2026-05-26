@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Worker Panel</title>
+<title>Manager Panel</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -84,10 +84,6 @@ button{
     margin-bottom:20px;
 }
 
-.permissionBox{
-    margin-top:10px;
-}
-
 canvas{
     background:white;
     border-radius:15px;
@@ -121,12 +117,12 @@ if(
 <div class="userInfo">
 
 <h2>
-👷 Worker Dashboard
+👨‍💼 Manager Dashboard
 </h2>
 
 <p>
-Worker:
-<span id="workerName"></span>
+Manager:
+<span id="managerName"></span>
 </p>
 
 <p>
@@ -143,10 +139,19 @@ Permissions:
 <h2>Select Client</h2>
 
 <select id="clientSelect">
+
 <option value="">
 Select Client
 </option>
+
 </select>
+
+<p>
+
+Client Milk Price:
+₹<span id="clientMilkPrice">0</span>/L
+
+</p>
 
 </div>
 
@@ -404,6 +409,7 @@ id="analyticsSection"
 
 <th>Date</th>
 <th>Client</th>
+<th>Manager</th>
 <th>AM</th>
 <th>PM</th>
 <th>Discard</th>
@@ -443,7 +449,7 @@ const permissions =
     );
 
 document.getElementById(
-    "workerName"
+    "managerName"
 ).innerText =
     username;
 
@@ -479,7 +485,7 @@ if(
 }
 
 // =====================
-// GET VALUE
+// VALUE
 // =====================
 
 function val(id){
@@ -493,7 +499,7 @@ function val(id){
 }
 
 // =====================
-// CALCULATE TOTALS
+// CALCULATE
 // =====================
 
 function calculateTotals(){
@@ -596,16 +602,32 @@ async function saveMilk(){
     const calc =
         calculateTotals();
 
+    const clientSelect =
+        document.getElementById(
+            "clientSelect"
+        );
+
+    const selectedOption =
+        clientSelect.options[
+            clientSelect.selectedIndex
+        ];
+
+    const clientPrice =
+        Number(
+            selectedOption.dataset.price || 0
+        );
+
     const data = {
 
         type:"milk",
 
         client:
-            document.getElementById(
-                "clientSelect"
-            ).value,
+            clientSelect.value,
 
         worker:username,
+
+        clientPrice:
+            clientPrice,
 
         date:
             document.getElementById(
@@ -657,7 +679,7 @@ async function shareTodayReport(){
 
 🐄 Dairy Report
 
-Worker:
+Manager:
 ${username}
 
 Client:
@@ -712,16 +734,59 @@ async function loadClients(){
             "clientSelect"
         );
 
+    select.innerHTML = `
+    <option value="">
+    Select Client
+    </option>
+    `;
+
     clients.forEach(c => {
 
         select.innerHTML += `
 
-        <option value="${c.name}">
+        <option
+        value="${c.name}"
+        data-price="${c.pricePerLiter || 0}"
+        >
+
         ${c.name}
+
         </option>
         `;
     });
 }
+
+// =====================
+// CLIENT CHANGE
+// =====================
+
+document.getElementById(
+    "clientSelect"
+).addEventListener(
+
+    "change",
+
+    ()=>{
+
+        const select =
+            document.getElementById(
+                "clientSelect"
+            );
+
+        const option =
+            select.options[
+                select.selectedIndex
+            ];
+
+        document.getElementById(
+            "clientMilkPrice"
+        ).innerText =
+
+            option.dataset.price || 0;
+
+        loadDashboard();
+    }
+);
 
 // =====================
 // LOAD DASHBOARD
@@ -805,6 +870,8 @@ async function loadDashboard(){
 
         <td>${r.client || "-"}</td>
 
+        <td>${r.worker || "-"}</td>
+
         <td>${Number(
             r.milkAM || 0
         ).toFixed(1)}</td>
@@ -858,15 +925,6 @@ async function loadDashboard(){
             }
         });
 }
-
-document.getElementById(
-    "clientSelect"
-).addEventListener(
-
-    "change",
-
-    loadDashboard
-);
 
 loadClients();
 

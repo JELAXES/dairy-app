@@ -126,7 +126,7 @@ if(
 
 <h1>🐄 Dairy ERP Admin Panel</h1>
 
-<!-- MONTH SELECT -->
+<!-- MONTH -->
 
 <div class="card">
 
@@ -140,7 +140,7 @@ onchange="loadDashboard()"
 
 </div>
 
-<!-- STATS -->
+<!-- ANALYTICS -->
 
 <div class="card">
 
@@ -246,6 +246,12 @@ id="clientName"
 placeholder="Client Name"
 >
 
+<input
+type="number"
+id="clientPrice"
+placeholder="Price Per Liter"
+>
+
 <button onclick="createClient()">
 Create Client
 </button>
@@ -261,7 +267,7 @@ Create Client
 
 <div class="card">
 
-<h2>Pending Worker Requests</h2>
+<h2>Pending Manager Requests</h2>
 
 <div id="pendingUsers">
 </div>
@@ -282,6 +288,7 @@ Create Client
 
 <th>Date</th>
 <th>Client</th>
+<th>Manager</th>
 <th>AM</th>
 <th>PM</th>
 <th>Discard</th>
@@ -389,7 +396,7 @@ async function loadDashboard(){
             d.milkPrice || 0
         );
 
-    // LOAD MONTHLY SETTINGS
+    // MONTH SETTINGS
 
     document.getElementById(
         "milkPrice"
@@ -430,6 +437,8 @@ async function loadDashboard(){
         <td>${r.date || "-"}</td>
 
         <td>${r.client || "-"}</td>
+
+        <td>${r.worker || "-"}</td>
 
         <td>${Number(
             r.milkAM || 0
@@ -617,7 +626,7 @@ async function approveUser(id){
     );
 
     alert(
-        "User Approved ✅"
+        "Manager Approved ✅"
     );
 
     loadPendingUsers();
@@ -633,6 +642,15 @@ async function createClient(){
         document.getElementById(
             "clientName"
         ).value;
+
+    const price =
+        Number(
+
+            document.getElementById(
+                "clientPrice"
+            ).value
+
+        ) || 0;
 
     if(!name){
 
@@ -657,6 +675,8 @@ async function createClient(){
 
                 name:name,
 
+                pricePerLiter:price,
+
                 createdBy:
                     localStorage.getItem(
                         "username"
@@ -667,6 +687,10 @@ async function createClient(){
 
     document.getElementById(
         "clientName"
+    ).value = "";
+
+    document.getElementById(
+        "clientPrice"
     ).value = "";
 
     alert(
@@ -702,6 +726,11 @@ async function loadClients(){
         <div class="userCard">
 
         <h3>${c.name}</h3>
+
+        <p>
+        Price/L:
+        ₹${c.pricePerLiter || 0}
+        </p>
 
         <p>
         Created By:

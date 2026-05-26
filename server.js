@@ -69,6 +69,8 @@ new mongoose.Schema({
 
     name:String,
 
+    pricePerLiter:Number,
+
     createdBy:String
 });
 
@@ -94,6 +96,8 @@ new mongoose.Schema({
     client:String,
 
     worker:String,
+
+    clientPrice:Number,
 
     cows:Number,
 
@@ -210,7 +214,7 @@ app.post("/signup", async (req,res)=>{
             success:true,
 
             message:
-            "Waiting for admin approval"
+            "Account request sent to admin"
         });
 
     }catch(err){
@@ -293,7 +297,7 @@ app.post("/login", async (req,res)=>{
 });
 
 // ======================
-// PENDING USERS
+// GET PENDING USERS
 // ======================
 
 app.get("/pending-users", async (req,res)=>{
@@ -362,6 +366,9 @@ app.post("/create-client", async (req,res)=>{
 
             name:req.body.name,
 
+            pricePerLiter:
+                req.body.pricePerLiter || 0,
+
             createdBy:
                 req.body.createdBy
         });
@@ -411,6 +418,8 @@ app.post("/add", async (req,res)=>{
 
     try{
 
+        // OVERWRITE SAME DATE + CLIENT
+
         if(req.body.type === "milk"){
 
             await Entry.deleteMany({
@@ -422,6 +431,8 @@ app.post("/add", async (req,res)=>{
                 client:req.body.client
             });
         }
+
+        // OVERWRITE MONTHLY
 
         if(req.body.type === "monthly"){
 
@@ -507,16 +518,31 @@ app.get("/dashboard", async (req,res)=>{
             );
 
         let totalMilk = 0;
+
         let totalAMMilk = 0;
+
         let totalPMMilk = 0;
+
         let totalDiscardedMilk = 0;
+
+        let totalRevenue = 0;
 
         milkEntries.forEach(entry => {
 
-            totalMilk +=
+            const milk =
                 Number(
                     entry.dailyMilk || 0
                 );
+
+            const price =
+                Number(
+                    entry.clientPrice || 0
+                );
+
+            totalMilk += milk;
+
+            totalRevenue +=
+                milk * price;
 
             totalAMMilk +=
                 Number(
@@ -533,16 +559,6 @@ app.get("/dashboard", async (req,res)=>{
                     entry.discardedMilk || 0
                 );
         });
-
-        const milkPrice =
-            Number(
-                latestMonthly
-                ?.milkPrice || 0
-            );
-
-        const totalRevenue =
-            totalMilk *
-            milkPrice;
 
         const totalProfit =
             totalRevenue -
@@ -563,8 +579,6 @@ app.get("/dashboard", async (req,res)=>{
             totalRevenue,
 
             totalProfit,
-
-            milkPrice,
 
             monthlySettings:
                 latestMonthly || {},
