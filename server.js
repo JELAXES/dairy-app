@@ -99,6 +99,10 @@ new mongoose.Schema({
 
     cows:Number,
 
+    milkPrice:Number,
+
+    salary:Number,
+
     monthlyExpense:Number,
 
     dailyMilk:Number,
@@ -109,13 +113,17 @@ new mongoose.Schema({
 
     discardedMilk:Number,
 
-    // FEED
+    // FEED ENTRY
 
     feedName:String,
 
     quantity:Number,
 
-    cost:Number
+    cost:Number,
+
+    // OLD FEED DATA
+
+    feedData:Object
 });
 
 const Entry =
@@ -297,7 +305,7 @@ app.post("/login", async (req,res)=>{
 });
 
 // ======================
-// PENDING USERS
+// GET PENDING USERS
 // ======================
 
 app.get("/pending-users", async (req,res)=>{
@@ -542,6 +550,8 @@ app.get("/dashboard", async (req,res)=>{
         const selectedClient =
             req.query.client;
 
+        // MONTHLY
+
         const monthlyEntries =
         await Entry.find({
 
@@ -552,6 +562,8 @@ app.get("/dashboard", async (req,res)=>{
                 month:selectedMonth
             })
         });
+
+        // MILK
 
         const milkEntries =
         await Entry.find({
@@ -577,11 +589,99 @@ app.get("/dashboard", async (req,res)=>{
                 monthlyEntries.length - 1
             ];
 
-        const totalExpense =
+        // ======================
+        // OLD MONTHLY FORMAT
+        // ======================
+
+        const monthlyExpense =
             Number(
                 latestMonthly
                 ?.monthlyExpense || 0
             );
+
+        const salary =
+            Number(
+                latestMonthly
+                ?.salary || 0
+            );
+
+        const feed =
+            latestMonthly?.feedData || {};
+
+        const dailyFeedCost =
+
+            (
+                (feed.silagePrice || 0) *
+                (feed.silageKg || 0)
+
+            ) +
+
+            (
+                (feed.feedPrice || 0) *
+                (feed.feedKg || 0)
+
+            ) +
+
+            (
+                (feed.bhusaPrice || 0) *
+                (feed.bhusaKg || 0)
+
+            ) +
+
+            (
+                (feed.mineralPrice || 0) *
+                (feed.mineralKg || 0)
+
+            ) +
+
+            (
+                (feed.yeastPrice || 0) *
+                (feed.yeastKg || 0)
+
+            ) +
+
+            (
+                (feed.bufferPrice || 0) *
+                (feed.bufferKg || 0)
+
+            ) +
+
+            (
+                (feed.glycolPrice || 0) *
+                (feed.glycolKg || 0)
+
+            ) +
+
+            (
+                (feed.sodaPrice || 0) *
+                (feed.sodaKg || 0)
+
+            ) +
+
+            (
+                (feed.dcpPrice || 0) *
+                (feed.dcpKg || 0);
+
+        const cows =
+            Number(
+                latestMonthly?.cows || 0
+            );
+
+        const monthlyFeedExpense =
+
+            dailyFeedCost *
+            cows *
+            30;
+
+        const totalExpense =
+
+            monthlyExpense +
+            salary +
+            monthlyFeedExpense;
+
+        // ======================
+        // MILK STATS
+        // ======================
 
         let totalMilk = 0;
 
@@ -635,6 +735,10 @@ app.get("/dashboard", async (req,res)=>{
         const totalProfit =
             totalRevenue -
             totalExpense;
+
+        // ======================
+        // RESPONSE
+        // ======================
 
         res.send({
 
