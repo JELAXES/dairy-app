@@ -23,51 +23,34 @@ Kshiralaya Manager
 }
 
 body{
-
     font-family:Arial,sans-serif;
-
     background:#0f172a;
-
     color:white;
-
     display:flex;
-
     min-height:100vh;
 }
 
 .sidebar{
-
     width:250px;
-
     background:#111827;
-
     padding:20px;
-
     display:flex;
-
     flex-direction:column;
 }
 
 .logoBox{
-
     text-align:center;
-
     margin-bottom:30px;
 }
 
 .logoBox img{
-
     width:140px;
-
     border-radius:20px;
-
     margin-bottom:10px;
 }
 
 .logoText{
-
     font-size:28px;
-
     font-weight:bold;
 
     background:linear-gradient(
@@ -77,40 +60,27 @@ body{
     );
 
     -webkit-background-clip:text;
-
     -webkit-text-fill-color:transparent;
 }
 
 .sideBtn{
-
     width:100%;
-
     padding:15px;
-
     margin-bottom:15px;
-
     border:none;
-
     border-radius:12px;
-
     background:#1e293b;
-
     color:white;
-
     cursor:pointer;
-
     text-align:left;
-
     font-size:15px;
 }
 
 .sideBtn:hover{
-
     background:#2563eb;
 }
 
 .activeBtn{
-
     background:linear-gradient(
         90deg,
         #3b82f6,
@@ -119,101 +89,68 @@ body{
 }
 
 .main{
-
     flex:1;
-
     padding:25px;
-
     overflow-y:auto;
 }
 
 .card{
-
     background:#111827;
-
     border-radius:18px;
-
     padding:20px;
-
     margin-bottom:25px;
 }
 
 .grid{
-
     display:grid;
-
     grid-template-columns:
     1fr 1fr;
-
     gap:20px;
 }
 
 input,
 select{
-
     width:100%;
-
     padding:14px;
-
     margin-top:12px;
-
     border:none;
-
     border-radius:12px;
-
     background:#1e293b;
-
     color:white;
 }
 
 button{
-
     width:100%;
-
     padding:14px;
-
     margin-top:18px;
-
     border:none;
-
     border-radius:12px;
-
     background:linear-gradient(
         90deg,
         #3b82f6,
         #8b5cf6
     );
-
     color:white;
-
     cursor:pointer;
 }
 
 table{
-
     width:100%;
-
     border-collapse:collapse;
-
     margin-top:20px;
 }
 
 th,td{
-
     padding:14px;
-
     text-align:center;
-
     border-bottom:1px solid #374151;
 }
 
 th{
-
     color:#60a5fa;
 }
 
 .hidden{
-
     display:none;
 }
 
@@ -244,13 +181,6 @@ Milk Entry
 
 <button
 class="sideBtn"
-onclick="showSection('feedSection',this)"
->
-Feed Entry
-</button>
-
-<button
-class="sideBtn"
 onclick="showSection('recordsSection',this)"
 >
 Records
@@ -267,7 +197,7 @@ Logout
 
 <div class="main">
 
-<!-- MILK -->
+<!-- MILK SECTION -->
 
 <div id="milkSection">
 
@@ -350,82 +280,6 @@ Save Milk Entry
 
 </div>
 
-<!-- FEED -->
-
-<div
-id="feedSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-Feed Entry
-</h2>
-
-<div class="grid">
-
-<div>
-
-<select id="feedClient">
-
-<option value="">
-Select Client
-</option>
-
-</select>
-
-</div>
-
-<div>
-
-<input
-type="text"
-id="feedName"
-placeholder="Feed Name"
-/>
-
-</div>
-
-<div>
-
-<input
-type="number"
-id="feedQty"
-placeholder="Quantity KG"
-/>
-
-</div>
-
-<div>
-
-<input
-type="number"
-id="feedCost"
-placeholder="Cost"
-/>
-
-</div>
-
-<div>
-
-<input
-type="month"
-id="feedMonth"
-/>
-
-</div>
-
-</div>
-
-<button onclick="saveFeed()">
-Save Feed Entry
-</button>
-
-</div>
-
-</div>
-
 <!-- RECORDS -->
 
 <div
@@ -459,39 +313,6 @@ Milk Records
 </thead>
 
 <tbody id="milkRecords">
-
-</tbody>
-
-</table>
-
-</div>
-
-<br>
-
-<div class="card">
-
-<h2>
-Feed Records
-</h2>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Client</th>
-<th>Feed</th>
-<th>Quantity</th>
-<th>Cost</th>
-<th>Month</th>
-<th>Actions</th>
-
-</tr>
-
-</thead>
-
-<tbody id="feedRecords">
 
 </tbody>
 
@@ -542,8 +363,6 @@ function showSection(id,btn){
     if(id === "recordsSection"){
 
         loadMilkRecords();
-
-        loadFeedRecords();
     }
 }
 
@@ -559,7 +378,7 @@ function logout(){
 }
 
 // ======================
-// CLIENTS
+// LOAD CLIENTS
 // ======================
 
 async function loadClients(){
@@ -570,23 +389,13 @@ async function loadClients(){
     const clients =
     await res.json();
 
-    const milkSelect =
+    const select =
     document.getElementById(
         "milkClient"
     );
 
-    const feedSelect =
-    document.getElementById(
-        "feedClient"
-    );
+    select.innerHTML = `
 
-    milkSelect.innerHTML = `
-    <option value="">
-    Select Client
-    </option>
-    `;
-
-    feedSelect.innerHTML = `
     <option value="">
     Select Client
     </option>
@@ -594,14 +403,7 @@ async function loadClients(){
 
     clients.forEach(c => {
 
-        milkSelect.innerHTML += `
-
-        <option value="${c.name}">
-        ${c.name}
-        </option>
-        `;
-
-        feedSelect.innerHTML += `
+        select.innerHTML += `
 
         <option value="${c.name}">
         ${c.name}
@@ -708,77 +510,7 @@ async function saveMilk(){
 }
 
 // ======================
-// SAVE FEED
-// ======================
-
-async function saveFeed(){
-
-    const client =
-    document.getElementById(
-        "feedClient"
-    ).value;
-
-    if(!client){
-
-        alert(
-            "Select Client"
-        );
-
-        return;
-    }
-
-    const data = {
-
-        client,
-
-        feedName:
-        document.getElementById(
-            "feedName"
-        ).value,
-
-        quantity:Number(
-
-            document.getElementById(
-                "feedQty"
-            ).value
-
-        ) || 0,
-
-        cost:Number(
-
-            document.getElementById(
-                "feedCost"
-            ).value
-
-        ) || 0,
-
-        month:
-        document.getElementById(
-            "feedMonth"
-        ).value
-    };
-
-    await fetch("/save-feed",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify(data)
-    });
-
-    alert(
-        "Feed Saved ✅"
-    );
-
-    loadFeedRecords();
-}
-
-// ======================
-// LOAD MILK RECORDS
+// LOAD RECORDS
 // ======================
 
 async function loadMilkRecords(){
@@ -826,66 +558,6 @@ async function loadMilkRecords(){
 
         <button
         onclick="deleteMilk('${r._id}')"
-        style="
-        background:#dc2626;
-        margin-top:8px;
-        "
-        >
-        Delete
-        </button>
-
-        </td>
-
-        </tr>
-        `;
-    });
-}
-
-// ======================
-// LOAD FEED RECORDS
-// ======================
-
-async function loadFeedRecords(){
-
-    const res =
-    await fetch("/feeds");
-
-    const feeds =
-    await res.json();
-
-    const tbody =
-    document.getElementById(
-        "feedRecords"
-    );
-
-    tbody.innerHTML = "";
-
-    feeds.forEach(feed => {
-
-        tbody.innerHTML += `
-
-        <tr>
-
-        <td>${feed.client}</td>
-
-        <td>${feed.feedName}</td>
-
-        <td>${feed.quantity} KG</td>
-
-        <td>₹${feed.cost}</td>
-
-        <td>${feed.month}</td>
-
-        <td>
-
-        <button
-        onclick="editFeed('${feed._id}')"
-        >
-        Edit
-        </button>
-
-        <button
-        onclick="deleteFeed('${feed._id}')"
         style="
         background:#dc2626;
         margin-top:8px;
@@ -977,83 +649,11 @@ async function deleteMilk(id){
 }
 
 // ======================
-// EDIT FEED
-// ======================
-
-async function editFeed(id){
-
-    const name =
-    prompt("Feed Name");
-
-    const qty =
-    prompt("Quantity KG");
-
-    const cost =
-    prompt("Cost");
-
-    if(!name || !qty || !cost) return;
-
-    await fetch("/edit-feed",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-
-            id,
-
-            feedName:name,
-
-            quantity:Number(qty),
-
-            cost:Number(cost)
-        })
-    });
-
-    loadFeedRecords();
-}
-
-// ======================
-// DELETE FEED
-// ======================
-
-async function deleteFeed(id){
-
-    const sure =
-    confirm(
-        "Delete Feed Entry?"
-    );
-
-    if(!sure) return;
-
-    await fetch("/delete-feed",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-            id
-        })
-    });
-
-    loadFeedRecords();
-}
-
-// ======================
 // INIT
 // ======================
 
 loadClients();
 loadMilkRecords();
-loadFeedRecords();
 
 </script>
 

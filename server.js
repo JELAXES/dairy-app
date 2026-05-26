@@ -87,15 +87,11 @@ new mongoose.Schema({
 
     type:String,
 
-    month:String,
-
     date:String,
 
     client:String,
 
     worker:String,
-
-    dailyMilk:Number,
 
     milkAM:Number,
 
@@ -103,7 +99,9 @@ new mongoose.Schema({
 
     discardedMilk:Number,
 
-    monthlyExpense:Number
+    dailyMilk:Number,
+
+    cows:Number
 });
 
 const Entry =
@@ -125,7 +123,7 @@ new mongoose.Schema({
 
     cost:Number,
 
-    date:String
+    month:String
 });
 
 const Feed =
@@ -135,7 +133,7 @@ mongoose.model(
 );
 
 // ======================
-// DEFAULT ADMIN
+// CREATE DEFAULT ADMIN
 // ======================
 
 async function createAdmin(){
@@ -287,7 +285,7 @@ app.post("/signup", async (req,res)=>{
 });
 
 // ======================
-// PENDING USERS
+// GET PENDING USERS
 // ======================
 
 app.get("/pending-users", async (req,res)=>{
@@ -471,7 +469,13 @@ app.post("/save-feed", async (req,res)=>{
 
     try{
 
-        const saved =
+        await Feed.deleteMany({
+
+            feedName:req.body.feedName,
+
+            month:req.body.month
+        });
+
         await Feed.create({
 
             feedName:req.body.feedName,
@@ -480,10 +484,8 @@ app.post("/save-feed", async (req,res)=>{
 
             cost:req.body.cost,
 
-            date:req.body.date
+            month:req.body.month
         });
-
-        console.log(saved);
 
         res.send({
 
@@ -509,37 +511,11 @@ app.get("/feeds", async (req,res)=>{
 
     try{
 
-        // OLD FEEDS
+        const feeds =
+        await Feed.find()
+        .sort({_id:-1});
 
-        const oldFeeds =
-        await Entry.find({
-
-            type:"feed"
-        });
-
-        // NEW FEEDS
-
-        const newFeeds =
-        await Feed.find();
-
-        // MERGE
-
-        const allFeeds = [
-
-            ...oldFeeds,
-
-            ...newFeeds
-        ];
-
-        // SORT
-
-        allFeeds.sort((a,b)=>
-
-            new Date(b.date) -
-            new Date(a.date)
-        );
-
-        res.send(allFeeds);
+        res.send(feeds);
 
     }catch(err){
 
@@ -550,7 +526,73 @@ app.get("/feeds", async (req,res)=>{
 });
 
 // ======================
-// ADD MILK ENTRY
+// DELETE FEED
+// ======================
+
+app.post("/delete-feed", async (req,res)=>{
+
+    try{
+
+        await Feed.findByIdAndDelete(
+            req.body.id
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// EDIT FEED
+// ======================
+
+app.post("/edit-feed", async (req,res)=>{
+
+    try{
+
+        await Feed.findByIdAndUpdate(
+
+            req.body.id,
+
+            {
+
+                feedName:req.body.feedName,
+
+                quantity:req.body.quantity,
+
+                cost:req.body.cost
+            }
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// SAVE MILK ENTRY
 // ======================
 
 app.post("/add", async (req,res)=>{
@@ -559,6 +601,76 @@ app.post("/add", async (req,res)=>{
 
         await Entry.create(
             req.body
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// DELETE MILK
+// ======================
+
+app.post("/delete-milk", async (req,res)=>{
+
+    try{
+
+        await Entry.findByIdAndDelete(
+            req.body.id
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// EDIT MILK
+// ======================
+
+app.post("/edit-milk", async (req,res)=>{
+
+    try{
+
+        await Entry.findByIdAndUpdate(
+
+            req.body.id,
+
+            {
+
+                milkAM:req.body.milkAM,
+
+                milkPM:req.body.milkPM,
+
+                discardedMilk:
+                req.body.discardedMilk,
+
+                dailyMilk:
+                req.body.dailyMilk
+            }
         );
 
         res.send({
@@ -589,13 +701,14 @@ app.get("/dashboard", async (req,res)=>{
         await Entry.find({
 
             type:"milk"
-        });
+        })
+        .sort({_id:-1});
 
         let totalMilk = 0;
 
         let totalRevenue = 0;
 
-        let totalDiscardedMilk = 0;
+        let totalExpense = 0;
 
         for(const entry of milkEntries){
 
@@ -605,11 +718,6 @@ app.get("/dashboard", async (req,res)=>{
             );
 
             totalMilk += milk;
-
-            totalDiscardedMilk +=
-            Number(
-                entry.discardedMilk || 0
-            );
 
             const client =
             await Client.findOne({
@@ -628,19 +736,14 @@ app.get("/dashboard", async (req,res)=>{
             milk * rate;
         }
 
-        const latestMonthly =
-        await Entry.findOne({
+        const feeds =
+        await Feed.find();
 
-            type:"monthly"
-        })
-        .sort({_id:-1});
+        feeds.forEach(feed => {
 
-        const totalExpense =
-        Number(
-
-            latestMonthly
-            ?.monthlyExpense || 0
-        );
+            totalExpense +=
+            Number(feed.cost || 0);
+        });
 
         const totalProfit =
         totalRevenue -
@@ -655,8 +758,6 @@ app.get("/dashboard", async (req,res)=>{
             totalExpense,
 
             totalProfit,
-
-            totalDiscardedMilk,
 
             records:milkEntries
         });
@@ -699,7 +800,6 @@ app.listen(
     ()=>{
 
         console.log(
-
             `Server running on ${PORT}`
         );
     }
