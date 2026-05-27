@@ -170,14 +170,16 @@ td{
     display:none;
 }
 
-.remarkItem{
-    padding:12px 0;
-    border-bottom:1px solid #374151;
-}
-
 .deleteBtn{
     background:#dc2626;
     margin-top:8px;
+}
+
+.remarkItem{
+    background:#1e293b;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
 }
 
 </style>
@@ -212,13 +214,6 @@ class="sideBtn"
 onclick="showSection('recordsSection',this)"
 >
 Records
-</button>
-
-<button
-class="sideBtn"
-onclick="showSection('remarksSection',this)"
->
-Remarks
 </button>
 
 <button
@@ -315,6 +310,33 @@ Save Milk Entry
 
 </div>
 
+<!-- REMARKS -->
+
+<div class="card">
+
+<h2>
+Worker Remarks
+</h2>
+
+<input
+type="text"
+id="remarkInput"
+placeholder="Write remark..."
+/>
+
+<button onclick="saveRemark()">
+Share Remark
+</button>
+
+<div
+id="remarksList"
+style="margin-top:18px;"
+>
+
+</div>
+
+</div>
+
 </div>
 
 <!-- RECORDS -->
@@ -359,51 +381,17 @@ Milk Records
 
 </div>
 
-<!-- REMARKS -->
-
-<div
-id="remarksSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-Add Remark
-</h2>
-
-<input
-type="text"
-id="remarkInput"
-placeholder="Write a remark..."
-/>
-
-<button onclick="saveRemark()">
-Save Remark
-</button>
-
-</div>
-
-<div class="card">
-
-<h2>
-Remarks List
-</h2>
-
-<div id="remarksList">
-
-</div>
-
-</div>
-
-</div>
-
 </div>
 
 <script>
 
+if(!localStorage.getItem("username")){
+
+    window.location = "/";
+}
+
 // ======================
-// SECTION SWITCH
+// SWITCH SECTION
 // ======================
 
 function showSection(id,btn){
@@ -437,11 +425,8 @@ function showSection(id,btn){
     );
 
     if(id === "recordsSection"){
-        loadMilkRecords();
-    }
 
-    if(id === "remarksSection"){
-        loadRemarks();
+        loadMilkRecords();
     }
 }
 
@@ -455,6 +440,17 @@ function logout(){
 
     window.location = "/";
 }
+
+// ======================
+// AUTO DATE
+// ======================
+
+document.getElementById(
+    "milkDate"
+).value =
+new Date()
+.toISOString()
+.split("T")[0];
 
 // ======================
 // LOAD CLIENTS
@@ -576,6 +572,22 @@ async function saveMilk(){
     alert(
         "Milk Entry Saved ✅"
     );
+
+    document.getElementById(
+        "milkAM"
+    ).value = "";
+
+    document.getElementById(
+        "milkPM"
+    ).value = "";
+
+    document.getElementById(
+        "discardMilk"
+    ).value = "";
+
+    document.getElementById(
+        "cowCount"
+    ).value = "";
 
     loadMilkRecords();
 }
@@ -727,7 +739,14 @@ async function saveRemark(){
         "remarkInput"
     ).value;
 
-    if(!text) return;
+    if(!text){
+
+        alert(
+            "Enter a remark"
+        );
+
+        return;
+    }
 
     await fetch("/save-remark",{
 
@@ -739,6 +758,12 @@ async function saveRemark(){
         },
 
         body:JSON.stringify({
+
+            text:
+            localStorage.getItem(
+                "username"
+            ) +
+            ": " +
             text
         })
     });
@@ -775,41 +800,11 @@ async function loadRemarks(){
 
         <div class="remarkItem">
 
-            ${r.text}
-
-            <button
-            class="deleteBtn"
-            onclick="deleteRemark('${r._id}')"
-            >
-            Delete
-            </button>
+        ${r.text}
 
         </div>
         `;
     });
-}
-
-// ======================
-// DELETE REMARK
-// ======================
-
-async function deleteRemark(id){
-
-    await fetch("/delete-remark",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-            id
-        })
-    });
-
-    loadRemarks();
 }
 
 // ======================
