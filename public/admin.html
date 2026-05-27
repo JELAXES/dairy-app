@@ -26,33 +26,35 @@ Kshiralaya Admin
 
 body{
     font-family:Arial,sans-serif;
-    background:#0f172a;
+    background:#0b1120;
     color:white;
     display:flex;
     min-height:100vh;
 }
 
+/* SIDEBAR */
+
 .sidebar{
-    width:260px;
+    width:230px;
     background:#111827;
-    padding:20px;
+    padding:18px;
     display:flex;
     flex-direction:column;
 }
 
 .logoBox{
     text-align:center;
-    margin-bottom:30px;
+    margin-bottom:28px;
 }
 
 .logoBox img{
-    width:150px;
+    width:120px;
     border-radius:20px;
     margin-bottom:10px;
 }
 
 .logoText{
-    font-size:28px;
+    font-size:24px;
     font-weight:bold;
 
     background:linear-gradient(
@@ -67,15 +69,16 @@ body{
 
 .sideBtn{
     width:100%;
-    padding:15px;
-    margin-bottom:15px;
+    padding:12px;
+    margin-bottom:12px;
     border:none;
-    border-radius:12px;
+    border-radius:10px;
     background:#1e293b;
     color:white;
     cursor:pointer;
     text-align:left;
-    font-size:15px;
+    font-size:14px;
+    transition:0.2s;
 }
 
 .sideBtn:hover{
@@ -90,40 +93,48 @@ body{
     );
 }
 
+/* MAIN */
+
 .main{
     flex:1;
-    padding:25px;
+    padding:20px;
     overflow-y:auto;
 }
 
 .card{
     background:#111827;
-    border-radius:18px;
-    padding:20px;
-    margin-bottom:25px;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:20px;
+}
+
+.card h2{
+    margin-bottom:14px;
+    font-size:22px;
 }
 
 .stats{
     display:grid;
     grid-template-columns:
     repeat(4,1fr);
-    gap:15px;
+    gap:14px;
 }
 
 .stat{
     background:#1e293b;
-    padding:20px;
-    border-radius:15px;
+    padding:18px;
+    border-radius:14px;
     text-align:center;
 }
 
 .stat h3{
     color:#94a3b8;
-    margin-bottom:10px;
+    margin-bottom:8px;
+    font-size:14px;
 }
 
 .stat p{
-    font-size:24px;
+    font-size:20px;
     font-weight:bold;
 }
 
@@ -131,25 +142,26 @@ body{
     display:grid;
     grid-template-columns:
     1fr 1fr;
-    gap:20px;
+    gap:16px;
 }
 
-input{
+input,
+select{
     width:100%;
-    padding:14px;
-    margin-top:12px;
+    padding:12px;
     border:none;
-    border-radius:12px;
+    border-radius:10px;
     background:#1e293b;
     color:white;
+    font-size:14px;
 }
 
 button{
     width:100%;
-    padding:14px;
-    margin-top:18px;
+    padding:10px;
+    margin-top:12px;
     border:none;
-    border-radius:12px;
+    border-radius:10px;
     background:linear-gradient(
         90deg,
         #3b82f6,
@@ -157,22 +169,28 @@ button{
     );
     color:white;
     cursor:pointer;
+    font-size:14px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
+    margin-top:16px;
 }
 
 th,td{
-    padding:14px;
+    padding:12px;
     text-align:center;
     border-bottom:1px solid #374151;
 }
 
 th{
     color:#60a5fa;
+    font-size:14px;
+}
+
+td{
+    font-size:14px;
 }
 
 .hidden{
@@ -181,16 +199,21 @@ th{
 
 .userCard{
     background:#1e293b;
-    padding:15px;
+    padding:14px;
     border-radius:12px;
-    margin-top:15px;
+    margin-top:12px;
 }
 
 canvas{
     background:#1e293b;
-    border-radius:15px;
-    padding:15px;
-    max-height:250px !important;
+    border-radius:14px;
+    padding:10px;
+    max-height:180px !important;
+}
+
+.deleteBtn{
+    background:#dc2626;
+    margin-top:8px;
 }
 
 </style>
@@ -250,6 +273,13 @@ Records
 
 <button
 class="sideBtn"
+onclick="showSection('remarksSection',this)"
+>
+Remarks
+</button>
+
+<button
+class="sideBtn"
 onclick="logout()"
 >
 Logout
@@ -297,8 +327,6 @@ Logout
 Milk Analytics
 </h2>
 
-<br>
-
 <canvas id="milkChart"></canvas>
 
 </div>
@@ -318,6 +346,8 @@ class="hidden"
 Create Client
 </h2>
 
+<div class="grid">
+
 <input
 type="text"
 id="clientName"
@@ -329,6 +359,8 @@ type="number"
 id="clientPrice"
 placeholder="Price Per Liter"
 />
+
+</div>
 
 <button onclick="createClient()">
 Create Client
@@ -363,17 +395,11 @@ Feed Management
 
 <div class="grid">
 
-<div>
-
 <input
 type="text"
 id="feedName"
 placeholder="Feed Name"
 />
-
-</div>
-
-<div>
 
 <input
 type="number"
@@ -381,26 +407,16 @@ id="feedQty"
 placeholder="Quantity KG"
 />
 
-</div>
-
-<div>
-
 <input
 type="number"
 id="feedCost"
 placeholder="Cost"
 />
 
-</div>
-
-<div>
-
 <input
 type="month"
 id="feedMonth"
 />
-
-</div>
 
 </div>
 
@@ -452,7 +468,7 @@ class="hidden"
 <div class="card">
 
 <h2>
-Pending Managers
+Pending Workers
 </h2>
 
 <div id="pendingUsers"></div>
@@ -501,9 +517,33 @@ Milk Records
 
 </div>
 
+<!-- REMARKS -->
+
+<div
+id="remarksSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+Worker Remarks
+</h2>
+
+<div id="remarksList"></div>
+
+</div>
+
+</div>
+
 </div>
 
 <script>
+
+if(!localStorage.getItem("username")){
+
+    window.location = "/";
+}
 
 let milkChart;
 
@@ -551,6 +591,10 @@ function showSection(id,btn){
 
     if(id === "recordsSection"){
         loadRecords();
+    }
+
+    if(id === "remarksSection"){
+        loadRemarks();
     }
 }
 
@@ -674,6 +718,14 @@ async function createClient(){
         body:JSON.stringify(data)
     });
 
+    document.getElementById(
+        "clientName"
+    ).value = "";
+
+    document.getElementById(
+        "clientPrice"
+    ).value = "";
+
     loadClients();
 }
 
@@ -701,9 +753,7 @@ async function loadClients(){
             <h3>${c.name}</h3>
 
             <p>
-
             ₹${c.pricePerLiter}/L
-
             </p>
 
             <button
@@ -717,11 +767,8 @@ async function loadClients(){
             </button>
 
             <button
+            class="deleteBtn"
             onclick="deleteClient('${c._id}')"
-            style="
-            background:#dc2626;
-            margin-top:10px;
-            "
             >
             Delete
             </button>
@@ -734,9 +781,7 @@ async function loadClients(){
 async function deleteClient(id){
 
     const sure =
-    confirm(
-        "Delete Client?"
-    );
+    confirm("Delete Client?");
 
     if(!sure) return;
 
@@ -749,9 +794,7 @@ async function deleteClient(id){
             "application/json"
         },
 
-        body:JSON.stringify({
-            id
-        })
+        body:JSON.stringify({id})
     });
 
     loadClients();
@@ -846,6 +889,18 @@ async function saveFeed(){
         body:JSON.stringify(data)
     });
 
+    document.getElementById(
+        "feedName"
+    ).value = "";
+
+    document.getElementById(
+        "feedQty"
+    ).value = "";
+
+    document.getElementById(
+        "feedCost"
+    ).value = "";
+
     loadFeeds();
 }
 
@@ -866,10 +921,9 @@ async function loadFeeds(){
 
     feeds.forEach(feed => {
 
-        const row =
-        document.createElement("tr");
+        tbody.innerHTML += `
 
-        row.innerHTML = `
+        <tr>
 
         <td>${feed.feedName}</td>
 
@@ -888,19 +942,16 @@ async function loadFeeds(){
         </button>
 
         <button
+        class="deleteBtn"
         onclick="deleteFeed('${feed._id}')"
-        style="
-        background:#dc2626;
-        margin-top:8px;
-        "
         >
         Delete
         </button>
 
         </td>
-        `;
 
-        tbody.appendChild(row);
+        </tr>
+        `;
     });
 }
 
@@ -922,9 +973,7 @@ async function deleteFeed(id){
             "application/json"
         },
 
-        body:JSON.stringify({
-            id
-        })
+        body:JSON.stringify({id})
     });
 
     loadFeeds();
@@ -1028,9 +1077,7 @@ async function approveUser(id){
             "application/json"
         },
 
-        body:JSON.stringify({
-            id
-        })
+        body:JSON.stringify({id})
     });
 
     loadPendingUsers();
@@ -1084,11 +1131,8 @@ async function loadRecords(){
         </button>
 
         <button
+        class="deleteBtn"
         onclick="deleteMilk('${r._id}')"
-        style="
-        background:#dc2626;
-        margin-top:8px;
-        "
         >
         Delete
         </button>
@@ -1118,9 +1162,7 @@ async function deleteMilk(id){
             "application/json"
         },
 
-        body:JSON.stringify({
-            id
-        })
+        body:JSON.stringify({id})
     });
 
     loadRecords();
@@ -1168,14 +1210,54 @@ async function editMilk(id){
 }
 
 // ======================
+// REMARKS
+// ======================
+
+async function loadRemarks(){
+
+    const res =
+    await fetch("/remarks");
+
+    const remarks =
+    await res.json();
+
+    const list =
+    document.getElementById(
+        "remarksList"
+    );
+
+    list.innerHTML = "";
+
+    remarks.forEach(r => {
+
+        list.innerHTML += `
+
+        <div class="userCard">
+
+        ${r.text}
+
+        </div>
+        `;
+    });
+}
+
+// ======================
 // INIT
 // ======================
+
+document.getElementById(
+    "feedMonth"
+).value =
+new Date()
+.toISOString()
+.slice(0,7);
 
 loadDashboard();
 loadClients();
 loadFeeds();
 loadPendingUsers();
 loadRecords();
+loadRemarks();
 
 </script>
 

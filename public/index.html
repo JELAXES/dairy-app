@@ -26,6 +26,14 @@ body{
 
     font-family:Arial,sans-serif;
 
+    background:
+    linear-gradient(
+        135deg,
+        #0f172a,
+        #111827,
+        #1e293b
+    );
+
     height:100vh;
 
     display:flex;
@@ -34,55 +42,42 @@ body{
 
     align-items:center;
 
-    background:
-    linear-gradient(
-        135deg,
-        #020617,
-        #0f172a,
-        #111827
-    );
-
-    overflow:hidden;
+    color:white;
 }
 
 .loginBox{
 
-    width:420px;
+    width:380px;
 
-    background:
-    rgba(17,24,39,0.95);
+    background:#111827;
 
-    backdrop-filter:blur(20px);
+    padding:30px;
 
-    border-radius:30px;
-
-    padding:40px;
+    border-radius:22px;
 
     box-shadow:
-    0 0 40px rgba(0,0,0,0.5);
+    0 0 30px rgba(
+        0,
+        0,
+        0,
+        0.4
+    );
 
     text-align:center;
-
-    animation:fadeIn 0.6s ease;
 }
 
 .logo{
 
-    width:180px;
+    width:140px;
 
-    margin:auto;
+    border-radius:22px;
 
     margin-bottom:15px;
-
-    border-radius:25px;
-
-    box-shadow:
-    0 0 30px rgba(255,255,255,0.08);
 }
 
-.brand{
+.title{
 
-    font-size:42px;
+    font-size:34px;
 
     font-weight:bold;
 
@@ -99,36 +94,32 @@ body{
     -webkit-text-fill-color:transparent;
 }
 
-.tagline{
+.subtitle{
 
     color:#94a3b8;
 
-    margin-bottom:35px;
+    margin-bottom:25px;
 
-    font-size:15px;
-
-    letter-spacing:1px;
+    font-size:14px;
 }
 
 input{
 
     width:100%;
 
-    padding:16px;
+    padding:14px;
 
-    margin-top:16px;
+    margin-bottom:16px;
 
     border:none;
 
-    border-radius:15px;
+    border-radius:12px;
 
     background:#1e293b;
 
     color:white;
 
-    font-size:15px;
-
-    outline:none;
+    font-size:14px;
 }
 
 input::placeholder{
@@ -140,13 +131,11 @@ button{
 
     width:100%;
 
-    padding:16px;
-
-    margin-top:22px;
+    padding:13px;
 
     border:none;
 
-    border-radius:15px;
+    border-radius:12px;
 
     background:
     linear-gradient(
@@ -157,9 +146,7 @@ button{
 
     color:white;
 
-    font-size:16px;
-
-    font-weight:bold;
+    font-size:15px;
 
     cursor:pointer;
 
@@ -168,40 +155,36 @@ button{
 
 button:hover{
 
-    transform:scale(1.02);
+    opacity:0.9;
+
+    transform:scale(1.01);
 }
 
-.createBtn{
-
-    background:#1e293b;
-
-    margin-top:12px;
-}
-
-.note{
+.signupText{
 
     margin-top:18px;
 
-    color:#94a3b8;
+    font-size:14px;
 
-    font-size:13px;
+    color:#94a3b8;
 }
 
-@keyframes fadeIn{
+.signupText span{
 
-    from{
+    color:#60a5fa;
 
-        opacity:0;
+    cursor:pointer;
 
-        transform:translateY(20px);
-    }
+    font-weight:bold;
+}
 
-    to{
+#error{
 
-        opacity:1;
+    margin-top:14px;
 
-        transform:translateY(0);
-    }
+    color:#ef4444;
+
+    font-size:14px;
 }
 
 </style>
@@ -212,19 +195,17 @@ button:hover{
 
 <div class="loginBox">
 
-<!-- YOUR LOGO -->
-
 <img
 src="logo.png"
 class="logo"
->
+/>
 
-<div class="brand">
+<div class="title">
 Kshiralaya
 </div>
 
-<div class="tagline">
-PURE CARE PURE MILK
+<div class="subtitle">
+Pure Care Pure Milk
 </div>
 
 <input
@@ -243,16 +224,19 @@ placeholder="Password"
 Login
 </button>
 
-<button
-class="createBtn"
-onclick="window.location='signup.html'"
->
-Create Account
-</button>
+<div class="signupText">
 
-<div class="note">
-Manager accounts require admin approval
+Need worker access?
+
+<span onclick="window.location='signup.html'">
+
+Request Account
+
+</span>
+
 </div>
+
+<div id="error"></div>
 
 </div>
 
@@ -260,49 +244,38 @@ Manager accounts require admin approval
 
 async function login(){
 
-    try{
+    const username =
+    document.getElementById(
+        "username"
+    ).value;
 
-        const username =
-        document.getElementById(
-            "username"
-        ).value;
+    const password =
+    document.getElementById(
+        "password"
+    ).value;
 
-        const password =
-        document.getElementById(
-            "password"
-        ).value;
+    const res =
+    await fetch("/login",{
 
-        const res =
-        await fetch("/login",{
+        method:"POST",
 
-            method:"POST",
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
 
-            headers:{
-                "Content-Type":
-                "application/json"
-            },
+        body:JSON.stringify({
 
-            body:JSON.stringify({
+            username,
 
-                username,
-                password
-            })
-        });
+            password
+        })
+    });
 
-        const data =
-        await res.json();
+    const data =
+    await res.json();
 
-        console.log(data);
-
-        if(!data.success){
-
-            alert(
-                data.message ||
-                "Login Failed"
-            );
-
-            return;
-        }
+    if(data.success){
 
         localStorage.setItem(
             "username",
@@ -320,24 +293,26 @@ async function login(){
 
             window.location =
             "admin.html";
+        }
 
-        }else{
+        else{
 
             window.location =
             "worker.html";
         }
 
-    }catch(err){
+    }else{
 
-        console.log(err);
-
-        alert(
-            "Server Error"
-        );
+        document.getElementById(
+            "error"
+        ).innerText =
+        data.message ||
+        "Login Failed";
     }
 }
 
 </script>
 
 </body>
+
 </html>

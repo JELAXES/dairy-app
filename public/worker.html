@@ -11,7 +11,7 @@ content="width=device-width, initial-scale=1.0"
 />
 
 <title>
-Kshiralaya Manager
+Kshiralaya Worker
 </title>
 
 <style>
@@ -24,33 +24,35 @@ Kshiralaya Manager
 
 body{
     font-family:Arial,sans-serif;
-    background:#0f172a;
+    background:#0b1120;
     color:white;
     display:flex;
     min-height:100vh;
 }
 
+/* SIDEBAR */
+
 .sidebar{
-    width:250px;
+    width:230px;
     background:#111827;
-    padding:20px;
+    padding:18px;
     display:flex;
     flex-direction:column;
 }
 
 .logoBox{
     text-align:center;
-    margin-bottom:30px;
+    margin-bottom:28px;
 }
 
 .logoBox img{
-    width:140px;
+    width:120px;
     border-radius:20px;
     margin-bottom:10px;
 }
 
 .logoText{
-    font-size:28px;
+    font-size:24px;
     font-weight:bold;
 
     background:linear-gradient(
@@ -65,15 +67,16 @@ body{
 
 .sideBtn{
     width:100%;
-    padding:15px;
-    margin-bottom:15px;
+    padding:12px;
+    margin-bottom:12px;
     border:none;
-    border-radius:12px;
+    border-radius:10px;
     background:#1e293b;
     color:white;
     cursor:pointer;
     text-align:left;
-    font-size:15px;
+    font-size:14px;
+    transition:0.2s;
 }
 
 .sideBtn:hover{
@@ -88,43 +91,50 @@ body{
     );
 }
 
+/* MAIN */
+
 .main{
     flex:1;
-    padding:25px;
+    padding:20px;
     overflow-y:auto;
 }
 
 .card{
     background:#111827;
-    border-radius:18px;
-    padding:20px;
-    margin-bottom:25px;
+    border-radius:16px;
+    padding:16px;
+    margin-bottom:20px;
+}
+
+.card h2{
+    margin-bottom:14px;
+    font-size:22px;
 }
 
 .grid{
     display:grid;
     grid-template-columns:
     1fr 1fr;
-    gap:20px;
+    gap:16px;
 }
 
 input,
 select{
     width:100%;
-    padding:14px;
-    margin-top:12px;
+    padding:12px;
     border:none;
-    border-radius:12px;
+    border-radius:10px;
     background:#1e293b;
     color:white;
+    font-size:14px;
 }
 
 button{
     width:100%;
-    padding:14px;
-    margin-top:18px;
+    padding:10px;
+    margin-top:12px;
     border:none;
-    border-radius:12px;
+    border-radius:10px;
     background:linear-gradient(
         90deg,
         #3b82f6,
@@ -132,26 +142,42 @@ button{
     );
     color:white;
     cursor:pointer;
+    font-size:14px;
 }
 
 table{
     width:100%;
     border-collapse:collapse;
-    margin-top:20px;
+    margin-top:16px;
 }
 
 th,td{
-    padding:14px;
+    padding:12px;
     text-align:center;
     border-bottom:1px solid #374151;
 }
 
 th{
     color:#60a5fa;
+    font-size:14px;
+}
+
+td{
+    font-size:14px;
 }
 
 .hidden{
     display:none;
+}
+
+.remarkItem{
+    padding:12px 0;
+    border-bottom:1px solid #374151;
+}
+
+.deleteBtn{
+    background:#dc2626;
+    margin-top:8px;
 }
 
 </style>
@@ -159,6 +185,8 @@ th{
 </head>
 
 <body>
+
+<!-- SIDEBAR -->
 
 <div class="sidebar">
 
@@ -188,12 +216,21 @@ Records
 
 <button
 class="sideBtn"
+onclick="showSection('remarksSection',this)"
+>
+Remarks
+</button>
+
+<button
+class="sideBtn"
 onclick="logout()"
 >
 Logout
 </button>
 
 </div>
+
+<!-- MAIN -->
 
 <div class="main">
 
@@ -322,12 +359,51 @@ Milk Records
 
 </div>
 
+<!-- REMARKS -->
+
+<div
+id="remarksSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+Add Remark
+</h2>
+
+<input
+type="text"
+id="remarkInput"
+placeholder="Write a remark..."
+/>
+
+<button onclick="saveRemark()">
+Save Remark
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>
+Remarks List
+</h2>
+
+<div id="remarksList">
+
+</div>
+
+</div>
+
+</div>
+
 </div>
 
 <script>
 
 // ======================
-// SWITCH
+// SECTION SWITCH
 // ======================
 
 function showSection(id,btn){
@@ -361,8 +437,11 @@ function showSection(id,btn){
     );
 
     if(id === "recordsSection"){
-
         loadMilkRecords();
+    }
+
+    if(id === "remarksSection"){
+        loadRemarks();
     }
 }
 
@@ -434,20 +513,16 @@ async function saveMilk(){
 
     const milkAM =
     Number(
-
         document.getElementById(
             "milkAM"
         ).value
-
     ) || 0;
 
     const milkPM =
     Number(
-
         document.getElementById(
             "milkPM"
         ).value
-
     ) || 0;
 
     const data = {
@@ -459,7 +534,7 @@ async function saveMilk(){
         worker:
         localStorage.getItem(
             "username"
-        ) || "Manager",
+        ) || "Worker",
 
         date:
         document.getElementById(
@@ -471,19 +546,15 @@ async function saveMilk(){
         milkPM,
 
         discardedMilk:Number(
-
             document.getElementById(
                 "discardMilk"
             ).value
-
         ) || 0,
 
         cows:Number(
-
             document.getElementById(
                 "cowCount"
             ).value
-
         ) || 0,
 
         dailyMilk:
@@ -557,11 +628,8 @@ async function loadMilkRecords(){
         </button>
 
         <button
+        class="deleteBtn"
         onclick="deleteMilk('${r._id}')"
-        style="
-        background:#dc2626;
-        margin-top:8px;
-        "
         >
         Delete
         </button>
@@ -649,11 +717,108 @@ async function deleteMilk(id){
 }
 
 // ======================
+// SAVE REMARK
+// ======================
+
+async function saveRemark(){
+
+    const text =
+    document.getElementById(
+        "remarkInput"
+    ).value;
+
+    if(!text) return;
+
+    await fetch("/save-remark",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+            text
+        })
+    });
+
+    document.getElementById(
+        "remarkInput"
+    ).value = "";
+
+    loadRemarks();
+}
+
+// ======================
+// LOAD REMARKS
+// ======================
+
+async function loadRemarks(){
+
+    const res =
+    await fetch("/remarks");
+
+    const remarks =
+    await res.json();
+
+    const list =
+    document.getElementById(
+        "remarksList"
+    );
+
+    list.innerHTML = "";
+
+    remarks.forEach(r => {
+
+        list.innerHTML += `
+
+        <div class="remarkItem">
+
+            ${r.text}
+
+            <button
+            class="deleteBtn"
+            onclick="deleteRemark('${r._id}')"
+            >
+            Delete
+            </button>
+
+        </div>
+        `;
+    });
+}
+
+// ======================
+// DELETE REMARK
+// ======================
+
+async function deleteRemark(id){
+
+    await fetch("/delete-remark",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+            id
+        })
+    });
+
+    loadRemarks();
+}
+
+// ======================
 // INIT
 // ======================
 
 loadClients();
 loadMilkRecords();
+loadRemarks();
 
 </script>
 

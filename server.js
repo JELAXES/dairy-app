@@ -133,6 +133,29 @@ mongoose.model(
 );
 
 // ======================
+// REMARK SCHEMA
+// ======================
+
+const RemarkSchema =
+new mongoose.Schema({
+
+    text:String,
+
+    createdAt:{
+
+        type:Date,
+
+        default:Date.now
+    }
+});
+
+const Remark =
+mongoose.model(
+    "Remark",
+    RemarkSchema
+);
+
+// ======================
 // CREATE DEFAULT ADMIN
 // ======================
 
@@ -285,7 +308,7 @@ app.post("/signup", async (req,res)=>{
 });
 
 // ======================
-// GET PENDING USERS
+// PENDING USERS
 // ======================
 
 app.get("/pending-users", async (req,res)=>{
@@ -343,7 +366,7 @@ app.post("/approve-user", async (req,res)=>{
 });
 
 // ======================
-// CREATE CLIENT
+// CLIENTS
 // ======================
 
 app.post("/create-client", async (req,res)=>{
@@ -374,10 +397,6 @@ app.post("/create-client", async (req,res)=>{
     }
 });
 
-// ======================
-// GET CLIENTS
-// ======================
-
 app.get("/clients", async (req,res)=>{
 
     try{
@@ -395,10 +414,6 @@ app.get("/clients", async (req,res)=>{
         res.send([]);
     }
 });
-
-// ======================
-// DELETE CLIENT
-// ======================
 
 app.post("/delete-client", async (req,res)=>{
 
@@ -423,10 +438,6 @@ app.post("/delete-client", async (req,res)=>{
         });
     }
 });
-
-// ======================
-// EDIT CLIENT
-// ======================
 
 app.post("/edit-client", async (req,res)=>{
 
@@ -462,7 +473,7 @@ app.post("/edit-client", async (req,res)=>{
 });
 
 // ======================
-// SAVE FEED
+// FEEDS
 // ======================
 
 app.post("/save-feed", async (req,res)=>{
@@ -503,10 +514,6 @@ app.post("/save-feed", async (req,res)=>{
     }
 });
 
-// ======================
-// GET FEEDS
-// ======================
-
 app.get("/feeds", async (req,res)=>{
 
     try{
@@ -524,10 +531,6 @@ app.get("/feeds", async (req,res)=>{
         res.send([]);
     }
 });
-
-// ======================
-// DELETE FEED
-// ======================
 
 app.post("/delete-feed", async (req,res)=>{
 
@@ -553,10 +556,6 @@ app.post("/delete-feed", async (req,res)=>{
     }
 });
 
-// ======================
-// EDIT FEED
-// ======================
-
 app.post("/edit-feed", async (req,res)=>{
 
     try{
@@ -571,7 +570,9 @@ app.post("/edit-feed", async (req,res)=>{
 
                 quantity:req.body.quantity,
 
-                cost:req.body.cost
+                cost:req.body.cost,
+
+                month:req.body.month
             }
         );
 
@@ -592,7 +593,7 @@ app.post("/edit-feed", async (req,res)=>{
 });
 
 // ======================
-// SAVE MILK ENTRY
+// MILK ENTRIES
 // ======================
 
 app.post("/add", async (req,res)=>{
@@ -619,10 +620,6 @@ app.post("/add", async (req,res)=>{
     }
 });
 
-// ======================
-// DELETE MILK
-// ======================
-
 app.post("/delete-milk", async (req,res)=>{
 
     try{
@@ -647,10 +644,6 @@ app.post("/delete-milk", async (req,res)=>{
     }
 });
 
-// ======================
-// EDIT MILK
-// ======================
-
 app.post("/edit-milk", async (req,res)=>{
 
     try{
@@ -671,6 +664,77 @@ app.post("/edit-milk", async (req,res)=>{
                 dailyMilk:
                 req.body.dailyMilk
             }
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// REMARKS
+// ======================
+
+app.get("/remarks", async (req,res)=>{
+
+    try{
+
+        const remarks =
+        await Remark.find()
+        .sort({_id:-1});
+
+        res.send(remarks);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send([]);
+    }
+});
+
+app.post("/save-remark", async (req,res)=>{
+
+    try{
+
+        await Remark.create({
+
+            text:req.body.text
+        });
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+app.post("/delete-remark", async (req,res)=>{
+
+    try{
+
+        await Remark.findByIdAndDelete(
+            req.body.id
         );
 
         res.send({
