@@ -11,7 +11,7 @@ content="width=device-width, initial-scale=1.0"
 />
 
 <title>
-Kshiralaya Worker
+Kshiralaya Manager
 </title>
 
 <style>
@@ -310,18 +310,18 @@ Save Milk Entry
 
 </div>
 
-<!-- REMARKS -->
+<!-- MANAGER REMARKS -->
 
 <div class="card">
 
 <h2>
-Worker Remarks
+Manager Remarks
 </h2>
 
 <input
 type="text"
 id="remarkInput"
-placeholder="Write remark..."
+placeholder="Write manager remark..."
 />
 
 <button onclick="saveRemark()">
@@ -530,7 +530,7 @@ async function saveMilk(){
         worker:
         localStorage.getItem(
             "username"
-        ) || "Worker",
+        ) || "Manager",
 
         date:
         document.getElementById(
