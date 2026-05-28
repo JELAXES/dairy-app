@@ -224,46 +224,58 @@ body{
     font-weight:bold;
 }
 
-/* DASH GRID */
+/* DASHBOARD */
 
 .dashboardGrid{
 
     display:grid;
 
     grid-template-columns:
-    2fr 1fr;
+    1.2fr 1fr;
 
     gap:20px;
+
+    align-items:start;
 }
 
 .smallCharts{
 
     display:grid;
 
-    gap:20px;
+    gap:18px;
 }
 
-/* CARD */
-
-.card,
 .chartCard{
 
     background:#18233a;
 
     border-radius:20px;
 
-    padding:20px;
+    padding:18px;
 
     box-shadow:
     0 0 18px rgba(0,0,0,0.25);
+
+    height:280px;
 }
 
-.card h2,
+.smallCharts .chartCard{
+
+    height:180px;
+}
+
 .chartCard h2{
 
-    margin-bottom:14px;
+    margin-bottom:12px;
 
-    font-size:22px;
+    font-size:18px;
+}
+
+canvas{
+
+    width:100% !important;
+
+    max-height:170px !important;
 }
 
 /* FORM */
@@ -368,13 +380,6 @@ th{
     border-radius:14px;
 
     margin-top:12px;
-}
-
-canvas{
-
-    width:100% !important;
-
-    max-height:220px !important;
 }
 
 </style>
@@ -482,15 +487,19 @@ Logout
 
 <div class="dashboardGrid">
 
+<!-- MAIN CHART -->
+
 <div class="chartCard">
 
 <h2>
-Milk Production Analytics
+Milk Production
 </h2>
 
 <canvas id="milkChart"></canvas>
 
 </div>
+
+<!-- SMALL CHARTS -->
 
 <div class="smallCharts">
 
@@ -507,7 +516,7 @@ Discarded Milk
 <div class="chartCard">
 
 <h2>
-Calf Milk Average
+Calf Average
 </h2>
 
 <canvas id="calfChart"></canvas>
@@ -517,219 +526,12 @@ Calf Milk Average
 <div class="chartCard">
 
 <h2>
-Staff Milk Average
+Staff Average
 </h2>
 
 <canvas id="staffChart"></canvas>
 
 </div>
-
-</div>
-
-</div>
-
-</div>
-
-<!-- CLIENTS -->
-
-<div
-id="clientsSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-Create Client
-</h2>
-
-<div class="grid">
-
-<input
-type="text"
-id="clientName"
-placeholder="Client Name"
-/>
-
-<input
-type="number"
-id="clientPrice"
-placeholder="Price Per Liter"
-/>
-
-</div>
-
-<button onclick="createClient()">
-Create Client
-</button>
-
-</div>
-
-<div class="card">
-
-<h2>
-Client List
-</h2>
-
-<div id="clientList"></div>
-
-</div>
-
-</div>
-
-<!-- FEED -->
-
-<div
-id="feedSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-Feed Management
-</h2>
-
-<div class="grid">
-
-<input
-type="text"
-id="feedName"
-placeholder="Feed Name"
-/>
-
-<input
-type="number"
-id="feedQty"
-placeholder="Quantity KG"
-/>
-
-<input
-type="number"
-id="feedCost"
-placeholder="Cost"
-/>
-
-<input
-type="month"
-id="feedMonth"
-/>
-
-</div>
-
-<button onclick="saveFeed()">
-Save Feed
-</button>
-
-</div>
-
-<div class="card">
-
-<h2>
-Feed Records
-</h2>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Feed</th>
-<th>Quantity</th>
-<th>Cost</th>
-<th>Month</th>
-<th>Actions</th>
-
-</tr>
-
-</thead>
-
-<tbody id="feedRecords">
-
-</tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<!-- MANAGERS -->
-
-<div
-id="managerSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-Pending Workers
-</h2>
-
-<div id="pendingUsers"></div>
-
-</div>
-
-</div>
-
-<!-- RECORDS -->
-
-<div
-id="recordsSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-Milk Records
-</h2>
-
-<table>
-
-<thead>
-
-<tr>
-
-<th>Date</th>
-<th>Client</th>
-<th>AM</th>
-<th>PM</th>
-<th>Discard</th>
-<th>Total</th>
-<th>Cows</th>
-<th>Calves</th>
-<th>Staff</th>
-<th>Actions</th>
-
-</tr>
-
-</thead>
-
-<tbody id="records"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
-<!-- REMARKS -->
-
-<div
-id="remarksSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-Manager Remarks
-</h2>
-
-<div id="remarksList"></div>
 
 </div>
 
@@ -749,65 +551,12 @@ let discardChart;
 let calfChart;
 let staffChart;
 
-// SWITCH
-
-function showSection(id,btn){
-
-    document
-    .querySelectorAll(".main > div")
-    .forEach(sec => {
-
-        sec.classList.add("hidden");
-    });
-
-    document
-    .getElementById(id)
-    .classList.remove("hidden");
-
-    document
-    .querySelectorAll(".sideBtn")
-    .forEach(b => {
-
-        b.classList.remove("activeBtn");
-    });
-
-    btn.classList.add("activeBtn");
-
-    if(id==="dashboardSection"){
-        loadDashboard();
-    }
-
-    if(id==="clientsSection"){
-        loadClients();
-    }
-
-    if(id==="feedSection"){
-        loadFeeds();
-    }
-
-    if(id==="managerSection"){
-        loadPendingUsers();
-    }
-
-    if(id==="recordsSection"){
-        loadRecords();
-    }
-
-    if(id==="remarksSection"){
-        loadRemarks();
-    }
-}
-
-// LOGOUT
-
 function logout(){
 
     localStorage.clear();
 
     window.location="/";
 }
-
-// DASHBOARD
 
 async function loadDashboard(){
 
@@ -848,7 +597,7 @@ async function loadDashboard(){
         d.totalMilk || 0
     ).toFixed(1) + "L";
 
-    // MILK CHART
+    // MAIN CHART
 
     if(milkChart){
         milkChart.destroy();
@@ -890,6 +639,10 @@ async function loadDashboard(){
             },
 
             options:{
+
+                responsive:true,
+
+                maintainAspectRatio:false,
 
                 plugins:{
                     legend:{
@@ -1019,8 +772,159 @@ async function loadDashboard(){
     );
 }
 
+loadDashboard();
+// ======================
+// SECTION SWITCH
+// ======================
+
+function showSection(id,btn){
+
+    document
+    .querySelectorAll(".main > div")
+    .forEach(sec => {
+
+        sec.classList.add("hidden");
+    });
+
+    document
+    .getElementById(id)
+    .classList.remove("hidden");
+
+    document
+    .querySelectorAll(".sideBtn")
+    .forEach(b => {
+
+        b.classList.remove("activeBtn");
+    });
+
+    btn.classList.add("activeBtn");
+}
+
+// ======================
+// CLIENTS
+// ======================
+
+async function createClient(){
+
+    const data = {
+
+        name:
+        document.getElementById(
+            "clientName"
+        ).value,
+
+        pricePerLiter:Number(
+
+            document.getElementById(
+                "clientPrice"
+            ).value
+
+        ) || 0
+    };
+
+    await fetch("/create-client",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify(data)
+    });
+
+    loadClients();
+}
+
+async function loadClients(){
+
+    const res =
+    await fetch("/clients");
+
+    const clients =
+    await res.json();
+
+    const div =
+    document.getElementById(
+        "clientList"
+    );
+
+    if(!div) return;
+
+    div.innerHTML = "";
+
+    clients.forEach(c => {
+
+        div.innerHTML += `
+
+        <div class="userCard">
+
+        <h3>${c.name}</h3>
+
+        <p>
+        ₹${c.pricePerLiter}/L
+        </p>
+
+        </div>
+        `;
+    });
+}
+
+loadClients();
+
 </script>
 
+<!-- CLIENTS -->
+
+<div
+id="clientsSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+Create Client
+</h2>
+
+<div class="grid">
+
+<input
+type="text"
+id="clientName"
+placeholder="Client Name"
+/>
+
+<input
+type="number"
+id="clientPrice"
+placeholder="Price Per Liter"
+/>
+
+</div>
+
+<button onclick="createClient()">
+Create Client
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>
+Client List
+</h2>
+
+<div id="clientList"></div>
+
+</div>
+
+</div>
+
+</body>
+
+</html>
 </body>
 
 </html>
