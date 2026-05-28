@@ -1,43 +1,23 @@
-require("dotenv").config();
-
 const express = require("express");
 const mongoose = require("mongoose");
+const cors = require("cors");
 
 const app = express();
 
-// ======================
-// MIDDLEWARE
-// ======================
-
+app.use(cors());
 app.use(express.json());
-
-app.use(express.urlencoded({
-    extended:true
-}));
-
 app.use(express.static("public"));
 
 // ======================
 // MONGODB
 // ======================
 
-mongoose.connect(process.env.MONGO_URI)
-
-.then(()=>{
-
-    console.log(
-        "MongoDB Connected ✅"
-    );
-
-})
-
-.catch((err)=>{
-
-    console.log(err);
-});
+mongoose.connect(
+process.env.MONGO_URI
+);
 
 // ======================
-// USER SCHEMA
+// SCHEMAS
 // ======================
 
 const UserSchema =
@@ -47,22 +27,11 @@ new mongoose.Schema({
 
     password:String,
 
-    role:String,
-
-    approved:Boolean,
-
-    permissions:[String]
+    approved:{
+        type:Boolean,
+        default:false
+    }
 });
-
-const User =
-mongoose.model(
-    "User",
-    UserSchema
-);
-
-// ======================
-// CLIENT SCHEMA
-// ======================
 
 const ClientSchema =
 new mongoose.Schema({
@@ -71,48 +40,6 @@ new mongoose.Schema({
 
     pricePerLiter:Number
 });
-
-const Client =
-mongoose.model(
-    "Client",
-    ClientSchema
-);
-
-// ======================
-// ENTRY SCHEMA
-// ======================
-
-const EntrySchema =
-new mongoose.Schema({
-
-    type:String,
-
-    date:String,
-
-    client:String,
-
-    worker:String,
-
-    milkAM:Number,
-
-    milkPM:Number,
-
-    discardedMilk:Number,
-
-    dailyMilk:Number,
-
-    cows:Number
-});
-
-const Entry =
-mongoose.model(
-    "Entry",
-    EntrySchema
-);
-
-// ======================
-// FEED SCHEMA
-// ======================
 
 const FeedSchema =
 new mongoose.Schema({
@@ -126,638 +53,295 @@ new mongoose.Schema({
     month:String
 });
 
-const Feed =
-mongoose.model(
-    "Feed",
-    FeedSchema
-);
+const EntrySchema =
+new mongoose.Schema({
 
-// ======================
-// REMARK SCHEMA
-// ======================
+    type:String,
+
+    client:String,
+
+    worker:String,
+
+    date:String,
+
+    milkAM:Number,
+
+    milkPM:Number,
+
+    discardedMilk:Number,
+
+    dailyMilk:Number,
+
+    cows:Number,
+
+    calves:Number,
+
+    staff:Number
+});
 
 const RemarkSchema =
 new mongoose.Schema({
 
-    text:String,
-
-    createdAt:{
-
-        type:Date,
-
-        default:Date.now
-    }
+    text:String
 });
+
+// ======================
+// MODELS
+// ======================
+
+const User =
+mongoose.model(
+"User",
+UserSchema
+);
+
+const Client =
+mongoose.model(
+"Client",
+ClientSchema
+);
+
+const Feed =
+mongoose.model(
+"Feed",
+FeedSchema
+);
+
+const Entry =
+mongoose.model(
+"Entry",
+EntrySchema
+);
 
 const Remark =
 mongoose.model(
-    "Remark",
-    RemarkSchema
+"Remark",
+RemarkSchema
 );
 
 // ======================
-// CREATE DEFAULT ADMIN
+// AUTH
 // ======================
 
-async function createAdmin(){
+app.post("/signup", async(req,res)=>{
 
-    try{
+    const user =
+    new User(req.body);
 
-        const existing =
-        await User.findOne({
+    await user.save();
 
-            username:"Praveen"
-        });
+    res.send({
+        success:true
+    });
+});
 
-        if(!existing){
+app.post("/login", async(req,res)=>{
 
-            await User.create({
+    const user =
+    await User.findOne({
 
-                username:"Praveen",
+        username:req.body.username,
 
-                password:"vishnu123",
+        password:req.body.password
+    });
 
-                role:"admin",
+    if(!user){
 
-                approved:true,
-
-                permissions:["all"]
-            });
-
-            console.log(
-                "Default Admin Created ✅"
-            );
-        }
-
-    }catch(err){
-
-        console.log(err);
-    }
-}
-
-createAdmin();
-
-// ======================
-// LOGIN
-// ======================
-
-app.post("/login", async (req,res)=>{
-
-    try{
-
-        const user =
-        await User.findOne({
-
-            username:req.body.username,
-
-            password:req.body.password
-        });
-
-        if(!user){
-
-            return res.send({
-
-                success:false,
-
-                message:
-                "Invalid credentials"
-            });
-        }
-
-        if(!user.approved){
-
-            return res.send({
-
-                success:false,
-
-                message:
-                "Approval pending"
-            });
-        }
-
-        res.send({
-
-            success:true,
-
-            user
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
+        return res.send({
             success:false
         });
     }
+
+    res.send({
+
+        success:true,
+
+        approved:user.approved
+    });
 });
 
 // ======================
-// SIGNUP
+// APPROVE USERS
 // ======================
 
-app.post("/signup", async (req,res)=>{
+app.get("/pending-users", async(req,res)=>{
 
-    try{
+    const users =
+    await User.find({
 
-        const existing =
-        await User.findOne({
+        approved:false
+    });
 
-            username:req.body.username
-        });
+    res.send(users);
+});
 
-        if(existing){
+app.post("/approve-user", async(req,res)=>{
 
-            return res.send({
+    await User.findByIdAndUpdate(
 
-                success:false,
+        req.body.id,
 
-                message:
-                "User already exists"
-            });
+        {
+            approved:true
         }
+    );
 
-        await User.create({
-
-            username:req.body.username,
-
-            password:req.body.password,
-
-            role:"worker",
-
-            approved:false,
-
-            permissions:[]
-        });
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
-});
-
-// ======================
-// PENDING USERS
-// ======================
-
-app.get("/pending-users", async (req,res)=>{
-
-    try{
-
-        const users =
-        await User.find({
-
-            approved:false
-        });
-
-        res.send(users);
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send([]);
-    }
-});
-
-// ======================
-// APPROVE USER
-// ======================
-
-app.post("/approve-user", async (req,res)=>{
-
-    try{
-
-        await User.findByIdAndUpdate(
-
-            req.body.id,
-
-            {
-
-                approved:true
-            }
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
+    res.send({
+        success:true
+    });
 });
 
 // ======================
 // CLIENTS
 // ======================
 
-app.post("/create-client", async (req,res)=>{
+app.post("/create-client", async(req,res)=>{
 
-    try{
+    const client =
+    new Client(req.body);
 
-        await Client.create({
+    await client.save();
 
-            name:req.body.name,
-
-            pricePerLiter:
-            req.body.pricePerLiter
-        });
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
+    res.send({
+        success:true
+    });
 });
 
-app.get("/clients", async (req,res)=>{
+app.get("/clients", async(req,res)=>{
 
-    try{
+    const clients =
+    await Client.find();
 
-        const clients =
-        await Client.find()
-        .sort({_id:-1});
-
-        res.send(clients);
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send([]);
-    }
+    res.send(clients);
 });
 
-app.post("/delete-client", async (req,res)=>{
+app.post("/delete-client", async(req,res)=>{
 
-    try{
+    await Client.findByIdAndDelete(
+        req.body.id
+    );
 
-        await Client.findByIdAndDelete(
-            req.body.id
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
-});
-
-app.post("/edit-client", async (req,res)=>{
-
-    try{
-
-        await Client.findByIdAndUpdate(
-
-            req.body.id,
-
-            {
-
-                name:req.body.name,
-
-                pricePerLiter:
-                req.body.pricePerLiter
-            }
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
+    res.send({
+        success:true
+    });
 });
 
 // ======================
-// FEEDS
+// FEED
 // ======================
 
-app.post("/save-feed", async (req,res)=>{
+app.post("/save-feed", async(req,res)=>{
 
-    try{
+    const feed =
+    new Feed(req.body);
 
-        await Feed.deleteMany({
+    await feed.save();
 
-            feedName:req.body.feedName,
-
-            month:req.body.month
-        });
-
-        await Feed.create({
-
-            feedName:req.body.feedName,
-
-            quantity:req.body.quantity,
-
-            cost:req.body.cost,
-
-            month:req.body.month
-        });
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
+    res.send({
+        success:true
+    });
 });
 
-app.get("/feeds", async (req,res)=>{
+app.get("/feeds", async(req,res)=>{
 
-    try{
+    const feeds =
+    await Feed.find()
+    .sort({_id:-1});
 
-        const feeds =
-        await Feed.find()
-        .sort({_id:-1});
-
-        res.send(feeds);
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send([]);
-    }
+    res.send(feeds);
 });
 
-app.post("/delete-feed", async (req,res)=>{
+app.post("/delete-feed", async(req,res)=>{
 
-    try{
+    await Feed.findByIdAndDelete(
+        req.body.id
+    );
 
-        await Feed.findByIdAndDelete(
-            req.body.id
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
-});
-
-app.post("/edit-feed", async (req,res)=>{
-
-    try{
-
-        await Feed.findByIdAndUpdate(
-
-            req.body.id,
-
-            {
-
-                feedName:req.body.feedName,
-
-                quantity:req.body.quantity,
-
-                cost:req.body.cost,
-
-                month:req.body.month
-            }
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
+    res.send({
+        success:true
+    });
 });
 
 // ======================
 // MILK ENTRIES
 // ======================
 
-app.post("/add", async (req,res)=>{
+app.post("/add", async(req,res)=>{
 
-    try{
+    const entry =
+    new Entry(req.body);
 
-        await Entry.create(
-            req.body
-        );
+    await entry.save();
 
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
+    res.send({
+        success:true
+    });
 });
 
-app.post("/delete-milk", async (req,res)=>{
+app.post("/delete-milk", async(req,res)=>{
 
-    try{
+    await Entry.findByIdAndDelete(
+        req.body.id
+    );
 
-        await Entry.findByIdAndDelete(
-            req.body.id
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
+    res.send({
+        success:true
+    });
 });
 
-app.post("/edit-milk", async (req,res)=>{
+app.post("/edit-milk", async(req,res)=>{
 
-    try{
+    await Entry.findByIdAndUpdate(
 
-        await Entry.findByIdAndUpdate(
+        req.body.id,
 
-            req.body.id,
+        {
 
-            {
+            milkAM:req.body.milkAM,
 
-                milkAM:req.body.milkAM,
+            milkPM:req.body.milkPM,
 
-                milkPM:req.body.milkPM,
+            discardedMilk:req.body.discardedMilk,
 
-                discardedMilk:
-                req.body.discardedMilk,
+            dailyMilk:req.body.dailyMilk
+        }
+    );
 
-                dailyMilk:
-                req.body.dailyMilk
-            }
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
+    res.send({
+        success:true
+    });
 });
 
 // ======================
 // REMARKS
 // ======================
 
-app.get("/remarks", async (req,res)=>{
+app.post("/save-remark", async(req,res)=>{
 
-    try{
+    const remark =
+    new Remark(req.body);
 
-        const remarks =
-        await Remark.find()
-        .sort({_id:-1});
+    await remark.save();
 
-        res.send(remarks);
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send([]);
-    }
+    res.send({
+        success:true
+    });
 });
 
-app.post("/save-remark", async (req,res)=>{
+app.get("/remarks", async(req,res)=>{
 
-    try{
+    const remarks =
+    await Remark.find()
+    .sort({_id:-1});
 
-        await Remark.create({
-
-            text:req.body.text
-        });
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
-});
-
-app.post("/delete-remark", async (req,res)=>{
-
-    try{
-
-        await Remark.findByIdAndDelete(
-            req.body.id
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
+    res.send(remarks);
 });
 
 // ======================
 // DASHBOARD
 // ======================
 
-app.get("/dashboard", async (req,res)=>{
+app.get("/dashboard", async(req,res)=>{
 
     try{
 
@@ -769,10 +353,13 @@ app.get("/dashboard", async (req,res)=>{
         .sort({_id:-1});
 
         let totalMilk = 0;
-
         let totalRevenue = 0;
-
         let totalExpense = 0;
+        let totalDiscard = 0;
+
+        let totalCows = 0;
+        let totalCalves = 0;
+        let totalStaff = 0;
 
         for(const entry of milkEntries){
 
@@ -783,6 +370,26 @@ app.get("/dashboard", async (req,res)=>{
 
             totalMilk += milk;
 
+            totalDiscard +=
+            Number(
+                entry.discardedMilk || 0
+            );
+
+            totalCows +=
+            Number(
+                entry.cows || 0
+            );
+
+            totalCalves +=
+            Number(
+                entry.calves || 0
+            );
+
+            totalStaff +=
+            Number(
+                entry.staff || 0
+            );
+
             const client =
             await Client.findOne({
 
@@ -791,9 +398,7 @@ app.get("/dashboard", async (req,res)=>{
 
             const rate =
             Number(
-
-                client
-                ?.pricePerLiter || 0
+                client?.pricePerLiter || 0
             );
 
             totalRevenue +=
@@ -813,6 +418,33 @@ app.get("/dashboard", async (req,res)=>{
         totalRevenue -
         totalExpense;
 
+        const cowAverage =
+        totalCows > 0
+        ?
+        (
+            totalMilk / totalCows
+        ).toFixed(2)
+        :
+        0;
+
+        const calfAverage =
+        totalCalves > 0
+        ?
+        (
+            totalMilk / totalCalves
+        ).toFixed(2)
+        :
+        0;
+
+        const staffAverage =
+        totalStaff > 0
+        ?
+        (
+            totalMilk / totalStaff
+        ).toFixed(2)
+        :
+        0;
+
         res.send({
 
             totalMilk,
@@ -823,6 +455,14 @@ app.get("/dashboard", async (req,res)=>{
 
             totalProfit,
 
+            totalDiscard,
+
+            cowAverage,
+
+            calfAverage,
+
+            staffAverage,
+
             records:milkEntries
         });
 
@@ -831,21 +471,9 @@ app.get("/dashboard", async (req,res)=>{
         console.log(err);
 
         res.send({
-
             success:false
         });
     }
-});
-
-// ======================
-// HEALTH
-// ======================
-
-app.get("/health",(req,res)=>{
-
-    res.send(
-        "Server Running ✅"
-    );
 });
 
 // ======================
@@ -855,16 +483,9 @@ app.get("/health",(req,res)=>{
 const PORT =
 process.env.PORT || 3000;
 
-app.listen(
+app.listen(PORT, ()=>{
 
-    PORT,
-
-    "0.0.0.0",
-
-    ()=>{
-
-        console.log(
-            `Server running on ${PORT}`
-        );
-    }
-);
+    console.log(
+        "Server Running"
+    );
+});
