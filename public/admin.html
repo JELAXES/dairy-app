@@ -3,7 +3,7 @@
 
 <head>
 
-<meta charset="UTF-8">
+<meta charset="UTF-8"/>
 
 <meta
 name="viewport"
@@ -25,68 +25,124 @@ Kshiralaya Admin
 }
 
 body{
+
     font-family:Arial,sans-serif;
-    background:#0b1120;
+
+    background:
+    linear-gradient(
+        135deg,
+        #090e1f,
+        #050816
+    );
+
     color:white;
+
     display:flex;
+
     min-height:100vh;
+
+    overflow:hidden;
 }
 
 /* SIDEBAR */
 
 .sidebar{
-    width:230px;
-    background:#111827;
-    padding:18px;
+
+    width:240px;
+
+    background:
+    rgba(17,24,39,0.92);
+
+    backdrop-filter:blur(14px);
+
+    padding:20px;
+
     display:flex;
+
     flex-direction:column;
+
+    border-right:
+    1px solid rgba(255,255,255,0.05);
 }
 
 .logoBox{
+
     text-align:center;
-    margin-bottom:28px;
+
+    margin-bottom:30px;
 }
 
 .logoBox img{
-    width:120px;
-    border-radius:20px;
-    margin-bottom:10px;
+
+    width:100px;
+
+    border-radius:22px;
+
+    margin-bottom:12px;
+
+    box-shadow:
+    0 0 20px rgba(139,92,246,0.35);
 }
 
 .logoText{
-    font-size:24px;
+
+    font-size:34px;
+
     font-weight:bold;
 
-    background:linear-gradient(
+    background:
+    linear-gradient(
         90deg,
         #60a5fa,
-        #a855f7
+        #8b5cf6
     );
 
     -webkit-background-clip:text;
+
     -webkit-text-fill-color:transparent;
 }
 
 .sideBtn{
+
     width:100%;
-    padding:12px;
-    margin-bottom:12px;
+
+    padding:14px;
+
+    margin-bottom:14px;
+
     border:none;
-    border-radius:10px;
-    background:#1e293b;
+
+    border-radius:14px;
+
+    background:#18233a;
+
     color:white;
+
     cursor:pointer;
+
     text-align:left;
-    font-size:14px;
-    transition:0.2s;
+
+    font-size:15px;
+
+    transition:0.25s;
 }
 
 .sideBtn:hover{
-    background:#2563eb;
+
+    transform:translateY(-2px);
+
+    background:
+    linear-gradient(
+        90deg,
+        #3b82f6,
+        #8b5cf6
+    );
 }
 
 .activeBtn{
-    background:linear-gradient(
+
+    background:
+    linear-gradient(
         90deg,
         #3b82f6,
         #8b5cf6
@@ -96,100 +152,206 @@ body{
 /* MAIN */
 
 .main{
+
     flex:1;
-    padding:20px;
+
+    padding:22px;
+
     overflow-y:auto;
 }
 
-.card{
-    background:#111827;
-    border-radius:16px;
-    padding:16px;
+/* STATS */
+
+.stats{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(4,1fr);
+
+    gap:18px;
+
     margin-bottom:20px;
 }
 
-.card h2{
-    margin-bottom:14px;
-    font-size:22px;
-}
-
-.stats{
-    display:grid;
-    grid-template-columns:
-    repeat(4,1fr);
-    gap:14px;
-}
-
 .stat{
-    background:#1e293b;
-    padding:18px;
-    border-radius:14px;
-    text-align:center;
+
+    background:#18233a;
+
+    border-radius:20px;
+
+    padding:22px;
+
+    position:relative;
+
+    overflow:hidden;
+
+    box-shadow:
+    0 0 18px rgba(0,0,0,0.28);
+}
+
+.stat::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:120px;
+    height:120px;
+
+    background:
+    rgba(139,92,246,0.12);
+
+    border-radius:50%;
+
+    top:-50px;
+    right:-50px;
 }
 
 .stat h3{
+
     color:#94a3b8;
-    margin-bottom:8px;
+
+    margin-bottom:12px;
+
     font-size:14px;
 }
 
 .stat p{
-    font-size:20px;
+
+    font-size:30px;
+
     font-weight:bold;
 }
 
-.grid{
+/* DASH GRID */
+
+.dashboardGrid{
+
     display:grid;
+
+    grid-template-columns:
+    2fr 1fr;
+
+    gap:20px;
+}
+
+.smallCharts{
+
+    display:grid;
+
+    gap:20px;
+}
+
+/* CARD */
+
+.card,
+.chartCard{
+
+    background:#18233a;
+
+    border-radius:20px;
+
+    padding:20px;
+
+    box-shadow:
+    0 0 18px rgba(0,0,0,0.25);
+}
+
+.card h2,
+.chartCard h2{
+
+    margin-bottom:14px;
+
+    font-size:22px;
+}
+
+/* FORM */
+
+.grid{
+
+    display:grid;
+
     grid-template-columns:
     1fr 1fr;
+
     gap:16px;
 }
 
 input,
 select{
+
     width:100%;
-    padding:12px;
+
+    padding:14px;
+
     border:none;
-    border-radius:10px;
-    background:#1e293b;
+
+    border-radius:14px;
+
+    background:#1f2d48;
+
     color:white;
+
     font-size:14px;
 }
 
 button{
+
     width:100%;
-    padding:10px;
-    margin-top:12px;
+
+    padding:12px;
+
+    margin-top:14px;
+
     border:none;
-    border-radius:10px;
-    background:linear-gradient(
+
+    border-radius:14px;
+
+    background:
+    linear-gradient(
         90deg,
         #3b82f6,
         #8b5cf6
     );
+
     color:white;
+
     cursor:pointer;
+
     font-size:14px;
 }
 
+.deleteBtn{
+
+    background:#dc2626;
+}
+
+/* TABLE */
+
 table{
+
     width:100%;
+
     border-collapse:collapse;
-    margin-top:16px;
+
+    margin-top:18px;
 }
 
 th,td{
-    padding:12px;
+
+    padding:14px;
+
     text-align:center;
-    border-bottom:1px solid #374151;
+
+    border-bottom:
+    1px solid rgba(255,255,255,0.06);
 }
 
 th{
-    color:#60a5fa;
-    font-size:14px;
-}
 
-td{
+    color:#60a5fa;
+
     font-size:14px;
 }
 
@@ -198,22 +360,21 @@ td{
 }
 
 .userCard{
-    background:#1e293b;
+
+    background:#1f2d48;
+
     padding:14px;
-    border-radius:12px;
+
+    border-radius:14px;
+
     margin-top:12px;
 }
 
 canvas{
-    background:#1e293b;
-    border-radius:14px;
-    padding:10px;
-    max-height:180px !important;
-}
 
-.deleteBtn{
-    background:#dc2626;
-    margin-top:8px;
+    width:100% !important;
+
+    max-height:220px !important;
 }
 
 </style>
@@ -228,7 +389,7 @@ canvas{
 
 <div class="logoBox">
 
-<img src="logo.png">
+<img src="logo.png"/>
 
 <div class="logoText">
 Kshiralaya
@@ -319,15 +480,51 @@ Logout
 
 </div>
 
-<br>
+<div class="dashboardGrid">
 
-<div class="card">
+<div class="chartCard">
 
 <h2>
-Milk Analytics
+Milk Production Analytics
 </h2>
 
 <canvas id="milkChart"></canvas>
+
+</div>
+
+<div class="smallCharts">
+
+<div class="chartCard">
+
+<h2>
+Discarded Milk
+</h2>
+
+<canvas id="discardChart"></canvas>
+
+</div>
+
+<div class="chartCard">
+
+<h2>
+Calf Milk Average
+</h2>
+
+<canvas id="calfChart"></canvas>
+
+</div>
+
+<div class="chartCard">
+
+<h2>
+Staff Milk Average
+</h2>
+
+<canvas id="staffChart"></canvas>
+
+</div>
+
+</div>
 
 </div>
 
@@ -503,6 +700,8 @@ Milk Records
 <th>Discard</th>
 <th>Total</th>
 <th>Cows</th>
+<th>Calves</th>
+<th>Staff</th>
 <th>Actions</th>
 
 </tr>
@@ -527,7 +726,7 @@ class="hidden"
 <div class="card">
 
 <h2>
-Worker Remarks
+Manager Remarks
 </h2>
 
 <div id="remarksList"></div>
@@ -546,10 +745,11 @@ if(!localStorage.getItem("username")){
 }
 
 let milkChart;
+let discardChart;
+let calfChart;
+let staffChart;
 
-// ======================
-// SWITCH SECTION
-// ======================
+// SWITCH
 
 function showSection(id,btn){
 
@@ -573,45 +773,41 @@ function showSection(id,btn){
 
     btn.classList.add("activeBtn");
 
-    if(id === "dashboardSection"){
+    if(id==="dashboardSection"){
         loadDashboard();
     }
 
-    if(id === "clientsSection"){
+    if(id==="clientsSection"){
         loadClients();
     }
 
-    if(id === "feedSection"){
+    if(id==="feedSection"){
         loadFeeds();
     }
 
-    if(id === "managerSection"){
+    if(id==="managerSection"){
         loadPendingUsers();
     }
 
-    if(id === "recordsSection"){
+    if(id==="recordsSection"){
         loadRecords();
     }
 
-    if(id === "remarksSection"){
+    if(id==="remarksSection"){
         loadRemarks();
     }
 }
 
-// ======================
 // LOGOUT
-// ======================
 
 function logout(){
 
     localStorage.clear();
 
-    window.location = "/";
+    window.location="/";
 }
 
-// ======================
 // DASHBOARD
-// ======================
 
 async function loadDashboard(){
 
@@ -625,28 +821,34 @@ async function loadDashboard(){
         "revenue"
     ).innerText =
     "₹" +
-    Number(d.totalRevenue || 0)
-    .toFixed(2);
+    Number(
+        d.totalRevenue || 0
+    ).toFixed(2);
 
     document.getElementById(
         "expense"
     ).innerText =
     "₹" +
-    Number(d.totalExpense || 0)
-    .toFixed(2);
+    Number(
+        d.totalExpense || 0
+    ).toFixed(2);
 
     document.getElementById(
         "profit"
     ).innerText =
     "₹" +
-    Number(d.totalProfit || 0)
-    .toFixed(2);
+    Number(
+        d.totalProfit || 0
+    ).toFixed(2);
 
     document.getElementById(
         "milk"
     ).innerText =
-    Number(d.totalMilk || 0)
-    .toFixed(1) + "L";
+    Number(
+        d.totalMilk || 0
+    ).toFixed(1) + "L";
+
+    // MILK CHART
 
     if(milkChart){
         milkChart.destroy();
@@ -676,588 +878,146 @@ async function loadDashboard(){
                         d.totalMilk || 0
                     ],
 
-                    borderColor:"#60a5fa",
+                    borderColor:"#8b5cf6",
+
+                    backgroundColor:
+                    "rgba(139,92,246,0.2)",
+
+                    fill:true,
 
                     tension:0.4
                 }]
+            },
+
+            options:{
+
+                plugins:{
+                    legend:{
+                        labels:{
+                            color:"white"
+                        }
+                    }
+                },
+
+                scales:{
+
+                    x:{
+                        ticks:{
+                            color:"white"
+                        }
+                    },
+
+                    y:{
+                        ticks:{
+                            color:"white"
+                        }
+                    }
+                }
             }
-        });
-}
+        }
+    );
 
-// ======================
-// CLIENTS
-// ======================
+    // DISCARD
 
-async function createClient(){
+    if(discardChart){
+        discardChart.destroy();
+    }
 
-    const data = {
+    discardChart =
+    new Chart(
 
-        name:
         document.getElementById(
-            "clientName"
-        ).value,
+            "discardChart"
+        ),
 
-        pricePerLiter:Number(
+        {
 
-            document.getElementById(
-                "clientPrice"
-            ).value
+            type:"doughnut",
 
-        ) || 0
-    };
+            data:{
 
-    await fetch("/create-client",{
+                labels:["Discard"],
 
-        method:"POST",
+                datasets:[{
 
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
+                    data:[
+                        d.totalDiscard || 0
+                    ],
 
-        body:JSON.stringify(data)
-    });
-
-    document.getElementById(
-        "clientName"
-    ).value = "";
-
-    document.getElementById(
-        "clientPrice"
-    ).value = "";
-
-    loadClients();
-}
-
-async function loadClients(){
-
-    const res =
-    await fetch("/clients");
-
-    const clients =
-    await res.json();
-
-    const div =
-    document.getElementById(
-        "clientList"
+                    backgroundColor:[
+                        "#ef4444"
+                    ]
+                }]
+            }
+        }
     );
 
-    div.innerHTML = "";
+    // CALF
 
-    clients.forEach(c => {
+    if(calfChart){
+        calfChart.destroy();
+    }
 
-        div.innerHTML += `
+    calfChart =
+    new Chart(
 
-        <div class="userCard">
-
-            <h3>${c.name}</h3>
-
-            <p>
-            ₹${c.pricePerLiter}/L
-            </p>
-
-            <button
-            onclick="editClient(
-                '${c._id}',
-                '${c.name}',
-                '${c.pricePerLiter}'
-            )"
-            >
-            Edit
-            </button>
-
-            <button
-            class="deleteBtn"
-            onclick="deleteClient('${c._id}')"
-            >
-            Delete
-            </button>
-
-        </div>
-        `;
-    });
-}
-
-async function deleteClient(id){
-
-    const sure =
-    confirm("Delete Client?");
-
-    if(!sure) return;
-
-    await fetch("/delete-client",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({id})
-    });
-
-    loadClients();
-}
-
-async function editClient(
-    id,
-    oldName,
-    oldPrice
-){
-
-    const name =
-    prompt(
-        "Client Name",
-        oldName
-    );
-
-    const price =
-    prompt(
-        "Price Per Liter",
-        oldPrice
-    );
-
-    if(!name || !price) return;
-
-    await fetch("/edit-client",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-
-            id,
-
-            name,
-
-            pricePerLiter:Number(price)
-        })
-    });
-
-    loadClients();
-}
-
-// ======================
-// FEEDS
-// ======================
-
-async function saveFeed(){
-
-    const data = {
-
-        feedName:
         document.getElementById(
-            "feedName"
-        ).value,
+            "calfChart"
+        ),
 
-        quantity:Number(
+        {
 
-            document.getElementById(
-                "feedQty"
-            ).value
+            type:"bar",
 
-        ) || 0,
+            data:{
 
-        cost:Number(
+                labels:["Calf Avg"],
 
-            document.getElementById(
-                "feedCost"
-            ).value
+                datasets:[{
 
-        ) || 0,
+                    data:[
+                        d.calfAverage || 0
+                    ],
 
-        month:
+                    backgroundColor:"#06b6d4"
+                }]
+            }
+        }
+    );
+
+    // STAFF
+
+    if(staffChart){
+        staffChart.destroy();
+    }
+
+    staffChart =
+    new Chart(
+
         document.getElementById(
-            "feedMonth"
-        ).value
-    };
+            "staffChart"
+        ),
 
-    await fetch("/save-feed",{
+        {
 
-        method:"POST",
+            type:"bar",
 
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
+            data:{
 
-        body:JSON.stringify(data)
-    });
+                labels:["Staff Avg"],
 
-    document.getElementById(
-        "feedName"
-    ).value = "";
+                datasets:[{
 
-    document.getElementById(
-        "feedQty"
-    ).value = "";
+                    data:[
+                        d.staffAverage || 0
+                    ],
 
-    document.getElementById(
-        "feedCost"
-    ).value = "";
-
-    loadFeeds();
-}
-
-async function loadFeeds(){
-
-    const res =
-    await fetch("/feeds");
-
-    const feeds =
-    await res.json();
-
-    const tbody =
-    document.getElementById(
-        "feedRecords"
+                    backgroundColor:"#8b5cf6"
+                }]
+            }
+        }
     );
-
-    tbody.innerHTML = "";
-
-    feeds.forEach(feed => {
-
-        tbody.innerHTML += `
-
-        <tr>
-
-        <td>${feed.feedName}</td>
-
-        <td>${feed.quantity} KG</td>
-
-        <td>₹${feed.cost}</td>
-
-        <td>${feed.month}</td>
-
-        <td>
-
-        <button
-        onclick="editFeed('${feed._id}')"
-        >
-        Edit
-        </button>
-
-        <button
-        class="deleteBtn"
-        onclick="deleteFeed('${feed._id}')"
-        >
-        Delete
-        </button>
-
-        </td>
-
-        </tr>
-        `;
-    });
 }
-
-async function deleteFeed(id){
-
-    const sure =
-    confirm(
-        "Delete Feed Entry?"
-    );
-
-    if(!sure) return;
-
-    await fetch("/delete-feed",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({id})
-    });
-
-    loadFeeds();
-}
-
-async function editFeed(id){
-
-    const name =
-    prompt("Feed Name");
-
-    const qty =
-    prompt("Quantity KG");
-
-    const cost =
-    prompt("Cost");
-
-    const month =
-    prompt("Month YYYY-MM");
-
-    if(
-        !name ||
-        !qty ||
-        !cost ||
-        !month
-    ) return;
-
-    await fetch("/edit-feed",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-
-            id,
-
-            feedName:name,
-
-            quantity:Number(qty),
-
-            cost:Number(cost),
-
-            month
-        })
-    });
-
-    loadFeeds();
-}
-
-// ======================
-// MANAGERS
-// ======================
-
-async function loadPendingUsers(){
-
-    const res =
-    await fetch("/pending-users");
-
-    const users =
-    await res.json();
-
-    const div =
-    document.getElementById(
-        "pendingUsers"
-    );
-
-    div.innerHTML = "";
-
-    users.forEach(user => {
-
-        div.innerHTML += `
-
-        <div class="userCard">
-
-        <h3>
-        ${user.username}
-        </h3>
-
-        <button
-        onclick="approveUser('${user._id}')"
-        >
-        Approve
-        </button>
-
-        </div>
-        `;
-    });
-}
-
-async function approveUser(id){
-
-    await fetch("/approve-user",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({id})
-    });
-
-    loadPendingUsers();
-}
-
-// ======================
-// RECORDS
-// ======================
-
-async function loadRecords(){
-
-    const res =
-    await fetch("/dashboard");
-
-    const data =
-    await res.json();
-
-    const tbody =
-    document.getElementById(
-        "records"
-    );
-
-    tbody.innerHTML = "";
-
-    data.records.forEach(r => {
-
-        tbody.innerHTML += `
-
-        <tr>
-
-        <td>${r.date || ""}</td>
-
-        <td>${r.client || ""}</td>
-
-        <td>${r.milkAM || 0}</td>
-
-        <td>${r.milkPM || 0}</td>
-
-        <td>${r.discardedMilk || 0}</td>
-
-        <td>${r.dailyMilk || 0}</td>
-
-        <td>${r.cows || 0}</td>
-
-        <td>
-
-        <button
-        onclick="editMilk('${r._id}')"
-        >
-        Edit
-        </button>
-
-        <button
-        class="deleteBtn"
-        onclick="deleteMilk('${r._id}')"
-        >
-        Delete
-        </button>
-
-        </td>
-
-        </tr>
-        `;
-    });
-}
-
-async function deleteMilk(id){
-
-    const sure =
-    confirm(
-        "Delete Milk Entry?"
-    );
-
-    if(!sure) return;
-
-    await fetch("/delete-milk",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({id})
-    });
-
-    loadRecords();
-}
-
-async function editMilk(id){
-
-    const am =
-    prompt("AM Milk");
-
-    const pm =
-    prompt("PM Milk");
-
-    const discard =
-    prompt("Discard");
-
-    if(!am || !pm) return;
-
-    await fetch("/edit-milk",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-
-            id,
-
-            milkAM:Number(am),
-
-            milkPM:Number(pm),
-
-            discardedMilk:Number(discard),
-
-            dailyMilk:
-            Number(am) +
-            Number(pm)
-        })
-    });
-
-    loadRecords();
-}
-
-// ======================
-// REMARKS
-// ======================
-
-async function loadRemarks(){
-
-    const res =
-    await fetch("/remarks");
-
-    const remarks =
-    await res.json();
-
-    const list =
-    document.getElementById(
-        "remarksList"
-    );
-
-    list.innerHTML = "";
-
-    remarks.forEach(r => {
-
-        list.innerHTML += `
-
-        <div class="userCard">
-
-        ${r.text}
-
-        </div>
-        `;
-    });
-}
-
-// ======================
-// INIT
-// ======================
-
-document.getElementById(
-    "feedMonth"
-).value =
-new Date()
-.toISOString()
-.slice(0,7);
-
-loadDashboard();
-loadClients();
-loadFeeds();
-loadPendingUsers();
-loadRecords();
-loadRemarks();
 
 </script>
 
