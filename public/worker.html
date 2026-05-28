@@ -301,6 +301,26 @@ placeholder="Cow Count"
 
 </div>
 
+<div>
+
+<input
+type="number"
+id="calfCount"
+placeholder="Calf Count"
+/>
+
+</div>
+
+<div>
+
+<input
+type="number"
+id="staffCount"
+placeholder="Staff Count"
+/>
+
+</div>
+
 </div>
 
 <button onclick="saveMilk()">
@@ -364,6 +384,8 @@ Milk Records
 <th>Discard</th>
 <th>Total</th>
 <th>Cows</th>
+<th>Calves</th>
+<th>Staff</th>
 <th>Actions</th>
 
 </tr>
@@ -552,6 +574,18 @@ async function saveMilk(){
             ).value
         ) || 0,
 
+        calves:Number(
+            document.getElementById(
+                "calfCount"
+            ).value
+        ) || 0,
+
+        staff:Number(
+            document.getElementById(
+                "staffCount"
+            ).value
+        ) || 0,
+
         dailyMilk:
         milkAM + milkPM
     };
@@ -586,6 +620,14 @@ async function saveMilk(){
 
     document.getElementById(
         "cowCount"
+    ).value = "";
+
+    document.getElementById(
+        "calfCount"
+    ).value = "";
+
+    document.getElementById(
+        "staffCount"
     ).value = "";
 
     loadMilkRecords();
@@ -629,6 +671,10 @@ async function loadMilkRecords(){
         <td>${r.dailyMilk || 0}</td>
 
         <td>${r.cows || 0}</td>
+
+        <td>${r.calves || 0}</td>
+
+        <td>${r.staff || 0}</td>
 
         <td>
 
