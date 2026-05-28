@@ -1,23 +1,43 @@
+require("dotenv").config();
+
 const express = require("express");
 const mongoose = require("mongoose");
-const cors = require("cors");
 
 const app = express();
 
-app.use(cors());
+// ======================
+// MIDDLEWARE
+// ======================
+
 app.use(express.json());
+
+app.use(express.urlencoded({
+    extended:true
+}));
+
 app.use(express.static("public"));
 
 // ======================
 // MONGODB
 // ======================
 
-mongoose.connect(
-process.env.MONGO_URI
-);
+mongoose.connect(process.env.MONGO_URI)
+
+.then(()=>{
+
+    console.log(
+        "MongoDB Connected ✅"
+    );
+
+})
+
+.catch((err)=>{
+
+    console.log(err);
+});
 
 // ======================
-// SCHEMAS
+// USER SCHEMA
 // ======================
 
 const UserSchema =
@@ -27,11 +47,22 @@ new mongoose.Schema({
 
     password:String,
 
-    approved:{
-        type:Boolean,
-        default:false
-    }
+    role:String,
+
+    approved:Boolean,
+
+    permissions:[String]
 });
+
+const User =
+mongoose.model(
+    "User",
+    UserSchema
+);
+
+// ======================
+// CLIENT SCHEMA
+// ======================
 
 const ClientSchema =
 new mongoose.Schema({
@@ -41,28 +72,26 @@ new mongoose.Schema({
     pricePerLiter:Number
 });
 
-const FeedSchema =
-new mongoose.Schema({
+const Client =
+mongoose.model(
+    "Client",
+    ClientSchema
+);
 
-    feedName:String,
-
-    quantity:Number,
-
-    cost:Number,
-
-    month:String
-});
+// ======================
+// ENTRY SCHEMA
+// ======================
 
 const EntrySchema =
 new mongoose.Schema({
 
     type:String,
 
+    date:String,
+
     client:String,
 
     worker:String,
-
-    date:String,
 
     milkAM:Number,
 
@@ -79,269 +108,660 @@ new mongoose.Schema({
     staff:Number
 });
 
-const RemarkSchema =
+const Entry =
+mongoose.model(
+    "Entry",
+    EntrySchema
+);
+
+// ======================
+// FEED SCHEMA
+// ======================
+
+const FeedSchema =
 new mongoose.Schema({
 
-    text:String
+    feedName:String,
+
+    quantity:Number,
+
+    cost:Number,
+
+    month:String
 });
-
-// ======================
-// MODELS
-// ======================
-
-const User =
-mongoose.model(
-"User",
-UserSchema
-);
-
-const Client =
-mongoose.model(
-"Client",
-ClientSchema
-);
 
 const Feed =
 mongoose.model(
-"Feed",
-FeedSchema
+    "Feed",
+    FeedSchema
 );
 
-const Entry =
-mongoose.model(
-"Entry",
-EntrySchema
-);
+// ======================
+// REMARK SCHEMA
+// ======================
+
+const RemarkSchema =
+new mongoose.Schema({
+
+    text:String,
+
+    createdAt:{
+
+        type:Date,
+
+        default:Date.now
+    }
+});
 
 const Remark =
 mongoose.model(
-"Remark",
-RemarkSchema
+    "Remark",
+    RemarkSchema
 );
 
 // ======================
-// AUTH
+// CREATE DEFAULT ADMIN
 // ======================
 
-app.post("/signup", async(req,res)=>{
+async function createAdmin(){
 
-    const user =
-    new User(req.body);
+    try{
 
-    await user.save();
+        const existing =
+        await User.findOne({
 
-    res.send({
-        success:true
-    });
-});
+            username:"Praveen"
+        });
 
-app.post("/login", async(req,res)=>{
+        if(!existing){
 
-    const user =
-    await User.findOne({
+            await User.create({
 
-        username:req.body.username,
+                username:"Praveen",
 
-        password:req.body.password
-    });
+                password:"vishnu123",
 
-    if(!user){
+                role:"admin",
 
-        return res.send({
+                approved:true,
+
+                permissions:["all"]
+            });
+
+            console.log(
+                "Default Admin Created ✅"
+            );
+        }
+
+    }catch(err){
+
+        console.log(err);
+    }
+}
+
+createAdmin();
+
+// ======================
+// LOGIN
+// ======================
+
+app.post("/login", async (req,res)=>{
+
+    try{
+
+        const user =
+        await User.findOne({
+
+            username:req.body.username,
+
+            password:req.body.password
+        });
+
+        if(!user){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "Invalid credentials"
+            });
+        }
+
+        if(!user.approved){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "Approval pending"
+            });
+        }
+
+        res.send({
+
+            success:true,
+
+            user
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
             success:false
         });
     }
-
-    res.send({
-
-        success:true,
-
-        approved:user.approved
-    });
 });
 
 // ======================
-// APPROVE USERS
+// SIGNUP
 // ======================
 
-app.get("/pending-users", async(req,res)=>{
+app.post("/signup", async (req,res)=>{
 
-    const users =
-    await User.find({
+    try{
 
-        approved:false
-    });
+        const existing =
+        await User.findOne({
 
-    res.send(users);
-});
+            username:req.body.username
+        });
 
-app.post("/approve-user", async(req,res)=>{
+        if(existing){
 
-    await User.findByIdAndUpdate(
+            return res.send({
 
-        req.body.id,
+                success:false,
 
-        {
-            approved:true
+                message:
+                "User already exists"
+            });
         }
-    );
 
-    res.send({
-        success:true
-    });
+        await User.create({
+
+            username:req.body.username,
+
+            password:req.body.password,
+
+            role:"worker",
+
+            approved:false,
+
+            permissions:[]
+        });
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+// ======================
+// PENDING USERS
+// ======================
+
+app.get("/pending-users", async (req,res)=>{
+
+    try{
+
+        const users =
+        await User.find({
+
+            approved:false
+        });
+
+        res.send(users);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send([]);
+    }
+});
+
+// ======================
+// APPROVE USER
+// ======================
+
+app.post("/approve-user", async (req,res)=>{
+
+    try{
+
+        await User.findByIdAndUpdate(
+
+            req.body.id,
+
+            {
+
+                approved:true
+            }
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
 });
 
 // ======================
 // CLIENTS
 // ======================
 
-app.post("/create-client", async(req,res)=>{
+app.post("/create-client", async (req,res)=>{
 
-    const client =
-    new Client(req.body);
+    try{
 
-    await client.save();
+        await Client.create({
 
-    res.send({
-        success:true
-    });
+            name:req.body.name,
+
+            pricePerLiter:
+            req.body.pricePerLiter
+        });
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
 });
 
-app.get("/clients", async(req,res)=>{
+app.get("/clients", async (req,res)=>{
 
-    const clients =
-    await Client.find();
+    try{
 
-    res.send(clients);
+        const clients =
+        await Client.find()
+        .sort({_id:-1});
+
+        res.send(clients);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send([]);
+    }
 });
 
-app.post("/delete-client", async(req,res)=>{
+app.post("/delete-client", async (req,res)=>{
 
-    await Client.findByIdAndDelete(
-        req.body.id
-    );
+    try{
 
-    res.send({
-        success:true
-    });
+        await Client.findByIdAndDelete(
+            req.body.id
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+app.post("/edit-client", async (req,res)=>{
+
+    try{
+
+        await Client.findByIdAndUpdate(
+
+            req.body.id,
+
+            {
+
+                name:req.body.name,
+
+                pricePerLiter:
+                req.body.pricePerLiter
+            }
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
 });
 
 // ======================
-// FEED
+// FEEDS
 // ======================
 
-app.post("/save-feed", async(req,res)=>{
+app.post("/save-feed", async (req,res)=>{
 
-    const feed =
-    new Feed(req.body);
+    try{
 
-    await feed.save();
+        await Feed.deleteMany({
 
-    res.send({
-        success:true
-    });
+            feedName:req.body.feedName,
+
+            month:req.body.month
+        });
+
+        await Feed.create({
+
+            feedName:req.body.feedName,
+
+            quantity:req.body.quantity,
+
+            cost:req.body.cost,
+
+            month:req.body.month
+        });
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
 });
 
-app.get("/feeds", async(req,res)=>{
+app.get("/feeds", async (req,res)=>{
 
-    const feeds =
-    await Feed.find()
-    .sort({_id:-1});
+    try{
 
-    res.send(feeds);
+        const feeds =
+        await Feed.find()
+        .sort({_id:-1});
+
+        res.send(feeds);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send([]);
+    }
 });
 
-app.post("/delete-feed", async(req,res)=>{
+app.post("/delete-feed", async (req,res)=>{
 
-    await Feed.findByIdAndDelete(
-        req.body.id
-    );
+    try{
 
-    res.send({
-        success:true
-    });
+        await Feed.findByIdAndDelete(
+            req.body.id
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+app.post("/edit-feed", async (req,res)=>{
+
+    try{
+
+        await Feed.findByIdAndUpdate(
+
+            req.body.id,
+
+            {
+
+                feedName:req.body.feedName,
+
+                quantity:req.body.quantity,
+
+                cost:req.body.cost,
+
+                month:req.body.month
+            }
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
 });
 
 // ======================
 // MILK ENTRIES
 // ======================
 
-app.post("/add", async(req,res)=>{
+app.post("/add", async (req,res)=>{
 
-    const entry =
-    new Entry(req.body);
+    try{
 
-    await entry.save();
+        await Entry.create(
+            req.body
+        );
 
-    res.send({
-        success:true
-    });
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
 });
 
-app.post("/delete-milk", async(req,res)=>{
+app.post("/delete-milk", async (req,res)=>{
 
-    await Entry.findByIdAndDelete(
-        req.body.id
-    );
+    try{
 
-    res.send({
-        success:true
-    });
+        await Entry.findByIdAndDelete(
+            req.body.id
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
 });
 
-app.post("/edit-milk", async(req,res)=>{
+app.post("/edit-milk", async (req,res)=>{
 
-    await Entry.findByIdAndUpdate(
+    try{
 
-        req.body.id,
+        await Entry.findByIdAndUpdate(
 
-        {
+            req.body.id,
 
-            milkAM:req.body.milkAM,
+            {
 
-            milkPM:req.body.milkPM,
+                milkAM:req.body.milkAM,
 
-            discardedMilk:req.body.discardedMilk,
+                milkPM:req.body.milkPM,
 
-            dailyMilk:req.body.dailyMilk
-        }
-    );
+                discardedMilk:
+                req.body.discardedMilk,
 
-    res.send({
-        success:true
-    });
+                dailyMilk:
+                req.body.dailyMilk
+            }
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
 });
 
 // ======================
 // REMARKS
 // ======================
 
-app.post("/save-remark", async(req,res)=>{
+app.get("/remarks", async (req,res)=>{
 
-    const remark =
-    new Remark(req.body);
+    try{
 
-    await remark.save();
+        const remarks =
+        await Remark.find()
+        .sort({_id:-1});
 
-    res.send({
-        success:true
-    });
+        res.send(remarks);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send([]);
+    }
 });
 
-app.get("/remarks", async(req,res)=>{
+app.post("/save-remark", async (req,res)=>{
 
-    const remarks =
-    await Remark.find()
-    .sort({_id:-1});
+    try{
 
-    res.send(remarks);
+        await Remark.create({
+
+            text:req.body.text
+        });
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
+});
+
+app.post("/delete-remark", async (req,res)=>{
+
+    try{
+
+        await Remark.findByIdAndDelete(
+            req.body.id
+        );
+
+        res.send({
+
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+
+            success:false
+        });
+    }
 });
 
 // ======================
 // DASHBOARD
 // ======================
 
-app.get("/dashboard", async(req,res)=>{
+app.get("/dashboard", async (req,res)=>{
 
     try{
 
@@ -353,12 +773,15 @@ app.get("/dashboard", async(req,res)=>{
         .sort({_id:-1});
 
         let totalMilk = 0;
+
         let totalRevenue = 0;
+
         let totalExpense = 0;
+
         let totalDiscard = 0;
 
-        let totalCows = 0;
         let totalCalves = 0;
+
         let totalStaff = 0;
 
         for(const entry of milkEntries){
@@ -373,11 +796,6 @@ app.get("/dashboard", async(req,res)=>{
             totalDiscard +=
             Number(
                 entry.discardedMilk || 0
-            );
-
-            totalCows +=
-            Number(
-                entry.cows || 0
             );
 
             totalCalves +=
@@ -398,7 +816,9 @@ app.get("/dashboard", async(req,res)=>{
 
             const rate =
             Number(
-                client?.pricePerLiter || 0
+
+                client
+                ?.pricePerLiter || 0
             );
 
             totalRevenue +=
@@ -417,15 +837,6 @@ app.get("/dashboard", async(req,res)=>{
         const totalProfit =
         totalRevenue -
         totalExpense;
-
-        const cowAverage =
-        totalCows > 0
-        ?
-        (
-            totalMilk / totalCows
-        ).toFixed(2)
-        :
-        0;
 
         const calfAverage =
         totalCalves > 0
@@ -457,8 +868,6 @@ app.get("/dashboard", async(req,res)=>{
 
             totalDiscard,
 
-            cowAverage,
-
             calfAverage,
 
             staffAverage,
@@ -471,9 +880,21 @@ app.get("/dashboard", async(req,res)=>{
         console.log(err);
 
         res.send({
+
             success:false
         });
     }
+});
+
+// ======================
+// HEALTH
+// ======================
+
+app.get("/health",(req,res)=>{
+
+    res.send(
+        "Server Running ✅"
+    );
 });
 
 // ======================
@@ -483,9 +904,16 @@ app.get("/dashboard", async(req,res)=>{
 const PORT =
 process.env.PORT || 3000;
 
-app.listen(PORT, ()=>{
+app.listen(
 
-    console.log(
-        "Server Running"
-    );
-});
+    PORT,
+
+    "0.0.0.0",
+
+    ()=>{
+
+        console.log(
+            `Server running on ${PORT}`
+        );
+    }
+);
