@@ -2,22 +2,13 @@
 <html lang="en">
 
 <head>
-
-<meta charset="UTF-8"/>
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
-
-<title>
-Kshiralaya Admin
-</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Kshiralaya Admin</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
 *{
     margin:0;
     padding:0;
@@ -25,112 +16,75 @@ Kshiralaya Admin
 }
 
 body{
-
     font-family:Arial,sans-serif;
-
     background:
     linear-gradient(
         135deg,
         #090e1f,
         #050816
     );
-
     color:white;
-
     display:flex;
-
     min-height:100vh;
-
     overflow:hidden;
 }
 
 /* SIDEBAR */
 
 .sidebar{
-
     width:240px;
-
     background:
     rgba(17,24,39,0.92);
-
     backdrop-filter:blur(14px);
-
     padding:20px;
-
     display:flex;
-
     flex-direction:column;
-
     border-right:
     1px solid rgba(255,255,255,0.05);
 }
 
 .logoBox{
-
     text-align:center;
-
     margin-bottom:30px;
 }
 
 .logoBox img{
-
     width:100px;
-
     border-radius:22px;
-
     margin-bottom:12px;
-
     box-shadow:
     0 0 20px rgba(139,92,246,0.35);
 }
 
 .logoText{
-
     font-size:34px;
-
     font-weight:bold;
-
     background:
     linear-gradient(
         90deg,
         #60a5fa,
         #8b5cf6
     );
-
     -webkit-background-clip:text;
-
     -webkit-text-fill-color:transparent;
 }
 
 .sideBtn{
-
     width:100%;
-
     padding:14px;
-
     margin-bottom:14px;
-
     border:none;
-
     border-radius:14px;
-
     background:#18233a;
-
     color:white;
-
     cursor:pointer;
-
     text-align:left;
-
     font-size:15px;
-
     transition:0.25s;
 }
 
 .sideBtn:hover{
-
     transform:translateY(-2px);
-
     background:
     linear-gradient(
         90deg,
@@ -140,7 +94,6 @@ body{
 }
 
 .activeBtn{
-
     background:
     linear-gradient(
         90deg,
@@ -152,397 +105,386 @@ body{
 /* MAIN */
 
 .main{
-
     flex:1;
-
     padding:22px;
-
     overflow-y:auto;
-}
-
-/* STATS */
-
-.stats{
-
-    display:grid;
-
-    grid-template-columns:
-    repeat(4,1fr);
-
-    gap:18px;
-
-    margin-bottom:20px;
-}
-
-.stat{
-
-    background:#18233a;
-
-    border-radius:20px;
-
-    padding:22px;
-
-    position:relative;
-
-    overflow:hidden;
-
-    box-shadow:
-    0 0 18px rgba(0,0,0,0.28);
-}
-
-.stat::before{
-
-    content:"";
-
-    position:absolute;
-
-    width:120px;
-    height:120px;
-
-    background:
-    rgba(139,92,246,0.12);
-
-    border-radius:50%;
-
-    top:-50px;
-    right:-50px;
-}
-
-.stat h3{
-
-    color:#94a3b8;
-
-    margin-bottom:12px;
-
-    font-size:14px;
-}
-
-.stat p{
-
-    font-size:30px;
-
-    font-weight:bold;
-}
-
-/* DASHBOARD */
-
-.dashboardGrid{
-
-    display:grid;
-
-    grid-template-columns:
-    1.2fr 1fr;
-
-    gap:20px;
-
-    align-items:start;
-}
-
-.smallCharts{
-
-    display:grid;
-
-    gap:18px;
-}
-
-.chartCard{
-
-    background:#18233a;
-
-    border-radius:20px;
-
-    padding:18px;
-
-    box-shadow:
-    0 0 18px rgba(0,0,0,0.25);
-
-    height:280px;
-}
-
-.smallCharts .chartCard{
-
-    height:180px;
-}
-
-.chartCard h2{
-
-    margin-bottom:12px;
-
-    font-size:18px;
-}
-
-canvas{
-
-    width:100% !important;
-
-    max-height:170px !important;
-}
-
-/* FORM */
-
-.grid{
-
-    display:grid;
-
-    grid-template-columns:
-    1fr 1fr;
-
-    gap:16px;
-}
-
-input,
-select{
-
-    width:100%;
-
-    padding:14px;
-
-    border:none;
-
-    border-radius:14px;
-
-    background:#1f2d48;
-
-    color:white;
-
-    font-size:14px;
-}
-
-button{
-
-    width:100%;
-
-    padding:12px;
-
-    margin-top:14px;
-
-    border:none;
-
-    border-radius:14px;
-
-    background:
-    linear-gradient(
-        90deg,
-        #3b82f6,
-        #8b5cf6
-    );
-
-    color:white;
-
-    cursor:pointer;
-
-    font-size:14px;
-}
-
-.deleteBtn{
-
-    background:#dc2626;
-}
-
-/* TABLE */
-
-table{
-
-    width:100%;
-
-    border-collapse:collapse;
-
-    margin-top:18px;
-}
-
-th,td{
-
-    padding:14px;
-
-    text-align:center;
-
-    border-bottom:
-    1px solid rgba(255,255,255,0.06);
-}
-
-th{
-
-    color:#60a5fa;
-
-    font-size:14px;
 }
 
 .hidden{
     display:none;
 }
 
-.userCard{
+/* STATS */
 
+.stats{
+    display:grid;
+    grid-template-columns:
+    repeat(4,1fr);
+    gap:18px;
+    margin-bottom:20px;
+}
+
+.stat{
+    background:#18233a;
+    border-radius:22px;
+    padding:20px;
+    height:90px;
+    position:relative;
+    overflow:hidden;
+    box-shadow:
+    0 0 18px rgba(0,0,0,0.22);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+}
+
+.stat::before{
+    content:"";
+    position:absolute;
+    width:110px;
+    height:110px;
+    background:
+    rgba(139,92,246,0.14);
+    border-radius:50%;
+    top:-50px;
+    right:-50px;
+}
+
+.stat h3{
+    color:#94a3b8;
+    margin-bottom:8px;
+    font-size:13px;
+}
+
+.stat p{
+    font-size:20px;
+    font-weight:bold;
+}
+
+/* DASHBOARD GRID */
+
+.dashboardGrid{
+    display:grid;
+    grid-template-columns:
+    1.7fr 1fr;
+    gap:18px;
+    align-items:start;
+}
+
+.rightCharts{
+    display:grid;
+    gap:18px;
+}
+
+.mainChart{
+    background:#18233a;
+    border-radius:22px;
+    padding:18px;
+    height:360px;
+    box-shadow:
+    0 0 18px rgba(0,0,0,0.22);
+}
+
+.smallChart{
+    background:#18233a;
+    border-radius:22px;
+    padding:16px;
+    height:160px;
+    box-shadow:
+    0 0 18px rgba(0,0,0,0.22);
+    position:relative;
+}
+
+.mainChart h2,
+.smallChart h2{
+    margin-bottom:10px;
+    font-size:18px;
+}
+
+/* CHART SIZE FIX */
+
+#milkChart{
+    width:100% !important;
+    height:280px !important;
+}
+
+#discardChart,
+#calfChart,
+#staffChart{
+    width:100% !important;
+    height:95px !important;
+}
+
+canvas{
+    max-width:100% !important;
+}
+
+/* FORMS + TABLES */
+
+.card{
+    background:#18233a;
+    border-radius:20px;
+    padding:20px;
+    margin-bottom:20px;
+    box-shadow:
+    0 0 18px rgba(0,0,0,0.25);
+}
+
+.card h2{
+    margin-bottom:14px;
+    font-size:22px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+input,
+select{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:12px;
     background:#1f2d48;
+    color:white;
+    font-size:14px;
+}
 
+button{
+    width:100%;
+    padding:12px 18px;
+    margin-top:14px;
+    border:none;
+    border-radius:12px;
+    background:
+    linear-gradient(
+        90deg,
+        #3b82f6,
+        #8b5cf6
+    );
+    color:white;
+    cursor:pointer;
+    font-size:14px;
+}
+
+button:hover{
+    opacity:0.92;
+}
+
+.deleteBtn{
+    background:#dc2626;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+th,
+td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+th{
+    color:#60a5fa;
+    font-size:14px;
+}
+
+td{
+    font-size:14px;
+}
+
+.userCard{
+    background:#1f2d48;
     padding:14px;
-
     border-radius:14px;
-
     margin-top:12px;
 }
 
-</style>
+.actionRow{
+    display:flex;
+    gap:10px;
+    justify-content:center;
+    flex-wrap:wrap;
+}
 
+.actionRow button{
+    width:auto;
+    min-width:90px;
+    margin-top:0;
+    padding:9px 12px;
+    border-radius:10px;
+}
+</style>
 </head>
 
 <body>
 
-<!-- SIDEBAR -->
-
 <div class="sidebar">
+    <div class="logoBox">
+        <img src="logo.png" alt="Kshiralaya Logo" />
+        <div class="logoText">Kshiralaya</div>
+    </div>
 
-<div class="logoBox">
-
-<img src="logo.png"/>
-
-<div class="logoText">
-Kshiralaya
+    <button class="sideBtn activeBtn" onclick="showSection('dashboardSection', this)">Dashboard</button>
+    <button class="sideBtn" onclick="showSection('clientsSection', this)">Clients</button>
+    <button class="sideBtn" onclick="showSection('feedSection', this)">Feed</button>
+    <button class="sideBtn" onclick="showSection('managerSection', this)">Managers</button>
+    <button class="sideBtn" onclick="showSection('recordsSection', this)">Records</button>
+    <button class="sideBtn" onclick="showSection('remarksSection', this)">Remarks</button>
+    <button class="sideBtn" onclick="logout()">Logout</button>
 </div>
-
-</div>
-
-<button
-class="sideBtn activeBtn"
-onclick="showSection('dashboardSection',this)"
->
-Dashboard
-</button>
-
-<button
-class="sideBtn"
-onclick="showSection('clientsSection',this)"
->
-Clients
-</button>
-
-<button
-class="sideBtn"
-onclick="showSection('feedSection',this)"
->
-Feed
-</button>
-
-<button
-class="sideBtn"
-onclick="showSection('managerSection',this)"
->
-Managers
-</button>
-
-<button
-class="sideBtn"
-onclick="showSection('recordsSection',this)"
->
-Records
-</button>
-
-<button
-class="sideBtn"
-onclick="showSection('remarksSection',this)"
->
-Remarks
-</button>
-
-<button
-class="sideBtn"
-onclick="logout()"
->
-Logout
-</button>
-
-</div>
-
-<!-- MAIN -->
 
 <div class="main">
 
-<!-- DASHBOARD -->
+    <!-- DASHBOARD -->
+    <div id="dashboardSection">
+        <div class="stats">
+            <div class="stat">
+                <h3>Revenue</h3>
+                <p id="revenue">₹0</p>
+            </div>
+            <div class="stat">
+                <h3>Expense</h3>
+                <p id="expense">₹0</p>
+            </div>
+            <div class="stat">
+                <h3>Profit</h3>
+                <p id="profit">₹0</p>
+            </div>
+            <div class="stat">
+                <h3>Total Milk</h3>
+                <p id="milk">0L</p>
+            </div>
+        </div>
 
-<div id="dashboardSection">
+        <div class="dashboardGrid">
+            <div class="mainChart">
+                <h2>Milk Production</h2>
+                <canvas id="milkChart"></canvas>
+            </div>
 
-<div class="stats">
+            <div class="rightCharts">
+                <div class="smallChart">
+                    <h2>Discarded Milk</h2>
+                    <canvas id="discardChart"></canvas>
+                </div>
 
-<div class="stat">
-<h3>Revenue</h3>
-<p id="revenue">₹0</p>
-</div>
+                <div class="smallChart">
+                    <h2>Calf Average</h2>
+                    <canvas id="calfChart"></canvas>
+                </div>
 
-<div class="stat">
-<h3>Expense</h3>
-<p id="expense">₹0</p>
-</div>
+                <div class="smallChart">
+                    <h2>Staff Average</h2>
+                    <canvas id="staffChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 
-<div class="stat">
-<h3>Profit</h3>
-<p id="profit">₹0</p>
-</div>
+    <!-- CLIENTS -->
+    <div id="clientsSection" class="hidden">
+        <div class="card">
+            <h2>Create Client</h2>
+            <div class="grid">
+                <input type="text" id="clientName" placeholder="Client Name" />
+                <input type="number" id="clientPrice" placeholder="Price Per Liter" />
+            </div>
+            <button onclick="createClient()">Create Client</button>
+        </div>
 
-<div class="stat">
-<h3>Total Milk</h3>
-<p id="milk">0L</p>
-</div>
+        <div class="card">
+            <h2>Clients</h2>
+            <div id="clientList"></div>
+        </div>
+    </div>
 
-</div>
+    <!-- FEED -->
+    <div id="feedSection" class="hidden">
+        <div class="card">
+            <h2>Feed</h2>
+            <div class="grid">
+                <input type="text" id="feedName" placeholder="Feed Name" />
+                <input type="number" id="feedQty" placeholder="Quantity" />
+                <input type="number" id="feedCost" placeholder="Cost" />
+                <input type="month" id="feedMonth" />
+            </div>
+            <button onclick="saveFeed()">Save Feed</button>
+        </div>
 
-<div class="dashboardGrid">
+        <div class="card">
+            <h2>Feed Records</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Feed</th>
+                        <th>Qty</th>
+                        <th>Cost</th>
+                        <th>Month</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="feedRecords"></tbody>
+            </table>
+        </div>
+    </div>
 
-<!-- MAIN CHART -->
+    <!-- MANAGERS -->
+    <div id="managerSection" class="hidden">
+        <div class="card">
+            <h2>Pending Workers</h2>
+            <div id="pendingUsers"></div>
+        </div>
+    </div>
 
-<div class="chartCard">
+    <!-- RECORDS -->
+    <div id="recordsSection" class="hidden">
+        <div class="card">
+            <h2>Milk Records</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Client</th>
+                        <th>AM</th>
+                        <th>PM</th>
+                        <th>Discard</th>
+                        <th>Total</th>
+                        <th>Cows</th>
+                        <th>Calves</th>
+                        <th>Staff</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="records"></tbody>
+            </table>
+        </div>
+    </div>
 
-<h2>
-Milk Production
-</h2>
+    <!-- REMARKS -->
+    <div id="remarksSection" class="hidden">
+        <div class="card">
+            <h2>Manager Remarks</h2>
 
-<canvas id="milkChart"></canvas>
+            <div class="grid">
+                <input type="text" id="remarkText" placeholder="Write a remark" />
+                <button onclick="saveRemark()">Save Remark</button>
+            </div>
 
-</div>
-
-<!-- SMALL CHARTS -->
-
-<div class="smallCharts">
-
-<div class="chartCard">
-
-<h2>
-Discarded Milk
-</h2>
-
-<canvas id="discardChart"></canvas>
-
-</div>
-
-<div class="chartCard">
-
-<h2>
-Calf Average
-</h2>
-
-<canvas id="calfChart"></canvas>
-
-</div>
-
-<div class="chartCard">
-
-<h2>
-Staff Average
-</h2>
-
-<canvas id="staffChart"></canvas>
-
-</div>
-
-</div>
-
-</div>
+            <div id="remarksList"></div>
+        </div>
+    </div>
 
 </div>
 
 <script>
-
 if(!localStorage.getItem("username")){
-
     window.location = "/";
 }
 
@@ -551,380 +493,558 @@ let discardChart;
 let calfChart;
 let staffChart;
 
+function showSection(id, btn){
+    document.querySelectorAll(".main > div").forEach(sec => {
+        sec.classList.add("hidden");
+    });
+
+    document.getElementById(id).classList.remove("hidden");
+
+    document.querySelectorAll(".sideBtn").forEach(b => {
+        b.classList.remove("activeBtn");
+    });
+
+    if (btn) btn.classList.add("activeBtn");
+
+    if(id === "dashboardSection") loadDashboard();
+    if(id === "clientsSection") loadClients();
+    if(id === "feedSection") loadFeeds();
+    if(id === "managerSection") loadPendingUsers();
+    if(id === "recordsSection") loadRecords();
+    if(id === "remarksSection") loadRemarks();
+}
+
 function logout(){
-
     localStorage.clear();
-
-    window.location="/";
+    window.location = "/";
 }
 
 async function loadDashboard(){
+    const res = await fetch("/dashboard");
+    const d = await res.json();
 
-    const res =
-    await fetch("/dashboard");
+    document.getElementById("revenue").innerText = "₹" + Number(d.totalRevenue || 0).toFixed(2);
+    document.getElementById("expense").innerText = "₹" + Number(d.totalExpense || 0).toFixed(2);
+    document.getElementById("profit").innerText = "₹" + Number(d.totalProfit || 0).toFixed(2);
+    document.getElementById("milk").innerText = Number(d.totalMilk || 0).toFixed(1) + "L";
 
-    const d =
-    await res.json();
-
-    document.getElementById(
-        "revenue"
-    ).innerText =
-    "₹" +
-    Number(
-        d.totalRevenue || 0
-    ).toFixed(2);
-
-    document.getElementById(
-        "expense"
-    ).innerText =
-    "₹" +
-    Number(
-        d.totalExpense || 0
-    ).toFixed(2);
-
-    document.getElementById(
-        "profit"
-    ).innerText =
-    "₹" +
-    Number(
-        d.totalProfit || 0
-    ).toFixed(2);
-
-    document.getElementById(
-        "milk"
-    ).innerText =
-    Number(
-        d.totalMilk || 0
-    ).toFixed(1) + "L";
-
-    // MAIN CHART
-
-    if(milkChart){
-        milkChart.destroy();
-    }
-
-    milkChart =
-    new Chart(
-
-        document.getElementById(
-            "milkChart"
-        ),
-
-        {
-
-            type:"line",
-
-            data:{
-
-                labels:["Milk"],
-
-                datasets:[{
-
-                    label:
-                    "Milk Production",
-
-                    data:[
-                        d.totalMilk || 0
-                    ],
-
-                    borderColor:"#8b5cf6",
-
-                    backgroundColor:
-                    "rgba(139,92,246,0.2)",
-
-                    fill:true,
-
-                    tension:0.4
-                }]
+    if(milkChart) milkChart.destroy();
+    milkChart = new Chart(document.getElementById("milkChart"), {
+        type: "line",
+        data: {
+            labels: ["Milk"],
+            datasets: [{
+                label: "Milk Production",
+                data: [d.totalMilk || 0],
+                borderColor: "#8b5cf6",
+                backgroundColor: "rgba(139,92,246,0.2)",
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    labels: {
+                        color: "white"
+                    }
+                }
             },
-
-            options:{
-
-                responsive:true,
-
-                maintainAspectRatio:false,
-
-                plugins:{
-                    legend:{
-                        labels:{
-                            color:"white"
-                        }
+            scales: {
+                x: {
+                    ticks: {
+                        color: "white"
                     }
                 },
-
-                scales:{
-
-                    x:{
-                        ticks:{
-                            color:"white"
-                        }
-                    },
-
-                    y:{
-                        ticks:{
-                            color:"white"
-                        }
+                y: {
+                    ticks: {
+                        color: "white"
                     }
                 }
             }
         }
-    );
-
-    // DISCARD
-
-    if(discardChart){
-        discardChart.destroy();
-    }
-
-    discardChart =
-    new Chart(
-
-        document.getElementById(
-            "discardChart"
-        ),
-
-        {
-
-            type:"doughnut",
-
-            data:{
-
-                labels:["Discard"],
-
-                datasets:[{
-
-                    data:[
-                        d.totalDiscard || 0
-                    ],
-
-                    backgroundColor:[
-                        "#ef4444"
-                    ]
-                }]
-            }
-        }
-    );
-
-    // CALF
-
-    if(calfChart){
-        calfChart.destroy();
-    }
-
-    calfChart =
-    new Chart(
-
-        document.getElementById(
-            "calfChart"
-        ),
-
-        {
-
-            type:"bar",
-
-            data:{
-
-                labels:["Calf Avg"],
-
-                datasets:[{
-
-                    data:[
-                        d.calfAverage || 0
-                    ],
-
-                    backgroundColor:"#06b6d4"
-                }]
-            }
-        }
-    );
-
-    // STAFF
-
-    if(staffChart){
-        staffChart.destroy();
-    }
-
-    staffChart =
-    new Chart(
-
-        document.getElementById(
-            "staffChart"
-        ),
-
-        {
-
-            type:"bar",
-
-            data:{
-
-                labels:["Staff Avg"],
-
-                datasets:[{
-
-                    data:[
-                        d.staffAverage || 0
-                    ],
-
-                    backgroundColor:"#8b5cf6"
-                }]
-            }
-        }
-    );
-}
-
-loadDashboard();
-// ======================
-// SECTION SWITCH
-// ======================
-
-function showSection(id,btn){
-
-    document
-    .querySelectorAll(".main > div")
-    .forEach(sec => {
-
-        sec.classList.add("hidden");
     });
 
-    document
-    .getElementById(id)
-    .classList.remove("hidden");
-
-    document
-    .querySelectorAll(".sideBtn")
-    .forEach(b => {
-
-        b.classList.remove("activeBtn");
+    if(discardChart) discardChart.destroy();
+    discardChart = new Chart(document.getElementById("discardChart"), {
+        type: "doughnut",
+        data: {
+            labels: ["Discard"],
+            datasets: [{
+                label: "Discarded Milk",
+                data: [d.totalDiscard || 0],
+                backgroundColor: ["#ef4444"],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "70%",
+            plugins: {
+                legend: {
+                    labels: {
+                        color: "white"
+                    }
+                }
+            }
+        }
     });
 
-    btn.classList.add("activeBtn");
-}
+    if(calfChart) calfChart.destroy();
+    calfChart = new Chart(document.getElementById("calfChart"), {
+        type: "bar",
+        data: {
+            labels: ["Calf Avg"],
+            datasets: [{
+                label: "Calf Average",
+                data: [Number(d.calfAverage || 0)],
+                backgroundColor: "#06b6d4"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: "white"
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: "white"
+                    }
+                }
+            }
+        }
+    });
 
-// ======================
-// CLIENTS
-// ======================
+    if(staffChart) staffChart.destroy();
+    staffChart = new Chart(document.getElementById("staffChart"), {
+        type: "bar",
+        data: {
+            labels: ["Staff Avg"],
+            datasets: [{
+                label: "Staff Average",
+                data: [Number(d.staffAverage || 0)],
+                backgroundColor: "#8b5cf6"
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    ticks: {
+                        color: "white"
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        color: "white"
+                    }
+                }
+            }
+        }
+    });
+}
 
 async function createClient(){
+    const name = document.getElementById("clientName").value.trim();
+    const pricePerLiter = Number(document.getElementById("clientPrice").value || 0);
 
-    const data = {
+    if(!name){
+        alert("Enter client name");
+        return;
+    }
 
-        name:
-        document.getElementById(
-            "clientName"
-        ).value,
-
-        pricePerLiter:Number(
-
-            document.getElementById(
-                "clientPrice"
-            ).value
-
-        ) || 0
-    };
-
-    await fetch("/create-client",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
+    await fetch("/create-client", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
         },
-
-        body:JSON.stringify(data)
+        body: JSON.stringify({ name, pricePerLiter })
     });
+
+    document.getElementById("clientName").value = "";
+    document.getElementById("clientPrice").value = "";
 
     loadClients();
 }
 
 async function loadClients(){
+    const res = await fetch("/clients");
+    const clients = await res.json();
 
-    const res =
-    await fetch("/clients");
-
-    const clients =
-    await res.json();
-
-    const div =
-    document.getElementById(
-        "clientList"
-    );
-
-    if(!div) return;
-
+    const div = document.getElementById("clientList");
     div.innerHTML = "";
 
+    if(!clients.length){
+        div.innerHTML = "<div class='userCard'>No clients found</div>";
+        return;
+    }
+
     clients.forEach(c => {
-
         div.innerHTML += `
-
-        <div class="userCard">
-
-        <h3>${c.name}</h3>
-
-        <p>
-        ₹${c.pricePerLiter}/L
-        </p>
-
-        </div>
+            <div class="userCard">
+                <h3>${c.name}</h3>
+                <p>₹${Number(c.pricePerLiter || 0)}/L</p>
+                <div class="actionRow" style="margin-top:12px;">
+                    <button onclick="editClient('${c._id}','${c.name}','${c.pricePerLiter || 0}')">Edit</button>
+                    <button class="deleteBtn" onclick="deleteClient('${c._id}')">Delete</button>
+                </div>
+            </div>
         `;
     });
 }
 
-loadClients();
+async function editClient(id, oldName, oldPrice){
+    const name = prompt("Client Name", oldName);
+    if(!name) return;
 
+    const price = prompt("Price Per Liter", oldPrice);
+    if(price === null) return;
+
+    await fetch("/edit-client", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id,
+            name,
+            pricePerLiter: Number(price || 0)
+        })
+    });
+
+    loadClients();
+}
+
+async function deleteClient(id){
+    if(!confirm("Delete this client?")) return;
+
+    await fetch("/delete-client", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id })
+    });
+
+    loadClients();
+}
+
+async function saveFeed(){
+    const feedName = document.getElementById("feedName").value.trim();
+    const quantity = Number(document.getElementById("feedQty").value || 0);
+    const cost = Number(document.getElementById("feedCost").value || 0);
+    const month = document.getElementById("feedMonth").value;
+
+    if(!feedName || !month){
+        alert("Feed name and month are required");
+        return;
+    }
+
+    await fetch("/save-feed", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            feedName,
+            quantity,
+            cost,
+            month
+        })
+    });
+
+    document.getElementById("feedName").value = "";
+    document.getElementById("feedQty").value = "";
+    document.getElementById("feedCost").value = "";
+
+    loadFeeds();
+}
+
+async function loadFeeds(){
+    const res = await fetch("/feeds");
+    const feeds = await res.json();
+
+    const tbody = document.getElementById("feedRecords");
+    tbody.innerHTML = "";
+
+    if(!feeds.length){
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5">No feed records found</td>
+            </tr>
+        `;
+        return;
+    }
+
+    feeds.forEach(feed => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${feed.feedName || ""}</td>
+                <td>${Number(feed.quantity || 0)} KG</td>
+                <td>₹${Number(feed.cost || 0)}</td>
+                <td>${feed.month || ""}</td>
+                <td>
+                    <div class="actionRow">
+                        <button onclick="editFeed('${feed._id}','${feed.feedName || ""}','${feed.quantity || 0}','${feed.cost || 0}','${feed.month || ""}')">Edit</button>
+                        <button class="deleteBtn" onclick="deleteFeed('${feed._id}')">Delete</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+async function editFeed(id, oldName, oldQty, oldCost, oldMonth){
+    const feedName = prompt("Feed Name", oldName);
+    if(!feedName) return;
+
+    const quantity = prompt("Quantity", oldQty);
+    if(quantity === null) return;
+
+    const cost = prompt("Cost", oldCost);
+    if(cost === null) return;
+
+    const month = prompt("Month (YYYY-MM)", oldMonth);
+    if(!month) return;
+
+    await fetch("/edit-feed", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id,
+            feedName,
+            quantity: Number(quantity || 0),
+            cost: Number(cost || 0),
+            month
+        })
+    });
+
+    loadFeeds();
+}
+
+async function deleteFeed(id){
+    if(!confirm("Delete this feed record?")) return;
+
+    await fetch("/delete-feed", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id })
+    });
+
+    loadFeeds();
+}
+
+async function loadPendingUsers(){
+    const res = await fetch("/pending-users");
+    const users = await res.json();
+
+    const div = document.getElementById("pendingUsers");
+    div.innerHTML = "";
+
+    if(!users.length){
+        div.innerHTML = "<div class='userCard'>No pending workers</div>";
+        return;
+    }
+
+    users.forEach(user => {
+        div.innerHTML += `
+            <div class="userCard">
+                <h3>${user.username || ""}</h3>
+                <p>Worker request</p>
+                <div class="actionRow" style="margin-top:12px;">
+                    <button onclick="approveUser('${user._id}')">Approve</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+async function approveUser(id){
+    await fetch("/approve-user", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id })
+    });
+
+    loadPendingUsers();
+}
+
+async function loadRecords(){
+    const res = await fetch("/dashboard");
+    const data = await res.json();
+
+    const tbody = document.getElementById("records");
+    tbody.innerHTML = "";
+
+    if(!data.records || !data.records.length){
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10">No milk records found</td>
+            </tr>
+        `;
+        return;
+    }
+
+    data.records.forEach(r => {
+        tbody.innerHTML += `
+            <tr>
+                <td>${r.date || ""}</td>
+                <td>${r.client || ""}</td>
+                <td>${Number(r.milkAM || 0)}</td>
+                <td>${Number(r.milkPM || 0)}</td>
+                <td>${Number(r.discardedMilk || 0)}</td>
+                <td>${Number(r.dailyMilk || 0)}</td>
+                <td>${Number(r.cows || 0)}</td>
+                <td>${Number(r.calves || 0)}</td>
+                <td>${Number(r.staff || 0)}</td>
+                <td>
+                    <div class="actionRow">
+                        <button onclick="editMilk('${r._id}','${r.milkAM || 0}','${r.milkPM || 0}','${r.discardedMilk || 0}')">Edit</button>
+                        <button class="deleteBtn" onclick="deleteMilk('${r._id}')">Delete</button>
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
+}
+
+async function editMilk(id, oldAM, oldPM, oldDiscard){
+    const milkAM = prompt("AM Milk", oldAM);
+    if(milkAM === null) return;
+
+    const milkPM = prompt("PM Milk", oldPM);
+    if(milkPM === null) return;
+
+    const discardedMilk = prompt("Discarded Milk", oldDiscard);
+    if(discardedMilk === null) return;
+
+    const dailyMilk = Number(milkAM || 0) + Number(milkPM || 0);
+
+    await fetch("/edit-milk", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            id,
+            milkAM: Number(milkAM || 0),
+            milkPM: Number(milkPM || 0),
+            discardedMilk: Number(discardedMilk || 0),
+            dailyMilk
+        })
+    });
+
+    loadRecords();
+}
+
+async function deleteMilk(id){
+    if(!confirm("Delete this milk record?")) return;
+
+    await fetch("/delete-milk", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id })
+    });
+
+    loadRecords();
+}
+
+async function saveRemark(){
+    const text = document.getElementById("remarkText").value.trim();
+    if(!text){
+        alert("Enter a remark");
+        return;
+    }
+
+    await fetch("/save-remark", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            text: `${localStorage.getItem("username") || "Admin"}: ${text}`
+        })
+    });
+
+    document.getElementById("remarkText").value = "";
+    loadRemarks();
+}
+
+async function loadRemarks(){
+    const res = await fetch("/remarks");
+    const remarks = await res.json();
+
+    const list = document.getElementById("remarksList");
+    list.innerHTML = "";
+
+    if(!remarks.length){
+        list.innerHTML = "<div class='userCard'>No remarks found</div>";
+        return;
+    }
+
+    remarks.forEach(r => {
+        list.innerHTML += `
+            <div class="userCard">
+                <div>${r.text || ""}</div>
+                <div class="actionRow" style="margin-top:12px;">
+                    <button class="deleteBtn" onclick="deleteRemark('${r._id}')">Delete</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+async function deleteRemark(id){
+    if(!confirm("Delete this remark?")) return;
+
+    await fetch("/delete-remark", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ id })
+    });
+
+    loadRemarks();
+}
+
+document.getElementById("feedMonth").value = new Date().toISOString().slice(0, 7);
+
+loadDashboard();
+loadClients();
+loadFeeds();
+loadPendingUsers();
+loadRecords();
+loadRemarks();
 </script>
 
-<!-- CLIENTS -->
-
-<div
-id="clientsSection"
-class="hidden"
->
-
-<div class="card">
-
-<h2>
-Create Client
-</h2>
-
-<div class="grid">
-
-<input
-type="text"
-id="clientName"
-placeholder="Client Name"
-/>
-
-<input
-type="number"
-id="clientPrice"
-placeholder="Price Per Liter"
-/>
-
-</div>
-
-<button onclick="createClient()">
-Create Client
-</button>
-
-</div>
-
-<div class="card">
-
-<h2>
-Client List
-</h2>
-
-<div id="clientList"></div>
-
-</div>
-
-</div>
-
 </body>
-
-</html>
-</body>
-
 </html>
