@@ -13,33 +13,138 @@ content="width=device-width, initial-scale=1.0"
 <title>
 Kshiralaya Manager
 </title>
-/* ======================
-   MOBILE SUPPORT
-====================== */
+```css
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
 
-@media (max-width: 900px){
+body{
+    font-family:Arial,sans-serif;
+    background:#0b1120;
+    color:white;
+    min-height:100vh;
+}
 
-    body{
-        flex-direction:column;
-    }
+.sidebar{
+    width:240px;
+    background:#111827;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    position:fixed;
+    left:0;
+    top:0;
+    bottom:0;
+}
+
+.logoBox{
+    text-align:center;
+    margin-bottom:20px;
+}
+
+.logoBox img{
+    width:120px;
+    border-radius:16px;
+}
+
+.logoText{
+    font-size:28px;
+    font-weight:bold;
+    margin-top:10px;
+    color:#8b5cf6;
+}
+
+.sideBtn{
+    border:none;
+    padding:14px;
+    border-radius:12px;
+    background:#1f2937;
+    color:white;
+    cursor:pointer;
+}
+
+.activeBtn{
+    background:linear-gradient(90deg,#3b82f6,#8b5cf6);
+}
+
+.main{
+    margin-left:240px;
+    padding:20px;
+}
+
+.card{
+    background:#111827;
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:20px;
+}
+
+.card h2{
+    margin-bottom:15px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+input,
+select{
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:#1f2937;
+    color:white;
+}
+
+button{
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    background:linear-gradient(90deg,#3b82f6,#8b5cf6);
+    color:white;
+    cursor:pointer;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,
+td{
+    padding:12px;
+    text-align:center;
+    border-bottom:1px solid rgba(255,255,255,0.1);
+}
+
+.hidden{
+    display:none;
+}
+
+.remarkItem{
+    background:#1f2937;
+    padding:12px;
+    border-radius:10px;
+    margin-top:10px;
+}
+
+/* MOBILE */
+
+@media (max-width:900px){
 
     .sidebar{
-
+        position:static;
         width:100%;
-
         flex-direction:row;
-
         overflow-x:auto;
-
-        gap:10px;
-
         padding:12px;
-
-        position:sticky;
-
-        top:0;
-
-        z-index:1000;
+        gap:10px;
     }
 
     .logoBox{
@@ -47,73 +152,37 @@ Kshiralaya Manager
     }
 
     .sideBtn{
-
         min-width:120px;
-
-        margin-bottom:0;
-
-        flex:0 0 auto;
-
         white-space:nowrap;
     }
 
     .main{
-
+        margin-left:0;
         padding:12px;
     }
 
     .grid{
-
         grid-template-columns:1fr;
     }
 
     .card{
-
-        padding:14px;
-    }
-
-    .card h2{
-
-        font-size:18px;
-    }
-
-    input,
-    select{
-
-        padding:14px;
-
-        font-size:16px;
-    }
-
-    button{
-
-        padding:14px;
-
-        font-size:15px;
+        padding:15px;
     }
 
     table{
-
         display:block;
-
         overflow-x:auto;
-
         white-space:nowrap;
     }
 
-    th,
-    td{
-
-        padding:10px;
-
-        font-size:13px;
-    }
-
-    .remarkItem{
-
-        font-size:14px;
+    input,
+    select,
+    button{
+        font-size:16px;
     }
 }
+```
+
 </style>
 
 *{
