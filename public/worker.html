@@ -386,7 +386,11 @@ Select Client
 type="date"
 id="milkDate"
 />
-
+<input
+type="number"
+id="cowCount"
+placeholder="Cow Count"
+/>
 </div>
 
 <div>
@@ -421,13 +425,8 @@ placeholder="Discard Milk"
 
 <div>
 
-<input
-type="number"
-id="cowCount"
-placeholder="Cow Count"
-/>
 
-</div>
+
 
 <div>
 
@@ -443,8 +442,8 @@ placeholder="Calf Milk"
 
 <input
 type="number"
-id="staffCount"
-placeholder="Staff Count"
+id="staffMilk"
+placeholder="Staff Milk"
 />
 
 </div>
@@ -702,19 +701,19 @@ async function saveMilk(){
 
         cows:Number(
             document.getElementById(
-                "cowCount"
+                "cowMilk"
             ).value
         ) || 0,
 
         calves:Number(
             document.getElementById(
-                "calfCount"
+                "calfMilk"
             ).value
         ) || 0,
 
         staff:Number(
             document.getElementById(
-                "staffCount"
+                "staffMilk"
             ).value
         ) || 0,
 
@@ -751,15 +750,15 @@ async function saveMilk(){
     ).value = "";
 
     document.getElementById(
-        "cowCount"
+        "cowMilk"
     ).value = "";
 
     document.getElementById(
-        "calfCount"
+        "calfMilk"
     ).value = "";
 
     document.getElementById(
-        "staffCount"
+        "staffMilk"
     ).value = "";
 
     loadMilkRecords();
@@ -1014,13 +1013,13 @@ async function shareMilkReport(){
     document.getElementById("discardMilk").value || 0;
 
     const cows =
-    document.getElementById("cowCount").value || 0;
+    document.getElementById("cowMilk").value || 0;
 
     const calves =
-    document.getElementById("calfCount").value || 0;
+    document.getElementById("calfMilk").value || 0;
 
     const staff =
-    document.getElementById("staffCount").value || 0;
+    document.getElementById("staffMilk").value || 0;
 
     const remark =
     document.getElementById("remarkInput").value || "";
