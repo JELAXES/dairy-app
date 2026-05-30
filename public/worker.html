@@ -13,8 +13,108 @@ content="width=device-width, initial-scale=1.0"
 <title>
 Kshiralaya Manager
 </title>
+/* ======================
+   MOBILE SUPPORT
+====================== */
 
-<style>
+@media (max-width: 900px){
+
+    body{
+        flex-direction:column;
+    }
+
+    .sidebar{
+
+        width:100%;
+
+        flex-direction:row;
+
+        overflow-x:auto;
+
+        gap:10px;
+
+        padding:12px;
+
+        position:sticky;
+
+        top:0;
+
+        z-index:1000;
+    }
+
+    .logoBox{
+        display:none;
+    }
+
+    .sideBtn{
+
+        min-width:120px;
+
+        margin-bottom:0;
+
+        flex:0 0 auto;
+
+        white-space:nowrap;
+    }
+
+    .main{
+
+        padding:12px;
+    }
+
+    .grid{
+
+        grid-template-columns:1fr;
+    }
+
+    .card{
+
+        padding:14px;
+    }
+
+    .card h2{
+
+        font-size:18px;
+    }
+
+    input,
+    select{
+
+        padding:14px;
+
+        font-size:16px;
+    }
+
+    button{
+
+        padding:14px;
+
+        font-size:15px;
+    }
+
+    table{
+
+        display:block;
+
+        overflow-x:auto;
+
+        white-space:nowrap;
+    }
+
+    th,
+    td{
+
+        padding:10px;
+
+        font-size:13px;
+    }
+
+    .remarkItem{
+
+        font-size:14px;
+    }
+}
+</style>
 
 *{
     margin:0;
