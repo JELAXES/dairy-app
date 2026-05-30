@@ -103,9 +103,9 @@ new mongoose.Schema({
 
     cows:Number,
 
-    calves:Number,
+calfMilk:Number,
 
-    staff:Number
+staffMilk:Number
 });
 
 const Entry =
@@ -123,11 +123,15 @@ new mongoose.Schema({
 
     feedName:String,
 
-    quantity:Number,
+    dailyKgPerCow:Number,
 
-    cost:Number,
+    costPerKg:Number,
 
-    month:String
+    cows:Number,
+
+    month:String,
+
+    monthlyExpense:Number
 });
 
 const Feed =
@@ -484,118 +488,44 @@ app.post("/save-feed", async (req,res)=>{
 
     try{
 
-        await Feed.deleteMany({
+        const {
+            feedName,
+            dailyKgPerCow,
+            costPerKg,
+            cows,
+            month
+        } = req.body;
 
-            feedName:req.body.feedName,
+        const [year,m] = month.split("-");
 
-            month:req.body.month
-        });
+        const daysInMonth =
+        new Date(year,m,0).getDate();
+
+        const monthlyExpense =
+            Number(dailyKgPerCow) *
+            Number(costPerKg) *
+            Number(cows) *
+            daysInMonth;
 
         await Feed.create({
 
-            feedName:req.body.feedName,
-
-            quantity:req.body.quantity,
-
-            cost:req.body.cost,
-
-            month:req.body.month
+            feedName,
+            dailyKgPerCow,
+            costPerKg,
+            cows,
+            month,
+            monthlyExpense
         });
 
-        res.send({
-
-            success:true
-        });
+        res.send({success:true});
 
     }catch(err){
 
         console.log(err);
 
-        res.send({
-
-            success:false
-        });
+        res.send({success:false});
     }
 });
-
-app.get("/feeds", async (req,res)=>{
-
-    try{
-
-        const feeds =
-        await Feed.find()
-        .sort({_id:-1});
-
-        res.send(feeds);
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send([]);
-    }
-});
-
-app.post("/delete-feed", async (req,res)=>{
-
-    try{
-
-        await Feed.findByIdAndDelete(
-            req.body.id
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
-});
-
-app.post("/edit-feed", async (req,res)=>{
-
-    try{
-
-        await Feed.findByIdAndUpdate(
-
-            req.body.id,
-
-            {
-
-                feedName:req.body.feedName,
-
-                quantity:req.body.quantity,
-
-                cost:req.body.cost,
-
-                month:req.body.month
-            }
-        );
-
-        res.send({
-
-            success:true
-        });
-
-    }catch(err){
-
-        console.log(err);
-
-        res.send({
-
-            success:false
-        });
-    }
-});
-
 // ======================
 // MILK ENTRIES
 // ======================
@@ -798,15 +728,11 @@ app.get("/dashboard", async (req,res)=>{
                 entry.discardedMilk || 0
             );
 
-            totalCalves +=
-            Number(
-                entry.calves || 0
-            );
+         totalCalves +=
+         Number(entry.calfMilk || 0);
 
-            totalStaff +=
-            Number(
-                entry.staff || 0
-            );
+         totalStaff +=
+        Number(entry.staffMilk || 0);
 
             const client =
             await Client.findOne({
@@ -831,7 +757,7 @@ app.get("/dashboard", async (req,res)=>{
         feeds.forEach(feed => {
 
             totalExpense +=
-            Number(feed.cost || 0);
+         Number(feed.monthlyExpense || 0);
         });
 
         const totalProfit =
@@ -858,22 +784,18 @@ app.get("/dashboard", async (req,res)=>{
 
         res.send({
 
-            totalMilk,
+    totalMilk,
+    totalRevenue,
+    totalExpense,
+    totalProfit,
+    totalDiscard,
+    calfAverage,
+    staffAverage,
 
-            totalRevenue,
+    records:milkEntries,
 
-            totalExpense,
-
-            totalProfit,
-
-            totalDiscard,
-
-            calfAverage,
-
-            staffAverage,
-
-            records:milkEntries
-        });
+    feeds
+});
 
     }catch(err){
 
