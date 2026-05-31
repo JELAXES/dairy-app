@@ -32,7 +32,7 @@ body{
     color:white;
     display:flex;
     min-height:100vh;
-    overflow:hidden;
+    overflow:auto;
 }
 
 .sidebar{
@@ -86,8 +86,10 @@ body{
 
 .main{
     flex:1;
+    min-width:0;
+    height:100vh;
     padding:18px;
-    overflow-y:auto;
+    overflow:auto;
 }
 
 .hidden{
@@ -154,16 +156,19 @@ body{
     grid-template-columns:1.7fr 1fr;
     gap:14px;
     align-items:start;
+    min-width:0;
 }
 
 .leftStack{
     display:grid;
     gap:14px;
+    min-width:0;
 }
 
 .rightStack{
     display:grid;
     gap:14px;
+    min-width:0;
 }
 
 .chartCard{
@@ -171,6 +176,7 @@ body{
     border-radius:16px;
     padding:14px;
     box-shadow:0 0 18px rgba(0,0,0,0.14);
+    min-width:0;
 }
 
 .chartCard h2{
@@ -182,6 +188,7 @@ body{
     width:100%;
     overflow-x:auto;
     overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
 }
 
 .chartInner{
@@ -263,6 +270,7 @@ button:hover{
 
 .tableWrap{
     overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
 }
 
 table{
@@ -351,7 +359,7 @@ td{
 @media (max-width: 900px){
     body{
         display:block;
-        overflow-x:hidden;
+        overflow:auto;
     }
 
     .sidebar{
@@ -377,6 +385,8 @@ td{
 
     .main{
         padding:12px;
+        height:auto;
+        overflow:visible;
     }
 
     .filterBar{
