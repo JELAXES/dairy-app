@@ -692,7 +692,8 @@ const state = {
     revenueChart: null,
     expenseChart: null,
     profitChart: null,
-    monthlyChart: null
+    monthlyChart: null,
+    feedPromptedMonths: new Set()
 };
 
 function logout(){
@@ -752,6 +753,36 @@ function daysBetweenInclusive(start, end){
 function formatMonthLabel(ym){
     const [y, m] = ym.split("-").map(Number);
     return new Date(y, m - 1, 1).toLocaleString("default", { month:"short", year:"numeric" });
+}
+
+function previousMonthValue(ym){
+    const [year, month] = ym.split("-").map(Number);
+    const d = new Date(year, month - 2, 1);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    return `${y}-${m}`;
+}
+
+function feedMonthMatches(feed, month){
+    return String(feed.month || "").slice(0,7) === month;
+}
+
+function feedPayloadForMonth(feed, month){
+    return {
+        feedName: feed.feedName || "",
+        dailyKgPerCow: Number(feed.dailyKgPerCow ?? feed.quantity ?? 0),
+        costPerKg: Number(feed.costPerKg ?? feed.cost ?? 0),
+        cows: Number(feed.cows ?? 0),
+        month
+    };
+}
+
+async function saveFeedRecord(payload){
+    return fetch("/save-feed", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+    });
 }
 
 function getClientRate(name){
@@ -1163,16 +1194,12 @@ async function saveFeed(){
         return;
     }
 
-    await fetch("/save-feed", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({
-            feedName,
-            dailyKgPerCow,
-            costPerKg,
-            cows,
-            month
-        })
+    await saveFeedRecord({
+        feedName,
+        dailyKgPerCow,
+        costPerKg,
+        cows,
+        month
     });
 
     document.getElementById("feedName").value = "";
@@ -1182,6 +1209,42 @@ async function saveFeed(){
 
     loadFeeds();
     loadDashboard();
+}
+
+async function askNewMonthFeedSetup(month){
+    if(state.feedPromptedMonths.has(month)) return false;
+
+    const previousMonth = previousMonthValue(month);
+    const previousFeeds = state.feeds.filter(feed => feedMonthMatches(feed, previousMonth));
+    if(!previousFeeds.length) return false;
+
+    state.feedPromptedMonths.add(month);
+
+    const useSame = confirm(
+        `No feed records found for ${formatMonthLabel(month)}.\n\n` +
+        `Do you want to use the same feed values from ${formatMonthLabel(previousMonth)}?\n\n` +
+        "Press OK to copy them. After copying, use Edit on any row you want to change.\n" +
+        "Press Cancel to start fresh."
+    );
+
+    if(!useSame){
+        const firstFeed = previousFeeds[0];
+        document.getElementById("feedName").value = firstFeed.feedName || "";
+        document.getElementById("feedDailyKg").value = Number(firstFeed.dailyKgPerCow ?? firstFeed.quantity ?? 0);
+        document.getElementById("feedCostPerKg").value = Number(firstFeed.costPerKg ?? firstFeed.cost ?? 0);
+        document.getElementById("feedCows").value = Number(firstFeed.cows ?? 0);
+        document.getElementById("feedMonth").value = month;
+        document.getElementById("feedMonthFilter").value = month;
+        alert("I filled the first previous feed item into the form. Change anything you want, then click Save Feed.");
+        return false;
+    }
+
+    for(const feed of previousFeeds){
+        await saveFeedRecord(feedPayloadForMonth(feed, month));
+    }
+
+    alert(`Copied ${previousFeeds.length} feed record(s) into ${formatMonthLabel(month)}. Use Edit to change any values.`);
+    return true;
 }
 
 async function loadFeeds(){
@@ -1196,22 +1259,19 @@ async function loadFeeds(){
     const tbody = document.getElementById("feedRecords");
     tbody.innerHTML = "";
 
-    let filtered = state.feeds.filter(f => String(f.month || "").slice(0,7) === month);
-    let showingAll = false;
-
-    if(!filtered.length && state.feeds.length){
-        filtered = state.feeds.slice();
-        showingAll = true;
-    }
+    let filtered = state.feeds.filter(f => feedMonthMatches(f, month));
 
     if(!filtered.length){
+        const copied = await askNewMonthFeedSetup(month);
+        if(copied){
+            loadFeeds();
+            loadDashboard();
+            return;
+        }
+
         tbody.innerHTML = `<tr><td colspan="6">No feed records for ${formatMonthLabel(month)}</td></tr>`;
         updateFeedPreview();
         return;
-    }
-
-    if(showingAll){
-        title.innerText = `${formatMonthLabel(month)} (showing all records)`;
     }
 
     filtered.forEach(feed => {

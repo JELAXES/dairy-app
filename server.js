@@ -502,6 +502,70 @@ app.get("/feeds", async (req,res)=>{
     }
 });
 
+app.post("/save-feed", async (req,res)=>{
+
+    try{
+
+        const {
+            feedName,
+            dailyKgPerCow,
+            costPerKg,
+            cows,
+            month
+        } = req.body;
+
+        const [year,m] =
+        month.split("-");
+
+        const daysInMonth =
+        new Date(year,m,0)
+        .getDate();
+
+        const monthlyExpense =
+
+            Number(dailyKgPerCow)
+
+            *
+
+            Number(costPerKg)
+
+            *
+
+            Number(cows)
+
+            *
+
+            daysInMonth;
+
+        await Feed.create({
+
+            feedName,
+
+            dailyKgPerCow,
+
+            costPerKg,
+
+            cows,
+
+            month,
+
+            monthlyExpense
+        });
+
+        res.send({
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+            success:false
+        });
+    }
+});
+
 app.post("/delete-feed", async (req,res)=>{
 
     try{
