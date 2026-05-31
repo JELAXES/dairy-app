@@ -853,6 +853,9 @@ async function loadDashboard(){
     const clientsRes = await fetch("/clients");
     state.clients = await clientsRes.json();
 
+    const feedsRes = await fetch("/feeds");
+    state.feeds = await feedsRes.json();
+
     const { month, start, end, days } = dateRangeFromControls();
     document.getElementById("dashboardRangeText").innerText = `Pulling data from ${start} to ${end}`;
     document.getElementById("revenueDates").innerText = `From ${start} to ${end}`;
@@ -862,6 +865,12 @@ async function loadDashboard(){
         const d = String(r.date || "").slice(0,10);
         return d >= start && d <= end;
     }).sort((a,b) => (String(a.date).localeCompare(String(b.date))));
+
+    const latestCowCount = Number(filtered[0]?.cows || state.records[0]?.cows || 0);
+    const feedCowsEl = document.getElementById("feedCows");
+    if(feedCowsEl && (!feedCowsEl.value || Number(feedCowsEl.value) === 0)){
+        feedCowsEl.value = latestCowCount || "";
+    }
 
     const dateSeries = buildDateSeries(start, end);
     const buckets = groupByDate(filtered);
@@ -903,10 +912,10 @@ async function loadDashboard(){
     const expenseCanvas = document.getElementById("expenseTrendChart");
     const profitCanvas = document.getElementById("profitChart");
 
-    milkCanvas.parentElement.style.minWidth = `${Math.max(labels.length * 70, 700)}px`;
-    revenueCanvas.parentElement.style.minWidth = `${Math.max(labels.length * 70, 700)}px`;
-    expenseCanvas.parentElement.style.minWidth = `${Math.max(labels.length * 70, 700)}px`;
-    profitCanvas.parentElement.style.minWidth = `${Math.max(labels.length * 70, 700)}px`;
+    milkCanvas.parentElement.style.minWidth = `${Math.max(labels.length * 90, 1200)}px`;
+    revenueCanvas.parentElement.style.minWidth = `${Math.max(labels.length * 90, 1200)}px`;
+    expenseCanvas.parentElement.style.minWidth = `${Math.max(labels.length * 90, 1200)}px`;
+    profitCanvas.parentElement.style.minWidth = `${Math.max(labels.length * 90, 1200)}px`;
 
     destroyChart(state.milkChart);
     state.milkChart = new Chart(milkCanvas, {
@@ -1019,7 +1028,7 @@ function renderMonthlyChart(){
     const profit = months.map((m,i) => Number((revenue[i] - expense[i]).toFixed(2)));
 
     const monthlyCanvas = document.getElementById("monthlyChart");
-    monthlyCanvas.parentElement.style.minWidth = `${Math.max(months.length * 70, 900)}px`;
+    monthlyCanvas.parentElement.style.minWidth = `${Math.max(months.length * 120, 1400)}px`;
 
     destroyChart(state.monthlyChart);
     state.monthlyChart = new Chart(monthlyCanvas, {
@@ -1111,16 +1120,19 @@ async function deleteClient(id){
 
 function updateFeedPreview(){
     const month = feedMonthFromControls();
-    const days = daysBetweenInclusive(`${month}-01`, lastDayOfMonth(month));
     const monthTitle = formatMonthLabel(month);
+    const monthStart = `${month}-01`;
+    const monthEnd = lastDayOfMonth(month);
+    const today = todayValue();
+    const endForPreview = today < monthStart ? monthStart : (today > monthEnd ? monthEnd : today);
+    const daysPassed = daysBetweenInclusive(monthStart, endForPreview);
 
     document.getElementById("feedPreviewMonth").innerText = monthTitle;
-    document.getElementById("feedPreviewDays").innerText = days;
+    document.getElementById("feedPreviewDays").innerText = daysPassed;
 
     const feedsForMonth = state.feeds.filter(f => String(f.month || "").slice(0,7) === month);
     const daily = feedsForMonth.reduce((sum, feed) => sum + calcFeedDailyCost(feed), 0);
-    const monthToDate = daily * days;
-    const fullMonth = daily * days;
+    const monthToDate = daily * daysPassed;
 
     document.getElementById("feedPreviewDaily").innerText = `₹${daily.toFixed(2)}`;
     document.getElementById("feedPreviewMonthToDate").innerText = `₹${monthToDate.toFixed(2)}`;
@@ -1174,12 +1186,22 @@ async function loadFeeds(){
     const tbody = document.getElementById("feedRecords");
     tbody.innerHTML = "";
 
-    const filtered = state.feeds.filter(f => String(f.month || "").slice(0,7) === month);
+    let filtered = state.feeds.filter(f => String(f.month || "").slice(0,7) === month);
+    let showingAll = false;
+
+    if(!filtered.length && state.feeds.length){
+        filtered = state.feeds.slice();
+        showingAll = true;
+    }
 
     if(!filtered.length){
         tbody.innerHTML = `<tr><td colspan="6">No feed records for ${formatMonthLabel(month)}</td></tr>`;
         updateFeedPreview();
         return;
+    }
+
+    if(showingAll){
+        title.innerText = `${formatMonthLabel(month)} (showing all records)`;
     }
 
     filtered.forEach(feed => {

@@ -516,8 +516,8 @@ Milk Records
 <th>Discard</th>
 <th>Total</th>
 <th>Cows</th>
-<th>Calves</th>
-<th>Staff</th>
+<th>Calf Milk</th>
+<th>Staff Milk</th>
 <th>Actions</th>
 
 </tr>
@@ -702,17 +702,17 @@ async function saveMilk(){
 
         cows:Number(
             document.getElementById(
-                "cowMilk"
+                "cowCount"
             ).value
         ) || 0,
 
-        calves:Number(
+        calfMilk:Number(
             document.getElementById(
                 "calfMilk"
             ).value
         ) || 0,
 
-        staff:Number(
+        staffMilk:Number(
             document.getElementById(
                 "staffMilk"
             ).value
@@ -751,7 +751,7 @@ async function saveMilk(){
     ).value = "";
 
     document.getElementById(
-        "cowMilk"
+        "cowCount"
     ).value = "";
 
     document.getElementById(
@@ -804,9 +804,9 @@ async function loadMilkRecords(){
 
         <td>${r.cows || 0}</td>
 
-        <td>${r.calves || 0}</td>
+        <td>${r.calfMilk || 0}</td>
 
-        <td>${r.staff || 0}</td>
+        <td>${r.staffMilk || 0}</td>
 
         <td>
 
@@ -1016,10 +1016,10 @@ async function shareMilkReport(){
     const cows =
     document.getElementById("cowMilk").value || 0;
 
-    const calves =
+    const calfMilk =
     document.getElementById("calfMilk").value || 0;
 
-    const staff =
+    const staffMilk =
     document.getElementById("staffMilk").value || 0;
 
     const remark =
@@ -1047,9 +1047,9 @@ async function shareMilkReport(){
 
     <p><b>Cows:</b> ${cows}</p>
 
-    <p><b>Calves:</b> ${calves}</p>
+    <p><b>Calf Milk:</b> ${calfMilk}</p>
 
-    <p><b>Staff:</b> ${staff}</p>
+    <p><b>Staff Milk:</b> ${staffMilk}</p>
 
     <p><b>Remark:</b> ${remark}</p>
 

@@ -484,7 +484,47 @@ app.post("/edit-client", async (req,res)=>{
 // FEEDS
 // ======================
 
-app.post("/save-feed", async (req,res)=>{
+app.get("/feeds", async (req,res)=>{
+
+    try{
+
+        const feeds =
+        await Feed.find()
+        .sort({_id:-1});
+
+        res.send(feeds);
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send([]);
+    }
+});
+
+app.post("/delete-feed", async (req,res)=>{
+
+    try{
+
+        await Feed.findByIdAndDelete(
+            req.body.id
+        );
+
+        res.send({
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+            success:false
+        });
+    }
+});
+
+app.post("/edit-feed", async (req,res)=>{
 
     try{
 
@@ -493,37 +533,64 @@ app.post("/save-feed", async (req,res)=>{
             dailyKgPerCow,
             costPerKg,
             cows,
-            month
+            month,
+            id
         } = req.body;
 
-        const [year,m] = month.split("-");
+        const [year,m] =
+        month.split("-");
 
         const daysInMonth =
-        new Date(year,m,0).getDate();
+        new Date(year,m,0)
+        .getDate();
 
         const monthlyExpense =
-            Number(dailyKgPerCow) *
-            Number(costPerKg) *
-            Number(cows) *
+
+            Number(dailyKgPerCow)
+
+            *
+
+            Number(costPerKg)
+
+            *
+
+            Number(cows)
+
+            *
+
             daysInMonth;
 
-        await Feed.create({
+        await Feed.findByIdAndUpdate(
 
-            feedName,
-            dailyKgPerCow,
-            costPerKg,
-            cows,
-            month,
-            monthlyExpense
+            id,
+
+            {
+
+                feedName,
+
+                dailyKgPerCow,
+
+                costPerKg,
+
+                cows,
+
+                month,
+
+                monthlyExpense
+            }
+        );
+
+        res.send({
+            success:true
         });
-
-        res.send({success:true});
 
     }catch(err){
 
         console.log(err);
 
-        res.send({success:false});
+        res.send({
+            success:false
+        });
     }
 });
 // ======================
@@ -697,67 +764,104 @@ app.get("/dashboard", async (req,res)=>{
 
         const milkEntries =
         await Entry.find({
-
             type:"milk"
-        })
-        .sort({_id:-1});
+        }).sort({date:1});
+
+        const feeds =
+        await Feed.find();
 
         let totalMilk = 0;
-
         let totalRevenue = 0;
-
         let totalExpense = 0;
-
         let totalDiscard = 0;
-
         let totalCalves = 0;
-
         let totalStaff = 0;
+
+        const monthlyData = {};
 
         for(const entry of milkEntries){
 
             const milk =
-            Number(
-                entry.dailyMilk || 0
-            );
+            Number(entry.dailyMilk || 0);
 
             totalMilk += milk;
 
             totalDiscard +=
-            Number(
-                entry.discardedMilk || 0
-            );
+            Number(entry.discardedMilk || 0);
 
-         totalCalves +=
-         Number(entry.calfMilk || 0);
+            totalCalves +=
+            Number(entry.calfMilk || 0);
 
-         totalStaff +=
-        Number(entry.staffMilk || 0);
+            totalStaff +=
+            Number(entry.staffMilk || 0);
 
             const client =
             await Client.findOne({
-
                 name:entry.client
             });
 
             const rate =
             Number(
-
-                client
-                ?.pricePerLiter || 0
+                client?.pricePerLiter || 0
             );
 
             totalRevenue +=
             milk * rate;
+
+            const month =
+            String(entry.date).slice(0,7);
+
+            if(!monthlyData[month]){
+
+                monthlyData[month] = {
+
+                    milk:0,
+                    revenue:0,
+                    expense:0,
+                    profit:0
+                };
+            }
+
+            monthlyData[month].milk += milk;
+
+            monthlyData[month].revenue +=
+            milk * rate;
         }
 
-        const feeds =
-        await Feed.find();
-
-        feeds.forEach(feed => {
+        feeds.forEach(feed=>{
 
             totalExpense +=
-         Number(feed.monthlyExpense || 0);
+            Number(feed.monthlyExpense || 0);
+
+            if(!monthlyData[feed.month]){
+
+                monthlyData[feed.month] = {
+
+                    milk:0,
+                    revenue:0,
+                    expense:0,
+                    profit:0
+                };
+            }
+
+            monthlyData[
+                feed.month
+            ].expense +=
+            Number(
+                feed.monthlyExpense || 0
+            );
+        });
+
+        Object.keys(monthlyData)
+        .forEach(month=>{
+
+            monthlyData[month].profit =
+
+                monthlyData[month].revenue
+
+                -
+
+                monthlyData[month].expense;
         });
 
         const totalProfit =
@@ -765,44 +869,76 @@ app.get("/dashboard", async (req,res)=>{
         totalExpense;
 
         const calfAverage =
+
         totalCalves > 0
+
         ?
+
         (
-            totalMilk / totalCalves
+            totalMilk /
+            totalCalves
         ).toFixed(2)
+
         :
+
         0;
 
         const staffAverage =
+
         totalStaff > 0
+
         ?
+
         (
-            totalMilk / totalStaff
+            totalMilk /
+            totalStaff
         ).toFixed(2)
+
         :
+
+        0;
+
+        const latestCowCount =
+
+        milkEntries.length > 0
+
+        ?
+
+        Number(
+            milkEntries[
+                milkEntries.length - 1
+            ].cows || 0
+        )
+
+        :
+
         0;
 
         res.send({
 
-    totalMilk,
-    totalRevenue,
-    totalExpense,
-    totalProfit,
-    totalDiscard,
-    calfAverage,
-    staffAverage,
+            totalMilk,
+            totalRevenue,
+            totalExpense,
+            totalProfit,
+            totalDiscard,
 
-    records:milkEntries,
+            calfAverage,
+            staffAverage,
 
-    feeds
-});
+            latestCowCount,
+
+            monthlyData,
+
+            records:milkEntries,
+
+            feeds
+        });
 
     }catch(err){
 
         console.log(err);
 
         res.send({
-
             success:false
         });
     }
