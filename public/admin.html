@@ -1381,21 +1381,22 @@ async function loadRecords(){
     const res = await fetch("/dashboard");
     const data = await res.json();
 
-    const monthRange = dateRangeFromControls();
-    const filtered = (data.records || []).filter(r => {
-        const d = String(r.date || "").slice(0,10);
-        return d >= monthRange.start && d <= monthRange.end;
+    const records = Array.isArray(data.records) ? data.records : [];
+    const sortedRecords = records.slice().sort((a, b) => {
+        const dateCompare = String(b.date || "").localeCompare(String(a.date || ""));
+        if(dateCompare !== 0) return dateCompare;
+        return String(b._id || "").localeCompare(String(a._id || ""));
     });
 
     const tbody = document.getElementById("records");
     tbody.innerHTML = "";
 
-    if(!filtered.length){
-        tbody.innerHTML = `<tr><td colspan="10">No milk records found for selected range</td></tr>`;
+    if(!sortedRecords.length){
+        tbody.innerHTML = `<tr><td colspan="10">No milk records found</td></tr>`;
         return;
     }
 
-    filtered.forEach(r => {
+    sortedRecords.forEach(r => {
         tbody.innerHTML += `
             <tr>
                 <td>${r.date || ""}</td>
