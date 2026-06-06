@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <head>
 
 <meta charset="UTF-8">
@@ -318,6 +319,42 @@ td{
     margin-top:10px;
 }
 
+.slipPreview{
+    background:#f8fafc;
+    color:#111827;
+    border-radius:12px;
+    padding:14px;
+    margin-top:16px;
+}
+
+.slipPreview h3{
+    margin-bottom:10px;
+}
+
+.slipPreviewGrid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
+}
+
+.slipPreviewBox{
+    background:white;
+    border:1px solid #d1d5db;
+    border-radius:8px;
+    padding:10px;
+}
+
+.slipPreviewBox span{
+    display:block;
+    color:#6b7280;
+    font-size:12px;
+    margin-bottom:5px;
+}
+
+.slipPreviewBox strong{
+    font-size:18px;
+}
+
 @media (max-width:900px){
 
     body{
@@ -395,6 +432,10 @@ td{
 
     .remarkItem{
         width:100%;
+    }
+
+    .slipPreviewGrid{
+        grid-template-columns:1fr;
     }
 }
 
@@ -538,6 +579,24 @@ placeholder="Staff Milk"
 </div>
 </div>
 
+<div class="slipPreview">
+<h3>Invoice Preview</h3>
+<div class="slipPreviewGrid">
+<div class="slipPreviewBox">
+<span>Total Liters</span>
+<strong id="previewLiters">0 L</strong>
+</div>
+<div class="slipPreviewBox">
+<span>Rate / Liter</span>
+<strong id="previewRate">₹0</strong>
+</div>
+<div class="slipPreviewBox">
+<span>Total Amount</span>
+<strong id="previewAmount">₹0</strong>
+</div>
+</div>
+</div>
+
 </div>
 
 <button onclick="saveMilk()">
@@ -545,7 +604,7 @@ Save Milk Entry
 </button>
 
 <button onclick="shareMilkReport()">
-Share Report
+Share PDF Slip
 </button>
 
 </div>
@@ -632,6 +691,9 @@ if(!localStorage.getItem("username")){
     window.location = "/";
 }
 
+let clientsCache = [];
+let lastSlipData = null;
+
 // ======================
 // SWITCH SECTION
 // ======================
@@ -706,6 +768,8 @@ async function loadClients(){
     const clients =
     await res.json();
 
+    clientsCache = Array.isArray(clients) ? clients : [];
+
     const select =
     document.getElementById(
         "milkClient"
@@ -718,7 +782,7 @@ async function loadClients(){
     </option>
     `;
 
-    clients.forEach(c => {
+    clientsCache.forEach(c => {
 
         select.innerHTML += `
 
@@ -727,6 +791,69 @@ async function loadClients(){
         </option>
         `;
     });
+
+    updateInvoicePreview();
+}
+
+function selectedClient(){
+    const name = document.getElementById("milkClient").value;
+    return clientsCache.find(c => c.name === name) || null;
+}
+
+function money(value){
+    return `₹${Number(value || 0).toLocaleString("en-IN", {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+    })}`;
+}
+
+function numberWordsBelowLakh(num){
+    const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+    const tens = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+    const n = Math.floor(Number(num || 0));
+    if(n === 0) return "Zero";
+    if(n < 20) return ones[n];
+    if(n < 100) return `${tens[Math.floor(n / 10)]} ${ones[n % 10]}`.trim();
+    if(n < 1000) return `${ones[Math.floor(n / 100)]} Hundred ${numberWordsBelowLakh(n % 100)}`.trim();
+    if(n < 100000) return `${numberWordsBelowLakh(Math.floor(n / 1000))} Thousand ${numberWordsBelowLakh(n % 1000)}`.trim();
+    return String(n);
+}
+
+function invoiceTotals(){
+    const milkAM = Number(document.getElementById("milkAM").value || 0);
+    const milkPM = Number(document.getElementById("milkPM").value || 0);
+    const liters = milkAM + milkPM;
+    const rate = Number(selectedClient()?.pricePerLiter || 0);
+    const amount = liters * rate;
+
+    return { milkAM, milkPM, liters, rate, amount };
+}
+
+function currentSlipData(){
+    const totals = invoiceTotals();
+    const clientObj = selectedClient();
+
+    return {
+        client: clientObj?.name || document.getElementById("milkClient").selectedOptions[0]?.text || "",
+        date: document.getElementById("milkDate").value,
+        milkAM: totals.milkAM,
+        milkPM: totals.milkPM,
+        liters: totals.liters,
+        rate: totals.rate,
+        amount: totals.amount,
+        discard: document.getElementById("discardMilk").value || 0,
+        cows: document.getElementById("cowCount").value || 0,
+        calfMilk: document.getElementById("calfMilk").value || 0,
+        staffMilk: document.getElementById("staffMilk").value || 0,
+        remark: document.getElementById("remarkInput").value || ""
+    };
+}
+
+function updateInvoicePreview(){
+    const totals = invoiceTotals();
+    document.getElementById("previewLiters").innerText = `${totals.liters.toFixed(2)} L`;
+    document.getElementById("previewRate").innerText = money(totals.rate);
+    document.getElementById("previewAmount").innerText = money(totals.amount);
 }
 
 // ======================
@@ -811,6 +938,8 @@ async function saveMilk(){
         milkAM + milkPM
     };
 
+    lastSlipData = currentSlipData();
+
     await fetch("/add",{
 
         method:"POST",
@@ -852,6 +981,7 @@ async function saveMilk(){
     ).value = "";
 
     loadMilkRecords();
+    updateInvoicePreview();
 }
 
 // ======================
@@ -1077,93 +1207,176 @@ async function loadRemarks(){
 // ======================
 
 async function shareMilkReport(){
+    const currentData = currentSlipData();
+    const slip = currentData.liters > 0 ? currentData : lastSlipData;
+    const client = slip?.client || "";
+
+    if(!client){
+        alert("Select Client");
+        return;
+    }
+
+    if(!slip || slip.liters <= 0){
+        alert("Enter milk liters before making the PDF slip");
+        return;
+    }
 
     const report = document.createElement("div");
 
-    report.style.background = "#111827";
-    report.style.color = "white";
-    report.style.padding = "30px";
-    report.style.width = "600px";
-    report.style.fontFamily = "Arial";
+    report.style.background = "white";
+    report.style.color = "#111827";
+    report.style.padding = "18px";
+    report.style.width = "900px";
+    report.style.fontFamily = "Arial, sans-serif";
+    report.style.fontSize = "12px";
+    report.style.lineHeight = "1.35";
+    report.style.position = "fixed";
+    report.style.left = "-10000px";
+    report.style.top = "0";
 
-    const client =
-    document.getElementById("milkClient")
-    .selectedOptions[0]?.text || "";
+    const invoiceNo =
+    `KSH-${String(slip.date || "").replaceAll("-","")}-${Date.now().toString().slice(-5)}`;
 
-    const date =
-    document.getElementById("milkDate").value;
-
-    const am =
-    document.getElementById("milkAM").value || 0;
-
-    const pm =
-    document.getElementById("milkPM").value || 0;
-
-    const discard =
-    document.getElementById("discardMilk").value || 0;
-
-    const cows =
-    document.getElementById("cowCount").value || 0;
-
-    const calfMilk =
-    document.getElementById("calfMilk").value || 0;
-
-    const staffMilk =
-    document.getElementById("staffMilk").value || 0;
-
-    const remark =
-    document.getElementById("remarkInput").value || "";
+    const amountWords =
+    `${numberWordsBelowLakh(Math.round(slip.amount))} Rupees`;
 
     report.innerHTML = `
+    <div style="border:1px solid #222;">
+        <div style="display:grid;grid-template-columns:120px 1fr 220px;border-bottom:1px solid #222;align-items:center;">
+            <div style="padding:10px;text-align:center;">
+                <img src="logo.png" style="width:92px;height:92px;object-fit:contain;">
+            </div>
+            <div style="padding:10px;text-align:center;">
+                <h1 style="font-size:24px;margin:0;">TAX INVOICE</h1>
+                <div style="font-size:18px;font-weight:bold;margin-top:6px;">KSHIRALAYA</div>
+                <div>Pure Care Pure Milk</div>
+            </div>
+            <div style="padding:10px;border-left:1px solid #222;">
+                <div><b>Invoice No:</b> ${invoiceNo}</div>
+                <div><b>Invoice Date:</b> ${slip.date}</div>
+                <div><b>PO Date:</b> ${slip.date}</div>
+            </div>
+        </div>
 
-    <h1>Kshiralaya Milk Report</h1>
+        <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #222;">
+            <div style="padding:10px;border-right:1px solid #222;">
+                <h3 style="margin:0 0 8px 0;">Seller</h3>
+                <div><b>Seller:</b> Kshiralaya</div>
+                <div><b>Warehouse Name:</b> Kshiralaya</div>
+                <div><b>Warehouse Address:</b> Kshiralaya Dairy Farm</div>
+                <div><b>State:</b> Karnataka</div>
+            </div>
+            <div style="padding:10px;">
+                <h3 style="margin:0 0 8px 0;">Bill To / Ship To</h3>
+                <div><b>Name:</b> ${client}</div>
+                <div><b>Address:</b> -</div>
+                <div><b>State:</b> Karnataka</div>
+            </div>
+        </div>
 
-    <hr>
+        <table style="display:table;width:100%;min-width:0;border-collapse:collapse;margin:0;white-space:normal;">
+            <thead>
+                <tr>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">Sr. No</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">Item Code</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">Product Description</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">HSN Code</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">Unit</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">Qty</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">Rate</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">Taxable Value</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">CGST</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">SGST</th>
+                    <th style="border:1px solid #222;padding:6px;color:#111;">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td style="border:1px solid #222;padding:6px;text-align:center;">1</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:center;">1000011</td>
+                    <td style="border:1px solid #222;padding:6px;">Normal Cow Milk</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:center;">040120</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:center;">L</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:center;">${slip.liters.toFixed(2)}</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:right;">${slip.rate.toFixed(2)}</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:right;">${slip.amount.toFixed(2)}</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:center;">0.00</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:center;">0.00</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:right;">${slip.amount.toFixed(2)}</td>
+                </tr>
+            </tbody>
+        </table>
 
-    <p><b>Client:</b> ${client}</p>
+        <div style="display:grid;grid-template-columns:1fr 280px;border-top:1px solid #222;">
+            <div style="padding:10px;border-right:1px solid #222;">
+                <div><b>AM Milk:</b> ${slip.milkAM.toFixed(2)} L</div>
+                <div><b>PM Milk:</b> ${slip.milkPM.toFixed(2)} L</div>
+                <div><b>Discard Milk:</b> ${slip.discard} L</div>
+                <div><b>Cows:</b> ${slip.cows}</div>
+                <div><b>Calf Milk:</b> ${slip.calfMilk} L</div>
+                <div><b>Staff Milk:</b> ${slip.staffMilk} L</div>
+                <div><b>Remark:</b> ${slip.remark || "-"}</div>
+            </div>
+            <div style="padding:10px;">
+                <div style="display:flex;justify-content:space-between;"><span>Total Amount before Tax:</span><b>${slip.amount.toFixed(2)}</b></div>
+                <div style="display:flex;justify-content:space-between;"><span>Total Tax Amount:</span><b>0.00</b></div>
+                <div style="display:flex;justify-content:space-between;"><span>Net Amount:</span><b>${slip.amount.toFixed(2)}</b></div>
+            </div>
+        </div>
 
-    <p><b>Date:</b> ${date}</p>
+        <div style="padding:10px;border-top:1px solid #222;">
+            <b>Total Invoice Amount in words:</b> ${amountWords}
+        </div>
 
-    <p><b>AM Milk:</b> ${am}</p>
-
-    <p><b>PM Milk:</b> ${pm}</p>
-
-    <p><b>Total Milk:</b>
-    ${Number(am)+Number(pm)}
-    </p>
-
-    <p><b>Discard Milk:</b> ${discard}</p>
-
-    <p><b>Cows:</b> ${cows}</p>
-
-    <p><b>Calf Milk:</b> ${calfMilk}</p>
-
-    <p><b>Staff Milk:</b> ${staffMilk}</p>
-
-    <p><b>Remark:</b> ${remark}</p>
-
-    <br>
-
-    <h3>Generated by Kshiralaya</h3>
+        <div style="display:grid;grid-template-columns:1fr 250px;border-top:1px solid #222;">
+            <div style="padding:10px;">
+                <b>Declaration:</b> We hereby declare that the milk mentioned in the invoice is supplied as recorded.
+            </div>
+            <div style="padding:10px;text-align:center;border-left:1px solid #222;">
+                <b>For Kshiralaya</b>
+                <div style="height:36px;"></div>
+                Authorized signatory
+            </div>
+        </div>
+    </div>
     `;
 
     document.body.appendChild(report);
 
     const canvas =
-    await html2canvas(report);
+    await html2canvas(report, {
+        scale:2,
+        useCORS:true
+    });
 
     document.body.removeChild(report);
 
-    const link =
-    document.createElement("a");
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgData = canvas.toDataURL("image/png");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const scale = Math.min((pageWidth - 12) / canvas.width, (pageHeight - 12) / canvas.height);
+    const imgWidth = canvas.width * scale;
+    const imgHeight = canvas.height * scale;
+    const left = (pageWidth - imgWidth) / 2;
+    const top = (pageHeight - imgHeight) / 2;
 
-    link.download =
-    "kshiralaya-report.png";
+    pdf.addImage(imgData, "PNG", left, top, imgWidth, imgHeight);
 
-    link.href =
-    canvas.toDataURL();
+    const fileName = `kshiralaya-slip-${slip.date || "milk"}.pdf`;
+    const pdfBlob = pdf.output("blob");
+    const file = new File([pdfBlob], fileName, { type:"application/pdf" });
 
-    link.click();
+    if(navigator.canShare && navigator.canShare({ files:[file] })){
+        await navigator.share({
+            title:"Kshiralaya Milk Slip",
+            text:`Milk slip for ${client}`,
+            files:[file]
+        });
+    }else{
+        pdf.save(fileName);
+    }
 }
 // ======================
 // INIT
@@ -1172,6 +1385,15 @@ async function shareMilkReport(){
 loadClients();
 loadMilkRecords();
 loadRemarks();
+
+[
+    "milkClient",
+    "milkAM",
+    "milkPM"
+].forEach(id => {
+    document.getElementById(id).addEventListener("input", updateInvoicePreview);
+    document.getElementById(id).addEventListener("change", updateInvoicePreview);
+});
 
 </script>
 
