@@ -873,6 +873,12 @@ function money(value){
     })}`;
 }
 
+function formatDate(d){
+    if(!d) return "-";
+    const p = String(d).split("-");
+    return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : d;
+}
+
 function numberWordsBelowLakh(num){
     const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
     const tens = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
@@ -927,9 +933,10 @@ function buildInvoiceHtml(invoice){
         return parts.join(" ")+" Rupees only";
     }
 
-    const taxableValue = invoice.amount;
+    const mrpXqty = invoice.liters * invoice.rate;
+    const taxableValue = mrpXqty;
     const totalTax = 0;
-    const totalAfterTax = taxableValue + totalTax;
+    const totalAfterTax = taxableValue;
     const netAmount = totalAfterTax;
     const amountWords = amountToWords(netAmount);
 
@@ -947,7 +954,7 @@ function buildInvoiceHtml(invoice){
                 </div>
                 <div style="padding:10px;border-left:1px solid #222;">
                     <div><b>Invoice No:</b></div>
-                    <div><b>Invoice Date:</b> ${invoice.date}</div>
+                    <div><b>Invoice Date:</b> ${formatDate(invoice.date)}</div>
                     <div><b>Credit Note No.:</b></div>
                     <div><b>Credit Note Date:</b></div>
                 </div>
@@ -1006,10 +1013,10 @@ function buildInvoiceHtml(invoice){
                         <td style="border:1px solid #222;padding:6px;text-align:center;">${invoice.rate.toFixed(2)}</td>
                         <td style="border:1px solid #222;padding:6px;text-align:center;">${invoice.liters.toFixed(2)}</td>
                         <td style="border:1px solid #222;padding:6px;text-align:right;">${invoice.rate.toFixed(2)}</td>
-                        <td style="border:1px solid #222;padding:6px;text-align:right;">${fmtAmt(taxableValue)}</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:right;">${fmtAmt(mrpXqty)}</td>
                         <td style="border:1px solid #222;padding:6px;text-align:center;">0.00</td>
                         <td style="border:1px solid #222;padding:6px;text-align:center;">0.00</td>
-                        <td style="border:1px solid #222;padding:6px;text-align:right;">${fmtAmt(taxableValue)}</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:right;">${fmtAmt(mrpXqty)}</td>
                     </tr>
                 </tbody>
             </table>
@@ -1019,12 +1026,12 @@ function buildInvoiceHtml(invoice){
                     <div><b>Total Invoice Amount in words:</b> ${amountWords}</div>
                 </div>
                 <div style="padding:10px;">
-                    <div style="display:flex;justify-content:space-between;"><span>Total Amount before Tax:</span><b>${fmtInt(taxableValue)}</b></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Total Amount before Tax:</span><b>${fmtAmt(mrpXqty)}</b></div>
                     <div style="display:flex;justify-content:space-between;"><span>Total Tax Amount:</span><b>0.00</b></div>
-                    <div style="display:flex;justify-content:space-between;"><span>Total Amount after Tax:</span><b>${fmtInt(totalAfterTax)}</b></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Total Amount after Tax:</span><b>${fmtAmt(mrpXqty)}</b></div>
                     <div style="display:flex;justify-content:space-between;"><span>TCS Amount:</span><b>0.00</b></div>
                     <div style="display:flex;justify-content:space-between;"><span>Creditnote Adj:</span><b>0.00</b></div>
-                    <div style="display:flex;justify-content:space-between;"><span>Net Amount:</span><b>${fmtInt(netAmount)}</b></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Net Amount:</span><b>${fmtAmt(netAmount)}</b></div>
                 </div>
             </div>
 
@@ -1088,7 +1095,7 @@ async function loadInvoices(){
         list.innerHTML += `
             <div class="invoiceItem">
                 <div class="invoiceMeta">
-                    <div>Date<strong>${invoice.date || "-"}</strong></div>
+                    <div>Date<strong>${formatDate(invoice.date)}</strong></div>
                     <div>Item Code<strong>${invoice.itemCode || "-"}</strong></div>
                     <div>Liters<strong>${invoice.liters.toFixed(2)} L</strong></div>
                     <div>Client<strong>${invoice.client || "-"}</strong></div>
