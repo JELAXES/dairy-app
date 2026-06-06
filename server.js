@@ -93,6 +93,8 @@ new mongoose.Schema({
 
     worker:String,
 
+    itemCode:String,
+
     milkAM:Number,
 
     milkPM:Number,
@@ -665,13 +667,61 @@ app.post("/add", async (req,res)=>{
 
     try{
 
-        await Entry.create(
-            req.body
-        );
+        const milkAM =
+        Number(req.body.milkAM || 0);
+
+        const milkPM =
+        Number(req.body.milkPM || 0);
+
+        const dailyMilk =
+        Number(req.body.dailyMilk || (milkAM + milkPM));
+
+        if(dailyMilk <= 0){
+
+            return res.send({
+
+                success:false,
+
+                message:
+                "Enter milk liters"
+            });
+        }
+
+        const lastEntry =
+        await Entry.findOne({
+
+            type:"milk",
+
+            itemCode:{
+                $regex:/^\d+$/
+            }
+        })
+        .sort({
+            itemCode:-1
+        });
+
+        const nextItemNumber =
+        Number(lastEntry?.itemCode || 0) + 1;
+
+        const itemCode =
+        String(nextItemNumber)
+        .padStart(6,"0");
+
+        const entry =
+        await Entry.create({
+
+            ...req.body,
+
+            itemCode,
+
+            dailyMilk
+        });
 
         res.send({
 
-            success:true
+            success:true,
+
+            entry
         });
 
     }catch(err){

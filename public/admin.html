@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kshiralaya Admin</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
 <style>
 *{
@@ -305,6 +307,54 @@ td{
     margin-top:12px;
 }
 
+.invoiceList{
+    display:grid;
+    gap:12px;
+}
+
+.invoiceItem{
+    background:#1e293b;
+    border-radius:12px;
+    padding:14px;
+    display:grid;
+    grid-template-columns:1fr auto;
+    gap:12px;
+    align-items:center;
+}
+
+.invoiceMeta{
+    display:grid;
+    grid-template-columns:repeat(4, minmax(0, 1fr));
+    gap:10px;
+}
+
+.invoiceMeta div{
+    color:#cbd5e1;
+    font-size:13px;
+}
+
+.invoiceMeta strong{
+    display:block;
+    color:white;
+    font-size:15px;
+    margin-top:3px;
+}
+
+.invoicePreviewHost{
+    margin-top:16px;
+    overflow:auto;
+}
+
+.invoicePaper{
+    width:900px;
+    background:white;
+    color:#111827;
+    padding:18px;
+    font-family:Arial,sans-serif;
+    font-size:12px;
+    line-height:1.35;
+}
+
 .feedPreview{
     background:var(--panel2);
     border-radius:14px;
@@ -409,6 +459,14 @@ td{
         grid-template-columns:repeat(2,1fr);
     }
 
+    .invoiceItem{
+        grid-template-columns:1fr;
+    }
+
+    .invoiceMeta{
+        grid-template-columns:1fr 1fr;
+    }
+
     .chartInner{
         min-width:1000px;
     }
@@ -441,6 +499,7 @@ td{
     <button class="sideBtn" onclick="showSection('feedSection', this)">Feed</button>
     <button class="sideBtn" onclick="showSection('managerSection', this)">Managers</button>
     <button class="sideBtn" onclick="showSection('recordsSection', this)">Records</button>
+    <button class="sideBtn" onclick="showSection('invoiceSection', this)">Invoice</button>
     <button class="sideBtn" onclick="showSection('remarksSection', this)">Remarks</button>
     <button class="sideBtn" onclick="logout()">Logout</button>
 </div>
@@ -665,6 +724,22 @@ td{
         </div>
     </div>
 
+    <!-- INVOICE -->
+    <div id="invoiceSection" class="hidden">
+        <div class="card">
+            <div class="sectionHeader">
+                <div class="sectionHeaderLeft">
+                    <h2>Invoice</h2>
+                    <div class="sub">View worker milk entries as Kshiralaya PDF slips</div>
+                </div>
+                <button style="width:auto;margin-top:0;" onclick="loadInvoices()">Refresh</button>
+            </div>
+
+            <div id="invoiceList" class="invoiceList"></div>
+            <div id="invoicePreviewHost" class="invoicePreviewHost"></div>
+        </div>
+    </div>
+
     <!-- REMARKS -->
     <div id="remarksSection" class="hidden">
         <div class="card">
@@ -712,6 +787,7 @@ function showSection(id, btn){
     if(id === "feedSection") loadFeeds();
     if(id === "managerSection") loadPendingUsers();
     if(id === "recordsSection") loadRecords();
+    if(id === "invoiceSection") loadInvoices();
     if(id === "remarksSection") loadRemarks();
 }
 
@@ -788,6 +864,294 @@ async function saveFeedRecord(payload){
 function getClientRate(name){
     const client = state.clients.find(c => c.name === name);
     return Number(client?.pricePerLiter || 0);
+}
+
+function money(value){
+    return `₹${Number(value || 0).toLocaleString("en-IN", {
+        minimumFractionDigits:2,
+        maximumFractionDigits:2
+    })}`;
+}
+
+function numberWordsBelowLakh(num){
+    const ones = ["","One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Eleven","Twelve","Thirteen","Fourteen","Fifteen","Sixteen","Seventeen","Eighteen","Nineteen"];
+    const tens = ["","","Twenty","Thirty","Forty","Fifty","Sixty","Seventy","Eighty","Ninety"];
+    const n = Math.floor(Number(num || 0));
+    if(n === 0) return "Zero";
+    if(n < 20) return ones[n];
+    if(n < 100) return `${tens[Math.floor(n / 10)]} ${ones[n % 10]}`.trim();
+    if(n < 1000) return `${ones[Math.floor(n / 100)]} Hundred ${numberWordsBelowLakh(n % 100)}`.trim();
+    if(n < 100000) return `${numberWordsBelowLakh(Math.floor(n / 1000))} Thousand ${numberWordsBelowLakh(n % 1000)}`.trim();
+    return String(n);
+}
+
+function invoiceDataFromRecord(record){
+    const milkAM = Number(record.milkAM || 0);
+    const milkPM = Number(record.milkPM || 0);
+    const liters = Number(record.dailyMilk || (milkAM + milkPM));
+
+    return {
+        id: record._id || "",
+        itemCode: record.itemCode || "Not assigned",
+        client: record.client || "",
+        worker: record.worker || "",
+        date: record.date || "",
+        milkAM,
+        milkPM,
+        liters,
+        rate: 48,
+        amount: 24000,
+        discard: Number(record.discardedMilk || 0),
+        cows: Number(record.cows || 0),
+        calfMilk: Number(record.calfMilk ?? record.calves ?? 0),
+        staffMilk: Number(record.staffMilk ?? record.staff ?? 0)
+    };
+}
+
+function buildInvoiceHtml(invoice){
+    const amountWords = "Twenty Four Thousand only";
+
+    return `
+    <div class="invoicePaper" id="invoicePaper">
+        <div style="border:1px solid #222;">
+            <div style="display:grid;grid-template-columns:120px 1fr 220px;border-bottom:1px solid #222;align-items:center;">
+                <div style="padding:10px;text-align:center;">
+                    <img src="logo.png" style="width:92px;height:92px;object-fit:contain;">
+                </div>
+                <div style="padding:10px;text-align:center;">
+                    <h1 style="font-size:24px;margin:0;">TAX INVOICE</h1>
+                    <div style="font-size:18px;font-weight:bold;margin-top:6px;">KSHIRALAYA</div>
+                    <div>Pure Care Pure Milk</div>
+                </div>
+                <div style="padding:10px;border-left:1px solid #222;">
+                    <div><b>Invoice No:</b></div>
+                    <div><b>Invoice Date:</b> ${invoice.date}</div>
+                    <div><b>Credit Note No.:</b></div>
+                    <div><b>Credit Note Date:</b></div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #222;">
+                <div style="padding:10px;border-right:1px solid #222;">
+                    <h3 style="margin:0 0 8px 0;">Seller</h3>
+                    <div><b>Seller:</b> Delphi Crest Solutions</div>
+                    <div><b>Warehouse Name:</b> Kshiralaya Diary Farms</div>
+                    <div><b>Warehouse Address:</b> Dandiganahalli, Manchenahalli Taluk, Chickballapur Dist, 561211</div>
+                    <div><b>City:</b> Bangalore</div>
+                    <div><b>State:</b> Karnataka</div>
+                    <div><b>GSTN No:</b> 29AAWFD4577F1ZR</div>
+                    <div><b>Company PAN No:</b> AAWFD4577F</div>
+                </div>
+                <div style="padding:10px;">
+                    <h3 style="margin:0 0 8px 0;">Bill To / Ship To</h3>
+                    <div><b>Name:</b> Brik Oven Pvt Ltd</div>
+                    <div><b>Address:</b> #872/A, HAL 2nd Stage, 80ft Road, Indiranagar, Bangalore-560038</div>
+                    <div><b>GSTN No:</b> 29AAHCB8309H1ZG <b>State:</b> Karnataka</div>
+                    <br>
+                    <div><b>Seller Bank Details</b></div>
+                    <div>Name: Ms. K Rashmi Ravindran</div>
+                    <div>Account number: 10213861942</div>
+                    <div>IFSC: IDFB0080175</div>
+                    <div>Bank name: IDFC FIRST</div>
+                    <div>Branch: Chandra Layout Branch</div>
+                </div>
+            </div>
+
+            <table style="display:table;width:100%;min-width:0;border-collapse:collapse;margin:0;white-space:normal;">
+                <thead>
+                    <tr>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">Sr. No</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">Item Code</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">Product Description</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">HSN Code</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">Unit</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">MRP</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">Qty</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">Rate</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">Taxable Value</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">CGST</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">SGST</th>
+                        <th style="border:1px solid #222;padding:6px;color:#111;">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border:1px solid #222;padding:6px;text-align:center;">1</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:center;">${invoice.itemCode}</td>
+                        <td style="border:1px solid #222;padding:6px;">Normal Cow Milk</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:center;">040120</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:center;">L</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:center;">48.00</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:center;">${invoice.liters.toFixed(2)}</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:right;">48</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:right;">24,000.00</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:center;">0.00</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:center;">0.00</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:right;">24,000</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div style="display:grid;grid-template-columns:1fr 280px;border-top:1px solid #222;">
+                <div style="padding:10px;border-right:1px solid #222;">
+                    <div><b>Total Invoice Amount in words:</b> ${amountWords}</div>
+                </div>
+                <div style="padding:10px;">
+                    <div style="display:flex;justify-content:space-between;"><span>Total Amount before Tax:</span><b>24,000</b></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Total Tax Amount:</span><b>0.00</b></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Total Amount after Tax:</span><b>48,000</b></div>
+                    <div style="display:flex;justify-content:space-between;"><span>TCS Amount:</span><b>0.00</b></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Creditnote Adj:</span><b>0.00</b></div>
+                    <div style="display:flex;justify-content:space-between;"><span>Net Amount:</span><b>24,000</b></div>
+                </div>
+            </div>
+
+            <div style="padding:10px;border-top:1px solid #222;">
+                <b>GST Break ups</b>
+                <span style="float:right;"><b>Total Amount:</b> 0.00</span>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 250px;border-top:1px solid #222;">
+                <div style="padding:10px;">
+                    <b>Declaration:</b> 1. We hereby declare that the products mentioned in the invoice are waranted to be of the nature and quality puport to be.<br>
+                    2. E.&O.E. If the invoice is not paid within due date, Interest @24% p.a. will be charged.<br>
+                    3. No tax is applicable on reverse Charge.
+                </div>
+                <div style="padding:10px;text-align:center;border-left:1px solid #222;">
+                    <b>For Delphi Crest Solutions</b>
+                    <div style="height:36px;"></div>
+                    Authorized signatory
+                </div>
+            </div>
+            <div style="padding:8px;text-align:center;border-top:1px solid #222;">This is a computer generated invoice hence signature is not required</div>
+        </div>
+    </div>
+    `;
+}
+
+async function ensureInvoiceData(){
+    const [dashboardRes, clientsRes] = await Promise.all([
+        fetch("/dashboard"),
+        fetch("/clients")
+    ]);
+
+    const dashboard = await dashboardRes.json();
+    const clients = await clientsRes.json();
+
+    state.records = Array.isArray(dashboard.records) ? dashboard.records : [];
+    state.clients = Array.isArray(clients) ? clients : [];
+
+    return state.records.slice().sort((a, b) => {
+        const dateCompare = String(b.date || "").localeCompare(String(a.date || ""));
+        if(dateCompare !== 0) return dateCompare;
+        return String(b._id || "").localeCompare(String(a._id || ""));
+    });
+}
+
+async function loadInvoices(){
+    const records = await ensureInvoiceData();
+    const list = document.getElementById("invoiceList");
+    const previewHost = document.getElementById("invoicePreviewHost");
+
+    list.innerHTML = "";
+    previewHost.innerHTML = "";
+
+    if(!records.length){
+        list.innerHTML = "<div class='userCard'>No invoices found</div>";
+        return;
+    }
+
+    records.forEach(record => {
+        const invoice = invoiceDataFromRecord(record);
+        list.innerHTML += `
+            <div class="invoiceItem">
+                <div class="invoiceMeta">
+                    <div>Date<strong>${invoice.date || "-"}</strong></div>
+                    <div>Item Code<strong>${invoice.itemCode || "-"}</strong></div>
+                    <div>Liters<strong>${invoice.liters.toFixed(2)} L</strong></div>
+                    <div>Client<strong>${invoice.client || "-"}</strong></div>
+                </div>
+                <div class="actionRow">
+                    <button onclick="previewInvoice('${invoice.id}')">View</button>
+                    <button onclick="downloadInvoice('${invoice.id}', false)">PDF</button>
+                    <button onclick="downloadInvoice('${invoice.id}', true)">Share</button>
+                </div>
+            </div>
+        `;
+    });
+}
+
+async function invoiceById(id){
+    if(!state.records.length || !state.clients.length){
+        await ensureInvoiceData();
+    }
+
+    const record = state.records.find(r => String(r._id || "") === String(id));
+    return record ? invoiceDataFromRecord(record) : null;
+}
+
+async function previewInvoice(id){
+    const invoice = await invoiceById(id);
+    if(!invoice){
+        alert("Invoice not found");
+        return;
+    }
+
+    document.getElementById("invoicePreviewHost").innerHTML = buildInvoiceHtml(invoice);
+}
+
+async function downloadInvoice(id, share){
+    const invoice = await invoiceById(id);
+    if(!invoice){
+        alert("Invoice not found");
+        return;
+    }
+
+    const holder = document.createElement("div");
+    holder.style.position = "fixed";
+    holder.style.left = "-10000px";
+    holder.style.top = "0";
+    holder.innerHTML = buildInvoiceHtml(invoice);
+    document.body.appendChild(holder);
+
+    const paper = holder.querySelector(".invoicePaper");
+    const canvas = await html2canvas(paper, {
+        scale:2,
+        useCORS:true
+    });
+
+    document.body.removeChild(holder);
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF("p", "mm", "a4");
+    const imgData = canvas.toDataURL("image/png");
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = pdf.internal.pageSize.getHeight();
+    const scale = Math.min((pageWidth - 12) / canvas.width, (pageHeight - 12) / canvas.height);
+    const imgWidth = canvas.width * scale;
+    const imgHeight = canvas.height * scale;
+    const left = (pageWidth - imgWidth) / 2;
+    const top = (pageHeight - imgHeight) / 2;
+
+    pdf.addImage(imgData, "PNG", left, top, imgWidth, imgHeight);
+
+    const fileName = `kshiralaya-invoice-${invoice.date || "milk"}-${invoice.client || "client"}.pdf`;
+
+    if(share){
+        const blob = pdf.output("blob");
+        const file = new File([blob], fileName, { type:"application/pdf" });
+
+        if(navigator.canShare && navigator.canShare({ files:[file] })){
+            await navigator.share({
+                title:"Kshiralaya Invoice",
+                text:`Invoice for ${invoice.client}`,
+                files:[file]
+            });
+            return;
+        }
+    }
+
+    pdf.save(fileName);
 }
 
 function parseDateVal(str){
@@ -1090,16 +1454,17 @@ function renderMonthlyChart(){
 async function loadClients(){
     const res = await fetch("/clients");
     const clients = await res.json();
+    state.clients = Array.isArray(clients) ? clients : [];
 
     const div = document.getElementById("clientList");
     div.innerHTML = "";
 
-    if(!clients.length){
+    if(!state.clients.length){
         div.innerHTML = "<div class='userCard'>No clients found</div>";
         return;
     }
 
-    clients.forEach(c => {
+    state.clients.forEach(c => {
         div.innerHTML += `
             <div class="userCard">
                 <h3>${c.name}</h3>
