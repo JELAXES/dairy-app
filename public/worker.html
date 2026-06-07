@@ -1290,7 +1290,6 @@ async function shareMilkReport(){
             </div>
             <div style="padding:10px;text-align:center;">
                 <h1 style="font-size:24px;margin:0;">TAX INVOICE</h1>
-                <div style="font-size:18px;font-weight:bold;margin-top:6px;">KSHIRALAYA</div>
                 <div>Pure Care Pure Milk</div>
             </div>
             <div style="padding:10px;border-left:1px solid #222;">
@@ -1347,7 +1346,7 @@ async function shareMilkReport(){
             <tbody>
                 <tr>
                     <td style="border:1px solid #222;padding:6px;text-align:center;">1</td>
-                    <td style="border:1px solid #222;padding:6px;text-align:center;">${slip.itemCode}</td>
+                    <td style="border:1px solid #222;padding:6px;text-align:center;">K${slip.itemCode}</td>
                     <td style="border:1px solid #222;padding:6px;">Normal Cow Milk</td>
                     <td style="border:1px solid #222;padding:6px;text-align:center;">040120</td>
                     <td style="border:1px solid #222;padding:6px;text-align:center;">L</td>
@@ -1378,7 +1377,7 @@ async function shareMilkReport(){
 
         <div style="padding:10px;border-top:1px solid #222;">
             <b>GST Break ups</b>
-            <span style="float:right;"><b>Total Amount:</b> 0.00</span>
+            <span style="float:right;"><b>Total Amount:</b> ${fmtAmt(slipTotal)}</span>
         </div>
 
         <div style="display:grid;grid-template-columns:1fr 250px;border-top:1px solid #222;">
