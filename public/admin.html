@@ -948,7 +948,7 @@ function buildInvoiceHtml(invoice){
                     <div></div>
                 </div>
                 <div style="padding:10px;border-left:1px solid #222;">
-                    <div><b>Invoice No:</b> K0${invoice.itemCode}</div>
+                    <div><b>Invoice No:</b> K0${String(Number(invoice.itemCode) - 1).padStart(6, '0')}</div>
                     <div><b>Invoice Date:</b> ${formatDate(invoice.date)}</div>
                     <div><b>Credit Note No.:</b></div>
                     <div><b>Credit Note Date:</b></div>
@@ -1002,7 +1002,7 @@ function buildInvoiceHtml(invoice){
                 <tbody>
                     <tr>
                         <td style="border:1px solid #222;padding:6px;text-align:center;">1</td>
-                        <td style="border:1px solid #222;padding:6px;text-align:center;">K0${invoice.itemCode}</td>
+                        <td style="border:1px solid #222;padding:6px;text-align:center;">K0${String(Number(invoice.itemCode) - 1).padStart(6, '0')}</td>
                         <td style="border:1px solid #222;padding:6px;">Normal Cow Milk</td>
                         <td style="border:1px solid #222;padding:6px;text-align:center;">040120</td>
                         <td style="border:1px solid #222;padding:6px;text-align:center;">L</td>
