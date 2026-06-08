@@ -587,8 +587,8 @@ placeholder="Staff Milk"
 <strong id="previewDate">-</strong>
 </div>
 <div class="slipPreviewBox">
-<span>Item Code</span>
-<strong id="previewItemCode">Save first</strong>
+<span>Invoice No</span>
+<strong id="previewItemCode">Loading...</strong>
 </div>
 <div class="slipPreviewBox">
 <span>Milk Qty</span>
@@ -604,7 +604,7 @@ Save Milk Entry
 </button>
 
 <button onclick="shareMilkReport()">
-Share PDF Slip
+Create and Share
 </button>
 
 </div>
@@ -850,13 +850,27 @@ function currentSlipData(){
     };
 }
 
+let currentInvoiceCounter = null;
+
+async function loadInvoiceCounter(){
+    try{
+        const res = await fetch("/invoice-counter");
+        const data = await res.json();
+        if(data.success){
+            currentInvoiceCounter = data.value;
+            document.getElementById("previewItemCode").innerText = "K0" + String(data.value).padStart(6,"0");
+        }
+    }catch(e){
+        document.getElementById("previewItemCode").innerText = "Error";
+    }
+}
+
 function updateInvoicePreview(){
     const totals = invoiceTotals();
     const previewLiters = totals.liters > 0 ? totals.liters : Number(lastSlipData?.liters || 0);
     const previewDate = totals.liters > 0 ? document.getElementById("milkDate").value : (lastSlipData?.date || document.getElementById("milkDate").value);
 
     document.getElementById("previewDate").innerText = previewDate || "-";
-    document.getElementById("previewItemCode").innerText = totals.liters > 0 ? "Save first" : (lastSlipData?.itemCode || "Save first");
     document.getElementById("previewLiters").innerText = `${previewLiters.toFixed(2)} L`;
 }
 
@@ -1245,10 +1259,19 @@ async function shareMilkReport(){
         return;
     }
 
-    if(!slip || !slip.itemCode){
-        alert("Save Milk Entry first so an item code can be created");
+    if(!slip){
+        alert("Save Milk Entry first before creating an invoice");
         return;
     }
+
+    const counterRes = await fetch("/invoice-counter");
+    const counterData = await counterRes.json();
+    if(!counterData.success){
+        alert("Could not fetch invoice number");
+        return;
+    }
+    const invoiceNum = counterData.value;
+    const invoiceLabel = "K0" + String(invoiceNum).padStart(6, "0");
 
     const report = document.createElement("div");
 
@@ -1293,7 +1316,7 @@ async function shareMilkReport(){
                 <div>Pure Care Pure Milk</div>
             </div>
             <div style="padding:10px;border-left:1px solid #222;">
-                <div><b>Invoice No:</b> K0${String(Number(slip.itemCode) - 1).padStart(6, '0')}</div>
+                <div><b>Invoice No:</b> ${invoiceLabel}</div>
                 <div><b>Invoice Date:</b> ${fmtDate(slip.date)}</div>
                 <div><b>Credit Note No.:</b></div>
                 <div><b>Credit Note Date:</b></div>
@@ -1433,6 +1456,9 @@ async function shareMilkReport(){
     }else{
         pdf.save(fileName);
     }
+
+    await fetch("/invoice-counter/increment", { method:"POST" });
+    await loadInvoiceCounter();
 }
 // ======================
 // INIT
@@ -1441,6 +1467,7 @@ async function shareMilkReport(){
 loadClients();
 loadMilkRecords();
 loadRemarks();
+loadInvoiceCounter();
 
 [
     "milkClient",

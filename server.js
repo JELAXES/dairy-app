@@ -166,6 +166,24 @@ mongoose.model(
 );
 
 // ======================
+// COUNTER SCHEMA
+// ======================
+
+const CounterSchema =
+new mongoose.Schema({
+
+    name:{ type:String, unique:true },
+
+    value:{ type:Number, default:1 }
+});
+
+const Counter =
+mongoose.model(
+    "Counter",
+    CounterSchema
+);
+
+// ======================
 // CREATE DEFAULT ADMIN
 // ======================
 
@@ -1067,6 +1085,57 @@ app.get("/health",(req,res)=>{
     res.send(
         "Server Running ✅"
     );
+});
+
+// ======================
+// INVOICE COUNTER
+// ======================
+
+app.get("/invoice-counter", async (req,res)=>{
+
+    try{
+
+        let counter = await Counter.findOne({ name:"invoice" });
+
+        if(!counter){
+
+            const lastEntry = await Entry.findOne({
+                type:"milk",
+                itemCode:{ $regex:/^\d+$/ }
+            }).sort({ itemCode:-1 });
+
+            const startValue = Number(lastEntry?.itemCode || 0) + 1;
+
+            counter = await Counter.create({
+                name:"invoice",
+                value:startValue
+            });
+        }
+
+        res.send({ success:true, value:counter.value });
+
+    }catch(err){
+
+        res.send({ success:false, message:err.message });
+    }
+});
+
+app.post("/invoice-counter/increment", async (req,res)=>{
+
+    try{
+
+        const counter = await Counter.findOneAndUpdate(
+            { name:"invoice" },
+            { $inc:{ value:1 } },
+            { new:true, upsert:true }
+        );
+
+        res.send({ success:true, value:counter.value });
+
+    }catch(err){
+
+        res.send({ success:false, message:err.message });
+    }
 });
 
 // ======================
