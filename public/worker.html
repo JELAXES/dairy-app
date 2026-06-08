@@ -992,7 +992,8 @@ async function saveMilk(){
 
     lastSlipData = {
         ...currentSlipData(),
-        itemCode: saved.entry?.itemCode || ""
+        itemCode: saved.entry?.itemCode || "",
+        _id: saved.entry?._id || ""
     };
 
     alert(
@@ -1455,6 +1456,14 @@ async function shareMilkReport(){
         });
     }else{
         pdf.save(fileName);
+    }
+
+    if(slip._id){
+        await fetch("/save-invoice-number", {
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body: JSON.stringify({ id: slip._id, invoiceNumber: invoiceNum })
+        });
     }
 
     await fetch("/invoice-counter/increment", { method:"POST" });

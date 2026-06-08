@@ -95,6 +95,8 @@ new mongoose.Schema({
 
     itemCode:String,
 
+    invoiceNumber:Number,
+
     milkAM:Number,
 
     milkPM:Number,
@@ -757,23 +759,33 @@ app.post("/delete-milk", async (req,res)=>{
 
     try{
 
-        await Entry.findByIdAndDelete(
-            req.body.id
-        );
+        const entry = await Entry.findById(req.body.id);
 
-        res.send({
+        const deletedInvoiceNumber = entry?.invoiceNumber;
 
-            success:true
-        });
+        await Entry.findByIdAndDelete(req.body.id);
+
+        if(deletedInvoiceNumber){
+
+            await Entry.updateMany(
+                { invoiceNumber:{ $gt:deletedInvoiceNumber } },
+                { $inc:{ invoiceNumber:-1 } }
+            );
+
+            await Counter.findOneAndUpdate(
+                { name:"invoice" },
+                { $inc:{ value:-1 } },
+                { upsert:true }
+            );
+        }
+
+        res.send({ success:true });
 
     }catch(err){
 
         console.log(err);
 
-        res.send({
-
-            success:false
-        });
+        res.send({ success:false });
     }
 });
 
@@ -1085,6 +1097,27 @@ app.get("/health",(req,res)=>{
     res.send(
         "Server Running ✅"
     );
+});
+
+// ======================
+// SAVE INVOICE NUMBER
+// ======================
+
+app.post("/save-invoice-number", async (req,res)=>{
+
+    try{
+
+        await Entry.findByIdAndUpdate(
+            req.body.id,
+            { invoiceNumber:req.body.invoiceNumber }
+        );
+
+        res.send({ success:true });
+
+    }catch(err){
+
+        res.send({ success:false, message:err.message });
+    }
 });
 
 // ======================
