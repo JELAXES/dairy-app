@@ -528,7 +528,7 @@ placeholder="Cow Count"
 
 </div>
 
-<div>
+<div id="ampmAMWrap">
 
 <input
 type="number"
@@ -538,12 +538,22 @@ placeholder="AM Milk"
 
 </div>
 
-<div>
+<div id="ampmPMWrap">
 
 <input
 type="number"
 id="milkPM"
 placeholder="PM Milk"
+/>
+
+</div>
+
+<div id="singleWrap" style="display:none;">
+
+<input
+type="number"
+id="milkTotal"
+placeholder="Milk (L)"
 />
 
 </div>
@@ -579,7 +589,7 @@ placeholder="Staff Milk"
 </div>
 </div>
 
-<div class="slipPreview">
+<div class="slipPreview" id="invoicePreviewSection">
 <h3>Invoice Preview</h3>
 <div class="slipPreviewGrid">
 <div class="slipPreviewBox">
@@ -603,7 +613,7 @@ placeholder="Staff Milk"
 Save Milk Entry
 </button>
 
-<button onclick="shareMilkReport()">
+<button id="createShareBtn" onclick="shareMilkReport()">
 Create and Share
 </button>
 
@@ -792,6 +802,9 @@ async function loadClients(){
         `;
     });
 
+    select.removeEventListener("change", onClientChange);
+    select.addEventListener("change", onClientChange);
+
     updateInvoicePreview();
 }
 
@@ -820,13 +833,16 @@ function numberWordsBelowLakh(num){
 }
 
 function invoiceTotals(){
-    const milkAM = Number(document.getElementById("milkAM").value || 0);
-    const milkPM = Number(document.getElementById("milkPM").value || 0);
-    const liters = milkAM + milkPM;
-    const rate = Number(selectedClient()?.pricePerLiter || 0);
+    const clientObj = selectedClient();
+    const isSingle = clientObj?.milkMode === 'single';
+    const milkAM = isSingle ? 0 : Number(document.getElementById("milkAM").value || 0);
+    const milkPM = isSingle ? 0 : Number(document.getElementById("milkPM").value || 0);
+    const milkTotalVal = isSingle ? Number(document.getElementById("milkTotal").value || 0) : 0;
+    const liters = isSingle ? milkTotalVal : (milkAM + milkPM);
+    const rate = Number(clientObj?.pricePerLiter || 0);
     const amount = liters * rate;
 
-    return { milkAM, milkPM, liters, rate, amount };
+    return { milkAM: isSingle ? milkTotalVal : milkAM, milkPM: isSingle ? 0 : milkPM, liters, rate, amount };
 }
 
 function currentSlipData(){
@@ -852,9 +868,10 @@ function currentSlipData(){
 
 let currentInvoiceCounter = null;
 
-async function loadInvoiceCounter(){
+async function loadInvoiceCounter(client){
     try{
-        const res = await fetch("/invoice-counter");
+        const url = client ? `/invoice-counter?client=${encodeURIComponent(client)}` : "/invoice-counter";
+        const res = await fetch(url);
         const data = await res.json();
         if(data.success){
             currentInvoiceCounter = data.value;
@@ -863,6 +880,27 @@ async function loadInvoiceCounter(){
     }catch(e){
         document.getElementById("previewItemCode").innerText = "Error";
     }
+}
+
+function onClientChange(){
+    const clientObj = selectedClient();
+    const canInv = !clientObj || clientObj.canInvoice !== false;
+    const isSingle = clientObj?.milkMode === 'single';
+
+    document.getElementById("ampmAMWrap").style.display = isSingle ? "none" : "";
+    document.getElementById("ampmPMWrap").style.display = isSingle ? "none" : "";
+    document.getElementById("singleWrap").style.display = isSingle ? "" : "none";
+    document.getElementById("invoicePreviewSection").style.display = canInv ? "" : "none";
+    document.getElementById("createShareBtn").style.display = canInv ? "" : "none";
+
+    if(canInv && clientObj){
+        loadInvoiceCounter(clientObj.name);
+    } else {
+        document.getElementById("previewItemCode").innerText = "-";
+        currentInvoiceCounter = null;
+    }
+
+    updateInvoicePreview();
 }
 
 function updateInvoicePreview(){
@@ -894,19 +932,16 @@ async function saveMilk(){
         return;
     }
 
-    const milkAM =
-    Number(
-        document.getElementById(
-            "milkAM"
-        ).value
-    ) || 0;
+    const clientObj = selectedClient();
+    const isSingle = clientObj?.milkMode === 'single';
 
-    const milkPM =
-    Number(
-        document.getElementById(
-            "milkPM"
-        ).value
-    ) || 0;
+    const milkAM = isSingle
+        ? Number(document.getElementById("milkTotal").value) || 0
+        : Number(document.getElementById("milkAM").value) || 0;
+
+    const milkPM = isSingle
+        ? 0
+        : Number(document.getElementById("milkPM").value) || 0;
 
     if(milkAM + milkPM <= 0){
 
@@ -1006,6 +1041,10 @@ async function saveMilk(){
 
     document.getElementById(
         "milkPM"
+    ).value = "";
+
+    document.getElementById(
+        "milkTotal"
     ).value = "";
 
     document.getElementById(
@@ -1265,7 +1304,7 @@ async function shareMilkReport(){
         return;
     }
 
-    const counterRes = await fetch("/invoice-counter");
+    const counterRes = await fetch(`/invoice-counter?client=${encodeURIComponent(client)}`);
     const counterData = await counterRes.json();
     if(!counterData.success){
         alert("Could not fetch invoice number");
@@ -1466,8 +1505,12 @@ async function shareMilkReport(){
         });
     }
 
-    await fetch("/invoice-counter/increment", { method:"POST" });
-    await loadInvoiceCounter();
+    await fetch("/invoice-counter/increment", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ client })
+    });
+    await loadInvoiceCounter(client);
 }
 // ======================
 // INIT
@@ -1476,13 +1519,12 @@ async function shareMilkReport(){
 loadClients();
 loadMilkRecords();
 loadRemarks();
-loadInvoiceCounter();
 
 [
-    "milkClient",
     "milkDate",
     "milkAM",
-    "milkPM"
+    "milkPM",
+    "milkTotal"
 ].forEach(id => {
     document.getElementById(id).addEventListener("input", updateInvoicePreview);
     document.getElementById(id).addEventListener("change", updateInvoicePreview);

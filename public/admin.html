@@ -607,6 +607,19 @@ td{
                 <input type="text" id="clientName" placeholder="Client Name" />
                 <input type="number" id="clientPrice" placeholder="Price Per Liter" />
             </div>
+            <div style="display:flex;gap:18px;align-items:center;margin:10px 0 4px 0;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:7px;cursor:pointer;">
+                    <input type="checkbox" id="clientCanInvoice" checked style="width:16px;height:16px;accent-color:var(--accent);" />
+                    Can generate invoices
+                </label>
+                <label style="display:flex;align-items:center;gap:7px;">
+                    Milk entry mode:
+                    <select id="clientMilkMode" style="width:auto;margin:0;padding:6px 10px;">
+                        <option value="ampm">AM &amp; PM separate</option>
+                        <option value="single">Single total</option>
+                    </select>
+                </label>
+            </div>
             <button onclick="createClient()">Create Client</button>
         </div>
 
@@ -901,6 +914,7 @@ function invoiceDataFromRecord(record){
     return {
         id: record._id || "",
         itemCode: record.itemCode || "Not assigned",
+        invoiceNumber: record.invoiceNumber || null,
         client: record.client || "",
         worker: record.worker || "",
         date: record.date || "",
@@ -948,7 +962,7 @@ function buildInvoiceHtml(invoice){
                     <div></div>
                 </div>
                 <div style="padding:10px;border-left:1px solid #222;">
-                    <div><b>Invoice No:</b> K0${String(Number(invoice.itemCode) - 1).padStart(6, '0')}</div>
+                    <div><b>Invoice No:</b> K0${String(invoice.invoiceNumber || (Number(invoice.itemCode || 0) - 1)).padStart(6, '0')}</div>
                     <div><b>Invoice Date:</b> ${formatDate(invoice.date)}</div>
                     <div><b>Credit Note No.:</b></div>
                     <div><b>Credit Note Date:</b></div>
@@ -1092,7 +1106,7 @@ async function loadInvoices(){
             <div class="invoiceItem">
                 <div class="invoiceMeta">
                     <div>Date<strong>${formatDate(invoice.date)}</strong></div>
-                    <div>Item Code<strong>${invoice.itemCode || "-"}</strong></div>
+                    <div>Invoice No<strong>${invoice.invoiceNumber ? "K0" + String(invoice.invoiceNumber).padStart(6,"0") : (invoice.itemCode || "-")}</strong></div>
                     <div>Liters<strong>${invoice.liters.toFixed(2)} L</strong></div>
                     <div>Client<strong>${invoice.client || "-"}</strong></div>
                 </div>
@@ -1490,10 +1504,22 @@ async function loadClients(){
     }
 
     state.clients.forEach(c => {
+        const canInv = c.canInvoice !== false;
+        const mode = c.milkMode === 'single' ? 'Single total' : 'AM/PM';
         div.innerHTML += `
             <div class="userCard">
                 <h3>${c.name}</h3>
                 <p>₹${Number(c.pricePerLiter || 0)}/L</p>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px 0;">
+                    <button style="width:auto;padding:5px 12px;font-size:13px;background:${canInv ? 'var(--accent)' : '#64748b'};"
+                        onclick="toggleClientInvoice('${c._id}', ${canInv})">
+                        Invoice: ${canInv ? 'On' : 'Off'}
+                    </button>
+                    <button style="width:auto;padding:5px 12px;font-size:13px;background:#475569;"
+                        onclick="toggleClientMilkMode('${c._id}', '${c.milkMode || 'ampm'}')">
+                        Mode: ${mode}
+                    </button>
+                </div>
                 <div class="actionRow">
                     <button onclick="editClient('${c._id}','${c.name}','${c.pricePerLiter || 0}')">Edit</button>
                     <button class="deleteBtn" onclick="deleteClient('${c._id}')">Delete</button>
@@ -1506,6 +1532,8 @@ async function loadClients(){
 async function createClient(){
     const name = document.getElementById("clientName").value.trim();
     const pricePerLiter = Number(document.getElementById("clientPrice").value || 0);
+    const canInvoice = document.getElementById("clientCanInvoice").checked;
+    const milkMode = document.getElementById("clientMilkMode").value;
     if(!name){
         alert("Enter client name");
         return;
@@ -1514,11 +1542,13 @@ async function createClient(){
     await fetch("/create-client", {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ name, pricePerLiter })
+        body: JSON.stringify({ name, pricePerLiter, canInvoice, milkMode })
     });
 
     document.getElementById("clientName").value = "";
     document.getElementById("clientPrice").value = "";
+    document.getElementById("clientCanInvoice").checked = true;
+    document.getElementById("clientMilkMode").value = "ampm";
     loadClients();
 }
 
@@ -1546,6 +1576,24 @@ async function deleteClient(id){
         body: JSON.stringify({ id })
     });
 
+    loadClients();
+}
+
+async function toggleClientInvoice(id, current){
+    await fetch("/update-client-settings", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ id, canInvoice: !current })
+    });
+    loadClients();
+}
+
+async function toggleClientMilkMode(id, currentMode){
+    await fetch("/update-client-settings", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ id, milkMode: currentMode === 'single' ? 'ampm' : 'single' })
+    });
     loadClients();
 }
 

@@ -69,7 +69,11 @@ new mongoose.Schema({
 
     name:String,
 
-    pricePerLiter:Number
+    pricePerLiter:Number,
+
+    canInvoice:{ type:Boolean, default:true },
+
+    milkMode:{ type:String, default:'ampm' }
 });
 
 const Client =
@@ -407,8 +411,11 @@ app.post("/create-client", async (req,res)=>{
 
             name:req.body.name,
 
-            pricePerLiter:
-            req.body.pricePerLiter
+            pricePerLiter:req.body.pricePerLiter,
+
+            canInvoice:req.body.canInvoice !== false,
+
+            milkMode:req.body.milkMode || 'ampm'
         });
 
         res.send({
@@ -499,6 +506,25 @@ app.post("/edit-client", async (req,res)=>{
 
             success:false
         });
+    }
+});
+
+app.post("/update-client-settings", async (req,res)=>{
+
+    try{
+
+        const update = {};
+
+        if(req.body.canInvoice !== undefined) update.canInvoice = req.body.canInvoice;
+        if(req.body.milkMode !== undefined) update.milkMode = req.body.milkMode;
+
+        await Client.findByIdAndUpdate(req.body.id, { $set:update });
+
+        res.send({ success:true });
+
+    }catch(err){
+
+        res.send({ success:false });
     }
 });
 
@@ -762,21 +788,39 @@ app.post("/delete-milk", async (req,res)=>{
         const entry = await Entry.findById(req.body.id);
 
         const deletedInvoiceNumber = entry?.invoiceNumber;
+        const deletedItemCode = entry?.itemCode;
 
         await Entry.findByIdAndDelete(req.body.id);
 
         if(deletedInvoiceNumber){
 
             await Entry.updateMany(
-                { invoiceNumber:{ $gt:deletedInvoiceNumber } },
+                { client:entry.client, invoiceNumber:{ $gt:deletedInvoiceNumber } },
                 { $inc:{ invoiceNumber:-1 } }
             );
 
+            const counterName = entry.client ? `invoice_${entry.client}` : "invoice";
+
             await Counter.findOneAndUpdate(
-                { name:"invoice" },
+                { name:counterName },
                 { $inc:{ value:-1 } },
                 { upsert:true }
             );
+        }
+
+        if(deletedItemCode && /^\d+$/.test(deletedItemCode)){
+
+            const higherEntries = await Entry.find({ itemCode:{ $gt:deletedItemCode } });
+
+            for(const e of higherEntries){
+
+                if(/^\d+$/.test(e.itemCode)){
+
+                    await Entry.findByIdAndUpdate(e._id, {
+                        itemCode: String(Number(e.itemCode) - 1).padStart(6, '0')
+                    });
+                }
+            }
         }
 
         res.send({ success:true });
@@ -1128,21 +1172,36 @@ app.get("/invoice-counter", async (req,res)=>{
 
     try{
 
-        let counter = await Counter.findOne({ name:"invoice" });
+        const client = req.query.client || "";
+        const counterName = client ? `invoice_${client}` : "invoice";
+
+        let counter = await Counter.findOne({ name:counterName });
 
         if(!counter){
 
-            const lastEntry = await Entry.findOne({
-                type:"milk",
-                itemCode:{ $regex:/^\d+$/ }
-            }).sort({ itemCode:-1 });
+            let startValue = 1;
 
-            const startValue = Number(lastEntry?.itemCode || 0) + 1;
+            if(client){
 
-            counter = await Counter.create({
-                name:"invoice",
-                value:startValue
-            });
+                const lastEntry = await Entry.findOne({
+                    type:"milk",
+                    client:client,
+                    invoiceNumber:{ $exists:true, $gt:0 }
+                }).sort({ invoiceNumber:-1 });
+
+                startValue = (lastEntry?.invoiceNumber || 0) + 1;
+
+            }else{
+
+                const lastEntry = await Entry.findOne({
+                    type:"milk",
+                    itemCode:{ $regex:/^\d+$/ }
+                }).sort({ itemCode:-1 });
+
+                startValue = Number(lastEntry?.itemCode || 0) + 1;
+            }
+
+            counter = await Counter.create({ name:counterName, value:startValue });
         }
 
         res.send({ success:true, value:counter.value });
@@ -1157,8 +1216,11 @@ app.post("/invoice-counter/increment", async (req,res)=>{
 
     try{
 
+        const client = req.body.client || "";
+        const counterName = client ? `invoice_${client}` : "invoice";
+
         const counter = await Counter.findOneAndUpdate(
-            { name:"invoice" },
+            { name:counterName },
             { $inc:{ value:1 } },
             { new:true, upsert:true }
         );
