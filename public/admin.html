@@ -748,18 +748,6 @@ td{
                 <button style="width:auto;margin-top:0;" onclick="loadInvoices()">Refresh</button>
             </div>
 
-            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;padding:10px;background:#f5f5f5;border-radius:8px;">
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                    <label style="font-size:12px;font-weight:600;">Client</label>
-                    <select id="renumberClient" style="padding:8px;border-radius:6px;border:1px solid #ccc;min-width:160px;"></select>
-                </div>
-                <div style="display:flex;flex-direction:column;gap:4px;">
-                    <label style="font-size:12px;font-weight:600;">Starting Invoice No.</label>
-                    <input type="number" id="renumberStart" min="1" placeholder="e.g. 4" style="padding:8px;border-radius:6px;border:1px solid #ccc;width:120px;" />
-                </div>
-                <button onclick="renumberInvoices()" style="width:auto;margin-top:0;">Set &amp; Renumber</button>
-            </div>
-
             <div id="invoiceList" class="invoiceList"></div>
             <div id="invoicePreviewHost" class="invoicePreviewHost"></div>
         </div>
@@ -1107,17 +1095,6 @@ async function loadInvoices(){
     list.innerHTML = "";
     previewHost.innerHTML = "";
 
-    const clientSelect = document.getElementById("renumberClient");
-    if(clientSelect){
-        const clientNames = [...new Set(
-            records.map(r => r.client).filter(Boolean)
-        )].sort();
-        const prev = clientSelect.value;
-        clientSelect.innerHTML = clientNames.map(n =>
-            `<option value="${n}"${n === prev ? " selected" : ""}>${n}</option>`
-        ).join("");
-    }
-
     if(!records.length){
         list.innerHTML = "<div class='userCard'>No invoices found</div>";
         return;
@@ -1135,6 +1112,7 @@ async function loadInvoices(){
                 </div>
                 <div class="actionRow">
                     <button onclick="previewInvoice('${invoice.id}')">View</button>
+                    <button onclick="editInvoiceNumber('${invoice.id}')">Edit No.</button>
                     <button onclick="downloadInvoice('${invoice.id}', false)">PDF</button>
                     <button onclick="downloadInvoice('${invoice.id}', true)">Share</button>
                 </div>
@@ -1143,14 +1121,40 @@ async function loadInvoices(){
     });
 }
 
-async function renumberInvoices(){
-    const client = document.getElementById("renumberClient").value;
-    const startNumber = Number(document.getElementById("renumberStart").value);
+async function editInvoiceNumber(id){
+    const record = state.records.find(r => String(r._id || "") === String(id));
+    if(!record){ alert("Invoice not found"); return; }
 
-    if(!client){ alert("Select a client"); return; }
-    if(!startNumber || startNumber < 1){ alert("Enter a valid starting number"); return; }
+    const client = record.client;
 
-    if(!confirm(`Renumber all invoices for "${client}" starting from ${startNumber}?`)) return;
+    // all invoices for this client sorted oldest-first (same order server uses)
+    const clientRecords = state.records
+        .filter(r => r.client === client && r.invoiceNumber > 0)
+        .sort((a, b) => {
+            const d = String(a.date || "").localeCompare(String(b.date || ""));
+            return d !== 0 ? d : String(a._id || "").localeCompare(String(b._id || ""));
+        });
+
+    const idx = clientRecords.findIndex(r => String(r._id || "") === String(id));
+    if(idx === -1){ alert("Invoice not found in sequence"); return; }
+
+    const currentNum = record.invoiceNumber || 0;
+    const newNumStr = prompt(
+        `Set invoice number for this entry (${formatDate(record.date)}).\nCurrently: ${currentNum ? "K0" + String(currentNum).padStart(6,"0") : "unassigned"}\n\nEnter new number:`,
+        currentNum || ""
+    );
+    if(newNumStr === null) return;
+
+    const newNum = Number(newNumStr);
+    if(!newNum || newNum < 1){ alert("Enter a valid number (1 or higher)"); return; }
+
+    const startNumber = newNum - idx;
+    if(startNumber < 1){
+        alert(`Cannot set this invoice to ${newNum} — it would require earlier invoices to have a number less than 1.`);
+        return;
+    }
+
+    if(!confirm(`This will renumber all ${clientRecords.length} invoice(s) for "${client}" so this entry becomes K0${String(newNum).padStart(6,"0")}. Continue?`)) return;
 
     const res = await fetch("/renumber-invoices", {
         method:"POST",
@@ -1160,7 +1164,6 @@ async function renumberInvoices(){
     const data = await res.json();
 
     if(data.success){
-        alert(`Done! ${data.updated} invoice(s) renumbered.`);
         state.records = [];
         state.clients = [];
         await loadInvoices();
