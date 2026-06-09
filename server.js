@@ -1144,6 +1144,46 @@ app.get("/health",(req,res)=>{
 });
 
 // ======================
+// RENUMBER INVOICES
+// ======================
+
+app.post("/renumber-invoices", async (req,res)=>{
+
+    try{
+
+        const { client, startNumber } = req.body;
+        const start = Number(startNumber);
+
+        if(!client || isNaN(start) || start < 1){
+            return res.send({ success:false, message:"Invalid client or startNumber" });
+        }
+
+        const entries = await Entry.find({
+            type:"milk",
+            client:client,
+            invoiceNumber:{ $exists:true, $gt:0 }
+        }).sort({ date:1, _id:1 });
+
+        for(let i = 0; i < entries.length; i++){
+            await Entry.findByIdAndUpdate(entries[i]._id, { invoiceNumber: start + i });
+        }
+
+        const counterName = `invoice_${client}`;
+        await Counter.findOneAndUpdate(
+            { name:counterName },
+            { value: start + entries.length },
+            { upsert:true }
+        );
+
+        res.send({ success:true, updated: entries.length });
+
+    }catch(err){
+
+        res.send({ success:false, message:err.message });
+    }
+});
+
+// ======================
 // SAVE INVOICE NUMBER
 // ======================
 

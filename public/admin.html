@@ -748,6 +748,18 @@ td{
                 <button style="width:auto;margin-top:0;" onclick="loadInvoices()">Refresh</button>
             </div>
 
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;padding:10px;background:#f5f5f5;border-radius:8px;">
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                    <label style="font-size:12px;font-weight:600;">Client</label>
+                    <select id="renumberClient" style="padding:8px;border-radius:6px;border:1px solid #ccc;min-width:160px;"></select>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                    <label style="font-size:12px;font-weight:600;">Starting Invoice No.</label>
+                    <input type="number" id="renumberStart" min="1" placeholder="e.g. 4" style="padding:8px;border-radius:6px;border:1px solid #ccc;width:120px;" />
+                </div>
+                <button onclick="renumberInvoices()" style="width:auto;margin-top:0;">Set &amp; Renumber</button>
+            </div>
+
             <div id="invoiceList" class="invoiceList"></div>
             <div id="invoicePreviewHost" class="invoicePreviewHost"></div>
         </div>
@@ -1095,6 +1107,17 @@ async function loadInvoices(){
     list.innerHTML = "";
     previewHost.innerHTML = "";
 
+    const clientSelect = document.getElementById("renumberClient");
+    if(clientSelect){
+        const clientNames = [...new Set(
+            records.map(r => r.client).filter(Boolean)
+        )].sort();
+        const prev = clientSelect.value;
+        clientSelect.innerHTML = clientNames.map(n =>
+            `<option value="${n}"${n === prev ? " selected" : ""}>${n}</option>`
+        ).join("");
+    }
+
     if(!records.length){
         list.innerHTML = "<div class='userCard'>No invoices found</div>";
         return;
@@ -1118,6 +1141,32 @@ async function loadInvoices(){
             </div>
         `;
     });
+}
+
+async function renumberInvoices(){
+    const client = document.getElementById("renumberClient").value;
+    const startNumber = Number(document.getElementById("renumberStart").value);
+
+    if(!client){ alert("Select a client"); return; }
+    if(!startNumber || startNumber < 1){ alert("Enter a valid starting number"); return; }
+
+    if(!confirm(`Renumber all invoices for "${client}" starting from ${startNumber}?`)) return;
+
+    const res = await fetch("/renumber-invoices", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ client, startNumber })
+    });
+    const data = await res.json();
+
+    if(data.success){
+        alert(`Done! ${data.updated} invoice(s) renumbered.`);
+        state.records = [];
+        state.clients = [];
+        await loadInvoices();
+    } else {
+        alert("Error: " + (data.message || "Unknown error"));
+    }
 }
 
 async function invoiceById(id){
