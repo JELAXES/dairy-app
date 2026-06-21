@@ -323,29 +323,29 @@
       line-height: 1.75;
     }
 
-    .facility-card-single {
+    .facility-cards {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 48px;
-      align-items: center;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
       max-width: 1152px;
-      background: var(--surface);
-      border-radius: 16px;
-      overflow: hidden;
-      border: 1px solid var(--outline-variant);
       margin-bottom: 72px;
     }
 
-    .facility-card-single img {
-      width: 100%;
-      height: 100%;
-      min-height: 320px;
-      object-fit: cover;
+    .facility-card {
+      background: var(--surface-container-low);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--outline-variant);
     }
 
-    .facility-card-single-body {
-      padding: 40px 40px 40px 0;
+    .facility-card img {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      display: block;
     }
+
+    .card-body { padding: 20px 22px; }
 
     .card-title {
       font-family: 'Source Serif 4', serif;
@@ -554,8 +554,7 @@
       .about-grid,
       .zara-grid,
       .contact-grid { grid-template-columns: 1fr; gap: 40px; }
-      .facility-card-single { grid-template-columns: 1fr; }
-      .facility-card-single-body { padding: 24px; }
+      .facility-cards { grid-template-columns: 1fr; }
       .journey-steps { grid-template-columns: 1fr; }
       .footer-inner { grid-template-columns: 1fr; gap: 32px; }
       footer { padding: 40px 20px 24px; }
@@ -626,11 +625,27 @@
   <h2 class="section-heading">Precision Engineering for Animal Welfare</h2>
   <p class="facility-intro">Our facility is designed with a singular focus: the comfort and health of our herd.</p>
 
-  <div class="facility-card-single">
-    <img src="Barnphoto.jpeg" alt="The Barn Structure" />
-    <div class="facility-card-single-body">
-      <h4 class="card-title">Spacious Shelters</h4>
-      <p class="card-text">Maximum airflow and natural light for herd comfort. Our shelters are built to give each animal the space and freedom they deserve, ensuring a calm and healthy environment year-round.</p>
+  <div class="facility-cards">
+    <div class="facility-card">
+      <img src="Barnphoto.jpeg" alt="The Barn Structure" />
+      <div class="card-body">
+        <h4 class="card-title">Spacious Shelters</h4>
+        <p class="card-text">Maximum airflow and natural light for herd comfort.</p>
+      </div>
+    </div>
+    <div class="facility-card">
+      <img src="milking.jpeg" alt="Milking Area" />
+      <div class="card-body">
+        <h4 class="card-title">Hygienic Systems</h4>
+        <p class="card-text">Automated systems minimise human contact so every drop stays pure.</p>
+      </div>
+    </div>
+    <div class="facility-card">
+      <img src="all cows.jpeg" alt="The Herd" />
+      <div class="card-body">
+        <h4 class="card-title">Uncompromising Purity</h4>
+        <p class="card-text">Real-time health tracking for every single cow in the herd.</p>
+      </div>
     </div>
   </div>
 
