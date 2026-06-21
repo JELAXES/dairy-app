@@ -25,9 +25,7 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
-
     body {
       font-family: 'Work Sans', sans-serif;
       background: var(--surface);
@@ -37,8 +35,10 @@
 
     /* ── NAVBAR ── */
     nav {
-      position: sticky;
+      position: fixed;
       top: 0;
+      left: 0;
+      right: 0;
       z-index: 100;
       background: rgba(250, 249, 245, 0.88);
       backdrop-filter: blur(8px);
@@ -112,36 +112,54 @@
 
     /* ── HERO ── */
     #home {
-      min-height: 88vh;
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
-      justify-content: center;
-      padding: 100px 64px 80px;
+      justify-content: flex-end;
+      padding: 0 64px 96px;
+      background-image: url('firstimage.jpeg');
+      background-size: cover;
+      background-position: center;
+      position: relative;
     }
+
+    #home::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to top,
+        rgba(1, 29, 18, 0.85) 0%,
+        rgba(1, 29, 18, 0.45) 50%,
+        rgba(1, 29, 18, 0.15) 100%
+      );
+    }
+
+    #home > * { position: relative; z-index: 1; }
 
     .hero-tag {
       font-size: 11px;
       font-weight: 600;
       letter-spacing: 0.18em;
       text-transform: uppercase;
-      color: var(--on-surface-variant);
-      margin-bottom: 24px;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 20px;
     }
 
     .hero-heading {
       font-family: 'Source Serif 4', serif;
       font-size: 56px;
       font-weight: 700;
-      line-height: 1.12;
+      line-height: 1.1;
       letter-spacing: -0.02em;
-      color: var(--primary);
-      max-width: 680px;
-      margin-bottom: 24px;
+      color: #ffffff;
+      max-width: 700px;
+      margin-bottom: 20px;
     }
 
     .hero-sub {
       font-size: 18px;
-      color: var(--on-surface-variant);
+      color: rgba(255,255,255,0.8);
       max-width: 520px;
       margin-bottom: 40px;
       line-height: 1.75;
@@ -170,22 +188,25 @@
 
     .btn-primary:hover { opacity: 0.88; transform: scale(0.98); }
 
-    .btn-outline {
+    .btn-outline-white {
       padding: 13px 32px;
       background: transparent;
-      color: var(--primary);
+      color: white;
       font-family: 'Work Sans', sans-serif;
       font-size: 15px;
       font-weight: 600;
-      border: 2px solid var(--primary);
+      border: 2px solid rgba(255,255,255,0.6);
       border-radius: 12px;
       cursor: pointer;
       text-decoration: none;
       display: inline-block;
-      transition: background 0.2s;
+      transition: background 0.2s, border-color 0.2s;
     }
 
-    .btn-outline:hover { background: var(--surface-container); }
+    .btn-outline-white:hover {
+      background: rgba(255,255,255,0.12);
+      border-color: white;
+    }
 
     /* ── SECTIONS ── */
     section { padding: 96px 64px; }
@@ -209,6 +230,13 @@
       margin-bottom: 48px;
     }
 
+    .body-text {
+      font-size: 16px;
+      color: var(--on-surface-variant);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
     /* ── ABOUT ── */
     #about { background: var(--surface-container-low); }
 
@@ -220,16 +248,11 @@
       max-width: 1152px;
     }
 
-    .img-placeholder {
-      background: var(--secondary-container);
-      border-radius: 16px;
+    .about-img {
+      width: 100%;
       aspect-ratio: 4/3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--on-secondary-container);
-      font-size: 13px;
-      font-weight: 500;
+      object-fit: cover;
+      border-radius: 16px;
     }
 
     .about-quote {
@@ -251,15 +274,46 @@
       margin-bottom: 14px;
     }
 
-    .body-text {
-      font-size: 16px;
+    /* ── ZARA ── */
+    #zara { background: var(--surface); }
+
+    .zara-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      max-width: 1152px;
+    }
+
+    .zara-img-wrap {
+      position: relative;
+    }
+
+    .zara-img {
+      width: 100%;
+      aspect-ratio: 3/4;
+      object-fit: cover;
+      border-radius: 16px;
+    }
+
+    .zara-caption {
+      margin-top: 14px;
+      font-family: 'Source Serif 4', serif;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .zara-caption span {
+      display: block;
+      font-family: 'Work Sans', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
       color: var(--on-surface-variant);
-      line-height: 1.8;
-      margin-bottom: 16px;
     }
 
     /* ── FACILITY ── */
-    #facility { background: var(--surface); }
+    #facility { background: var(--surface-container-low); }
 
     .facility-intro {
       font-size: 16px;
@@ -269,46 +323,42 @@
       line-height: 1.75;
     }
 
-    .facility-cards {
+    .facility-card-single {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 24px;
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
       max-width: 1152px;
+      background: var(--surface);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--outline-variant);
       margin-bottom: 72px;
     }
 
-    .facility-card {
-      background: var(--surface-container-low);
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--outline-variant);
+    .facility-card-single img {
+      width: 100%;
+      height: 100%;
+      min-height: 320px;
+      object-fit: cover;
     }
 
-    .card-img {
-      background: var(--secondary-container);
-      aspect-ratio: 4/3;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--on-secondary-container);
-      font-size: 13px;
-      font-weight: 500;
+    .facility-card-single-body {
+      padding: 40px 40px 40px 0;
     }
-
-    .card-body { padding: 20px 22px; }
 
     .card-title {
       font-family: 'Source Serif 4', serif;
-      font-size: 18px;
+      font-size: 24px;
       font-weight: 600;
       color: var(--on-surface);
-      margin-bottom: 8px;
+      margin-bottom: 12px;
     }
 
     .card-text {
-      font-size: 14px;
+      font-size: 15px;
       color: var(--on-surface-variant);
-      line-height: 1.65;
+      line-height: 1.75;
     }
 
     .journey-heading {
@@ -354,7 +404,7 @@
     }
 
     /* ── CONTACT ── */
-    #contact { background: var(--surface-container-low); }
+    #contact { background: var(--surface); }
 
     .contact-intro {
       font-size: 16px;
@@ -405,11 +455,7 @@
       line-height: 1.65;
     }
 
-    .contact-form {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+    .contact-form { display: flex; flex-direction: column; gap: 14px; }
 
     .contact-form input,
     .contact-form textarea {
@@ -422,7 +468,7 @@
       font-family: 'Work Sans', sans-serif;
       font-size: 15px;
       outline: none;
-      transition: border-color 0.2s, border-bottom-width 0.1s;
+      transition: border-color 0.2s;
     }
 
     .contact-form input:focus,
@@ -502,12 +548,14 @@
     @media (max-width: 860px) {
       nav { padding: 0 20px; }
       .nav-links { display: none; }
-      #home { padding: 80px 20px 60px; min-height: auto; }
+      #home { padding: 0 20px 64px; }
       .hero-heading { font-size: 36px; }
       section { padding: 64px 20px; }
       .about-grid,
+      .zara-grid,
       .contact-grid { grid-template-columns: 1fr; gap: 40px; }
-      .facility-cards,
+      .facility-card-single { grid-template-columns: 1fr; }
+      .facility-card-single-body { padding: 24px; }
       .journey-steps { grid-template-columns: 1fr; }
       .footer-inner { grid-template-columns: 1fr; gap: 32px; }
       footer { padding: 40px 20px 24px; }
@@ -538,7 +586,7 @@
   <p class="hero-sub">Welcome to Kshiralaya. Where heritage dairy traditions meet modern transparency to bring you the purest milk, exactly as nature intended.</p>
   <div class="hero-actions">
     <a href="#about" class="btn-primary">Our Heritage</a>
-    <a href="#contact" class="btn-outline">Visit Us</a>
+    <a href="#contact" class="btn-outline-white">Visit Us</a>
   </div>
 </section>
 
@@ -547,12 +595,27 @@
   <p class="section-tag">Our Roots</p>
   <h2 class="section-heading">The Hearts Behind the Heritage</h2>
   <div class="about-grid">
-    <div class="img-placeholder">Founders Photo</div>
+    <img src="dadnmiom.jpeg" alt="Praveen Kusuma and Rashmi Praveen" class="about-img" />
     <div>
       <p class="about-quote">"Purely traditional, modernly delivered." &mdash; The Visionaries</p>
       <h3 class="founders-name">Praveen Kusuma &amp; Rashmi Praveen</h3>
       <p class="body-text">Founded in 2024, Kshiralaya was born from Praveen and Rashmi's desire to reconnect families with the source of their nutrition. Driven by a passion for animal welfare and uncompromising purity, they've created a sanctuary where heritage dairy traditions meet modern excellence.</p>
       <p class="body-text">"Our farm is more than just a dairy — it's a commitment to the health of our community and the happiness of our herd."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ZARA -->
+<section id="zara">
+  <p class="section-tag">Our Spirit</p>
+  <h2 class="section-heading">A Smile at Every Corner</h2>
+  <div class="zara-grid">
+    <div>
+      <p class="body-text">Meet Zara, the heart and soul of our daily operations. As our Chief Morale Officer, she ensures the farm is filled with joy, energy, and a playful spirit that keeps our team and herd happy.</p>
+    </div>
+    <div class="zara-img-wrap">
+      <img src="zaea.jpeg" alt="Zara" class="zara-img" />
+      <p class="zara-caption">Zara <span>Chief Morale Officer</span></p>
     </div>
   </div>
 </section>
@@ -563,27 +626,11 @@
   <h2 class="section-heading">Precision Engineering for Animal Welfare</h2>
   <p class="facility-intro">Our facility is designed with a singular focus: the comfort and health of our herd.</p>
 
-  <div class="facility-cards">
-    <div class="facility-card">
-      <div class="card-img">The Barn Structure</div>
-      <div class="card-body">
-        <h4 class="card-title">Spacious Shelters</h4>
-        <p class="card-text">Maximum airflow and natural light for herd comfort.</p>
-      </div>
-    </div>
-    <div class="facility-card">
-      <div class="card-img">Milking Area</div>
-      <div class="card-body">
-        <h4 class="card-title">Hygienic Systems</h4>
-        <p class="card-text">Automated systems minimise human contact so every drop stays pure.</p>
-      </div>
-    </div>
-    <div class="facility-card">
-      <div class="card-img">Modern Monitoring</div>
-      <div class="card-body">
-        <h4 class="card-title">Uncompromising Purity</h4>
-        <p class="card-text">Real-time health tracking for every single cow in the herd.</p>
-      </div>
+  <div class="facility-card-single">
+    <img src="Barnphoto.jpeg" alt="The Barn Structure" />
+    <div class="facility-card-single-body">
+      <h4 class="card-title">Spacious Shelters</h4>
+      <p class="card-text">Maximum airflow and natural light for herd comfort. Our shelters are built to give each animal the space and freedom they deserve, ensuring a calm and healthy environment year-round.</p>
     </div>
   </div>
 
