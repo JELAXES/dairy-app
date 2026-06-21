@@ -769,7 +769,7 @@ td{
 
 <script>
 if(!localStorage.getItem("username")){
-    window.location = "/";
+    window.location = "/login.html";
 }
 
 const state = {
@@ -786,7 +786,7 @@ const state = {
 
 function logout(){
     localStorage.clear();
-    window.location = "/";
+    window.location = "/login.html";
 }
 
 function showSection(id, btn){

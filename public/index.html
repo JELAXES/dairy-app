@@ -1,318 +1,672 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
-<meta charset="UTF-8">
-
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0"
-/>
-
-<title>
-Kshiralaya Login
-</title>
-
-<style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-
-    font-family:Arial,sans-serif;
-
-    background:
-    linear-gradient(
-        135deg,
-        #0f172a,
-        #111827,
-        #1e293b
-    );
-
-    height:100vh;
-
-    display:flex;
-
-    justify-content:center;
-
-    align-items:center;
-
-    color:white;
-}
-
-.loginBox{
-
-    width:380px;
-
-    background:#111827;
-
-    padding:30px;
-
-    border-radius:22px;
-
-    box-shadow:
-    0 0 30px rgba(
-        0,
-        0,
-        0,
-        0.4
-    );
-
-    text-align:center;
-}
-
-.logo{
-
-    width:140px;
-
-    border-radius:22px;
-
-    margin-bottom:15px;
-}
-
-.title{
-
-    font-size:34px;
-
-    font-weight:bold;
-
-    margin-bottom:8px;
-
-    background:linear-gradient(
-        90deg,
-        #60a5fa,
-        #a855f7
-    );
-
-    -webkit-background-clip:text;
-
-    -webkit-text-fill-color:transparent;
-}
-
-.subtitle{
-
-    color:#94a3b8;
-
-    margin-bottom:25px;
-
-    font-size:14px;
-}
-
-input{
-
-    width:100%;
-
-    padding:14px;
-
-    margin-bottom:16px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:#1e293b;
-
-    color:white;
-
-    font-size:14px;
-}
-
-input::placeholder{
-
-    color:#94a3b8;
-}
-
-button{
-
-    width:100%;
-
-    padding:13px;
-
-    border:none;
-
-    border-radius:12px;
-
-    background:
-    linear-gradient(
-        90deg,
-        #3b82f6,
-        #8b5cf6
-    );
-
-    color:white;
-
-    font-size:15px;
-
-    cursor:pointer;
-
-    transition:0.2s;
-}
-
-button:hover{
-
-    opacity:0.9;
-
-    transform:scale(1.01);
-}
-
-.signupText{
-
-    margin-top:18px;
-
-    font-size:14px;
-
-    color:#94a3b8;
-}
-
-.signupText span{
-
-    color:#60a5fa;
-
-    cursor:pointer;
-
-    font-weight:bold;
-}
-
-#error{
-
-    margin-top:14px;
-
-    color:#ef4444;
-
-    font-size:14px;
-}
-
-</style>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kshiralaya Dairy Farm | Purely Traditional, Modernly Delivered</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,wght@0,400;0,600;0,700;1,400&family=Work+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #012d1d;
+      --primary-container: #1b4332;
+      --on-primary: #ffffff;
+      --surface: #faf9f5;
+      --surface-container-low: #f4f4f0;
+      --surface-container: #efeeea;
+      --on-surface: #1b1c1a;
+      --on-surface-variant: #414844;
+      --outline: #717973;
+      --outline-variant: #c1c8c2;
+      --secondary-container: #e6e3d0;
+      --on-secondary-container: #666556;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Work Sans', sans-serif;
+      background: var(--surface);
+      color: var(--on-surface);
+      line-height: 1.6;
+    }
+
+    /* ── NAVBAR ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(250, 249, 245, 0.88);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--outline-variant);
+      padding: 0 64px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+    }
+
+    .nav-logo img {
+      height: 36px;
+      width: 36px;
+      border-radius: 8px;
+      object-fit: cover;
+    }
+
+    .nav-logo-text {
+      font-family: 'Source Serif 4', serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--on-surface-variant);
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--primary); }
+
+    .btn-signin {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 22px;
+      background: var(--primary);
+      color: var(--on-primary);
+      font-family: 'Work Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.15s;
+    }
+
+    .btn-signin:hover {
+      background: var(--primary-container);
+      transform: scale(0.98);
+    }
+
+    /* ── HERO ── */
+    #home {
+      min-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 100px 64px 80px;
+    }
+
+    .hero-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 24px;
+    }
+
+    .hero-heading {
+      font-family: 'Source Serif 4', serif;
+      font-size: 56px;
+      font-weight: 700;
+      line-height: 1.12;
+      letter-spacing: -0.02em;
+      color: var(--primary);
+      max-width: 680px;
+      margin-bottom: 24px;
+    }
+
+    .hero-sub {
+      font-size: 18px;
+      color: var(--on-surface-variant);
+      max-width: 520px;
+      margin-bottom: 40px;
+      line-height: 1.75;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .btn-primary {
+      padding: 13px 32px;
+      background: var(--primary);
+      color: white;
+      font-family: 'Work Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.2s, transform 0.15s;
+      display: inline-block;
+    }
+
+    .btn-primary:hover { opacity: 0.88; transform: scale(0.98); }
+
+    .btn-outline {
+      padding: 13px 32px;
+      background: transparent;
+      color: var(--primary);
+      font-family: 'Work Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 600;
+      border: 2px solid var(--primary);
+      border-radius: 12px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      transition: background 0.2s;
+    }
+
+    .btn-outline:hover { background: var(--surface-container); }
+
+    /* ── SECTIONS ── */
+    section { padding: 96px 64px; }
+
+    .section-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      margin-bottom: 14px;
+    }
+
+    .section-heading {
+      font-family: 'Source Serif 4', serif;
+      font-size: 32px;
+      font-weight: 600;
+      line-height: 1.25;
+      color: var(--on-surface);
+      max-width: 640px;
+      margin-bottom: 48px;
+    }
+
+    /* ── ABOUT ── */
+    #about { background: var(--surface-container-low); }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      align-items: center;
+      max-width: 1152px;
+    }
+
+    .img-placeholder {
+      background: var(--secondary-container);
+      border-radius: 16px;
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--on-secondary-container);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .about-quote {
+      font-family: 'Source Serif 4', serif;
+      font-size: 17px;
+      font-style: italic;
+      color: var(--on-surface-variant);
+      border-left: 3px solid var(--primary);
+      padding-left: 18px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .founders-name {
+      font-family: 'Source Serif 4', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--primary);
+      margin-bottom: 14px;
+    }
+
+    .body-text {
+      font-size: 16px;
+      color: var(--on-surface-variant);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    /* ── FACILITY ── */
+    #facility { background: var(--surface); }
+
+    .facility-intro {
+      font-size: 16px;
+      color: var(--on-surface-variant);
+      max-width: 600px;
+      margin-bottom: 40px;
+      line-height: 1.75;
+    }
+
+    .facility-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      max-width: 1152px;
+      margin-bottom: 72px;
+    }
+
+    .facility-card {
+      background: var(--surface-container-low);
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--outline-variant);
+    }
+
+    .card-img {
+      background: var(--secondary-container);
+      aspect-ratio: 4/3;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--on-secondary-container);
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .card-body { padding: 20px 22px; }
+
+    .card-title {
+      font-family: 'Source Serif 4', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-bottom: 8px;
+    }
+
+    .card-text {
+      font-size: 14px;
+      color: var(--on-surface-variant);
+      line-height: 1.65;
+    }
+
+    .journey-heading {
+      font-family: 'Source Serif 4', serif;
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-bottom: 32px;
+      max-width: 1152px;
+    }
+
+    .journey-steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 40px;
+      max-width: 1152px;
+    }
+
+    .step { display: flex; flex-direction: column; gap: 14px; }
+
+    .step-icon {
+      width: 48px;
+      height: 48px;
+      background: var(--primary-container);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+
+    .step-title {
+      font-family: 'Source Serif 4', serif;
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--on-surface);
+    }
+
+    .step-text {
+      font-size: 14px;
+      color: var(--on-surface-variant);
+      line-height: 1.7;
+    }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--surface-container-low); }
+
+    .contact-intro {
+      font-size: 16px;
+      color: var(--on-surface-variant);
+      max-width: 560px;
+      margin-bottom: 48px;
+      line-height: 1.75;
+    }
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 64px;
+      max-width: 1152px;
+      align-items: start;
+    }
+
+    .contact-item {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 32px;
+      align-items: flex-start;
+    }
+
+    .contact-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--primary-container);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      flex-shrink: 0;
+    }
+
+    .contact-label {
+      font-family: 'Source Serif 4', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--on-surface);
+      margin-bottom: 4px;
+    }
+
+    .contact-value {
+      font-size: 14px;
+      color: var(--on-surface-variant);
+      line-height: 1.65;
+    }
+
+    .contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1px solid var(--outline-variant);
+      border-radius: 8px;
+      background: var(--surface-container-low);
+      color: var(--on-surface);
+      font-family: 'Work Sans', sans-serif;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s, border-bottom-width 0.1s;
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      border-color: var(--primary);
+      border-bottom-width: 2px;
+    }
+
+    .contact-form textarea { min-height: 120px; resize: vertical; }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--primary);
+      color: rgba(255,255,255,0.65);
+      padding: 56px 64px 32px;
+    }
+
+    .footer-inner {
+      max-width: 1152px;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 48px;
+      margin-bottom: 40px;
+    }
+
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .footer-brand img {
+      height: 32px;
+      width: 32px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+
+    .footer-brand-name {
+      font-family: 'Source Serif 4', serif;
+      font-size: 18px;
+      font-weight: 700;
+      color: white;
+    }
+
+    .footer-tagline { font-size: 13px; line-height: 1.75; max-width: 300px; }
+
+    .footer-col-heading {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.45);
+      margin-bottom: 16px;
+    }
+
+    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+    .footer-links a {
+      color: rgba(255,255,255,0.65);
+      text-decoration: none;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover { color: white; }
+
+    .footer-bottom {
+      max-width: 1152px;
+      border-top: 1px solid rgba(255,255,255,0.12);
+      padding-top: 24px;
+      font-size: 13px;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 860px) {
+      nav { padding: 0 20px; }
+      .nav-links { display: none; }
+      #home { padding: 80px 20px 60px; min-height: auto; }
+      .hero-heading { font-size: 36px; }
+      section { padding: 64px 20px; }
+      .about-grid,
+      .contact-grid { grid-template-columns: 1fr; gap: 40px; }
+      .facility-cards,
+      .journey-steps { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; gap: 32px; }
+      footer { padding: 40px 20px 24px; }
+    }
+  </style>
 </head>
-
 <body>
 
-<div class="loginBox">
+<!-- NAVBAR -->
+<nav>
+  <a href="#home" class="nav-logo">
+    <img src="logo.png" alt="Kshiralaya" />
+    <span class="nav-logo-text">Kshiralaya</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#home">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#facility">Our Facility</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <a href="login.html" class="btn-signin">Sign In</a>
+</nav>
 
-<img
-src="logo.png"
-class="logo"
-/>
+<!-- HERO -->
+<section id="home">
+  <p class="hero-tag">Est. 2024</p>
+  <h1 class="hero-heading">Nourishing Generations with Purity</h1>
+  <p class="hero-sub">Welcome to Kshiralaya. Where heritage dairy traditions meet modern transparency to bring you the purest milk, exactly as nature intended.</p>
+  <div class="hero-actions">
+    <a href="#about" class="btn-primary">Our Heritage</a>
+    <a href="#contact" class="btn-outline">Visit Us</a>
+  </div>
+</section>
 
-<div class="title">
-Kshiralaya
-</div>
+<!-- ABOUT -->
+<section id="about">
+  <p class="section-tag">Our Roots</p>
+  <h2 class="section-heading">The Hearts Behind the Heritage</h2>
+  <div class="about-grid">
+    <div class="img-placeholder">Founders Photo</div>
+    <div>
+      <p class="about-quote">"Purely traditional, modernly delivered." &mdash; The Visionaries</p>
+      <h3 class="founders-name">Praveen Kusuma &amp; Rashmi Praveen</h3>
+      <p class="body-text">Founded in 2024, Kshiralaya was born from Praveen and Rashmi's desire to reconnect families with the source of their nutrition. Driven by a passion for animal welfare and uncompromising purity, they've created a sanctuary where heritage dairy traditions meet modern excellence.</p>
+      <p class="body-text">"Our farm is more than just a dairy — it's a commitment to the health of our community and the happiness of our herd."</p>
+    </div>
+  </div>
+</section>
 
-<div class="subtitle">
-Pure Care Pure Milk
-</div>
+<!-- FACILITY -->
+<section id="facility">
+  <p class="section-tag">The Infrastructure</p>
+  <h2 class="section-heading">Precision Engineering for Animal Welfare</h2>
+  <p class="facility-intro">Our facility is designed with a singular focus: the comfort and health of our herd.</p>
 
-<input
-type="text"
-id="username"
-placeholder="Username"
-/>
+  <div class="facility-cards">
+    <div class="facility-card">
+      <div class="card-img">The Barn Structure</div>
+      <div class="card-body">
+        <h4 class="card-title">Spacious Shelters</h4>
+        <p class="card-text">Maximum airflow and natural light for herd comfort.</p>
+      </div>
+    </div>
+    <div class="facility-card">
+      <div class="card-img">Milking Area</div>
+      <div class="card-body">
+        <h4 class="card-title">Hygienic Systems</h4>
+        <p class="card-text">Automated systems minimise human contact so every drop stays pure.</p>
+      </div>
+    </div>
+    <div class="facility-card">
+      <div class="card-img">Modern Monitoring</div>
+      <div class="card-body">
+        <h4 class="card-title">Uncompromising Purity</h4>
+        <p class="card-text">Real-time health tracking for every single cow in the herd.</p>
+      </div>
+    </div>
+  </div>
 
-<input
-type="password"
-id="password"
-placeholder="Password"
-/>
+  <h3 class="journey-heading">The Farm to Bottle Journey</h3>
+  <div class="journey-steps">
+    <div class="step">
+      <div class="step-icon"><span class="material-icons">eco</span></div>
+      <h4 class="step-title">Ethical Grazing</h4>
+      <p class="step-text">Our herd enjoys stress-free lives in open, lush pastures with freedom of movement.</p>
+    </div>
+    <div class="step">
+      <div class="step-icon"><span class="material-icons">water_drop</span></div>
+      <h4 class="step-title">Gentle Milking</h4>
+      <p class="step-text">Modern, automated processes ensure maximum hygiene and comfort for our cows.</p>
+    </div>
+    <div class="step">
+      <div class="step-icon"><span class="material-icons">verified_user</span></div>
+      <h4 class="step-title">Purity Lock</h4>
+      <p class="step-text">Instant chilling and testing preserves natural nutrients without additives.</p>
+    </div>
+  </div>
+</section>
 
-<button onclick="login()">
-Login
-</button>
+<!-- CONTACT -->
+<section id="contact">
+  <h2 class="section-heading">Reach Out to the Source</h2>
+  <p class="contact-intro">Interested in learning more about our farm or arranging a visit? We'd love to hear from you.</p>
+  <div class="contact-grid">
+    <div>
+      <div class="contact-item">
+        <div class="contact-icon"><span class="material-icons">location_on</span></div>
+        <div>
+          <p class="contact-label">Location</p>
+          <p class="contact-value">742 Meadow Lane, Heritage Valley</p>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon"><span class="material-icons">mail</span></div>
+        <div>
+          <p class="contact-label">Contact</p>
+          <p class="contact-value">hello@kshiralaya.farm<br/>+1 (555) 890-4321</p>
+        </div>
+      </div>
+    </div>
+    <form class="contact-form" onsubmit="return false">
+      <input type="text" placeholder="Your Name" />
+      <input type="email" placeholder="Email Address" />
+      <textarea placeholder="How can we help?"></textarea>
+      <button type="submit" class="btn-primary" style="width:auto;align-self:flex-start;">Send Message</button>
+    </form>
+  </div>
+</section>
 
-<div class="signupText">
-
-Need worker access?
-
-<span onclick="window.location='signup.html'">
-
-Request Account
-
-</span>
-
-</div>
-
-<div id="error"></div>
-
-</div>
-
-<script>
-
-async function login(){
-
-    const username =
-    document.getElementById(
-        "username"
-    ).value;
-
-    const password =
-    document.getElementById(
-        "password"
-    ).value;
-
-    const res =
-    await fetch("/login",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":
-            "application/json"
-        },
-
-        body:JSON.stringify({
-
-            username,
-
-            password
-        })
-    });
-
-    const data =
-    await res.json();
-
-    if(data.success){
-
-        localStorage.setItem(
-            "username",
-            data.user.username
-        );
-
-        localStorage.setItem(
-            "role",
-            data.user.role
-        );
-
-        if(
-            data.user.role === "admin"
-        ){
-
-            window.location =
-            "admin.html";
-        }
-
-        else{
-
-            window.location =
-            "worker.html";
-        }
-
-    }else{
-
-        document.getElementById(
-            "error"
-        ).innerText =
-        data.message ||
-        "Login Failed";
-    }
-}
-
-</script>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div>
+      <div class="footer-brand">
+        <img src="logo.png" alt="Kshiralaya" />
+        <span class="footer-brand-name">Kshiralaya</span>
+      </div>
+      <p class="footer-tagline">© 2024 Kshiralaya Dairy Farm. Purely traditional, modernly delivered. Dedicated to the health of our community.</p>
+    </div>
+    <div>
+      <p class="footer-col-heading">Quick Links</p>
+      <ul class="footer-links">
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#facility">Facility</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="footer-col-heading">Legal</p>
+      <ul class="footer-links">
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+        <li><a href="#">Accessibility</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">Purely traditional, modernly delivered.</div>
+</footer>
 
 </body>
-
 </html>

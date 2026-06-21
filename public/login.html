@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0"
+/>
+
+<title>
+Kshiralaya Login
+</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:Arial,sans-serif;
+
+    background:
+    linear-gradient(
+        135deg,
+        #0f172a,
+        #111827,
+        #1e293b
+    );
+
+    height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+}
+
+.loginBox{
+
+    width:380px;
+
+    background:#111827;
+
+    padding:30px;
+
+    border-radius:22px;
+
+    box-shadow:
+    0 0 30px rgba(
+        0,
+        0,
+        0,
+        0.4
+    );
+
+    text-align:center;
+}
+
+.logo{
+
+    width:140px;
+
+    border-radius:22px;
+
+    margin-bottom:15px;
+}
+
+.title{
+
+    font-size:34px;
+
+    font-weight:bold;
+
+    margin-bottom:8px;
+
+    background:linear-gradient(
+        90deg,
+        #60a5fa,
+        #a855f7
+    );
+
+    -webkit-background-clip:text;
+
+    -webkit-text-fill-color:transparent;
+}
+
+.subtitle{
+
+    color:#94a3b8;
+
+    margin-bottom:25px;
+
+    font-size:14px;
+}
+
+input{
+
+    width:100%;
+
+    padding:14px;
+
+    margin-bottom:16px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:#1e293b;
+
+    color:white;
+
+    font-size:14px;
+}
+
+input::placeholder{
+
+    color:#94a3b8;
+}
+
+button{
+
+    width:100%;
+
+    padding:13px;
+
+    border:none;
+
+    border-radius:12px;
+
+    background:
+    linear-gradient(
+        90deg,
+        #3b82f6,
+        #8b5cf6
+    );
+
+    color:white;
+
+    font-size:15px;
+
+    cursor:pointer;
+
+    transition:0.2s;
+}
+
+button:hover{
+
+    opacity:0.9;
+
+    transform:scale(1.01);
+}
+
+.signupText{
+
+    margin-top:18px;
+
+    font-size:14px;
+
+    color:#94a3b8;
+}
+
+.signupText span{
+
+    color:#60a5fa;
+
+    cursor:pointer;
+
+    font-weight:bold;
+}
+
+#error{
+
+    margin-top:14px;
+
+    color:#ef4444;
+
+    font-size:14px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="loginBox">
+
+<img
+src="logo.png"
+class="logo"
+/>
+
+<div class="title">
+Kshiralaya
+</div>
+
+<div class="subtitle">
+Pure Care Pure Milk
+</div>
+
+<input
+type="text"
+id="username"
+placeholder="Username"
+/>
+
+<input
+type="password"
+id="password"
+placeholder="Password"
+/>
+
+<button onclick="login()">
+Login
+</button>
+
+<div class="signupText">
+
+Need worker access?
+
+<span onclick="window.location='signup.html'">
+
+Request Account
+
+</span>
+
+</div>
+
+<div id="error"></div>
+
+</div>
+
+<script>
+
+async function login(){
+
+    const username =
+    document.getElementById(
+        "username"
+    ).value;
+
+    const password =
+    document.getElementById(
+        "password"
+    ).value;
+
+    const res =
+    await fetch("/login",{
+
+        method:"POST",
+
+        headers:{
+            "Content-Type":
+            "application/json"
+        },
+
+        body:JSON.stringify({
+
+            username,
+
+            password
+        })
+    });
+
+    const data =
+    await res.json();
+
+    if(data.success){
+
+        localStorage.setItem(
+            "username",
+            data.user.username
+        );
+
+        localStorage.setItem(
+            "role",
+            data.user.role
+        );
+
+        if(
+            data.user.role === "admin"
+        ){
+
+            window.location =
+            "admin.html";
+        }
+
+        else{
+
+            window.location =
+            "worker.html";
+        }
+
+    }else{
+
+        document.getElementById(
+            "error"
+        ).innerText =
+        data.message ||
+        "Login Failed";
+    }
+}
+
+</script>
+
+</body>
+
+</html>
