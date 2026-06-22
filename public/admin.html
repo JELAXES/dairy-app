@@ -7,6 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 <style>
 *{
@@ -750,6 +751,9 @@ td{
 
             <div id="invoiceList" class="invoiceList"></div>
             <div id="invoicePreviewHost" class="invoicePreviewHost"></div>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;">
+                <button onclick="generateInvoiceExcel()" style="width:auto;">Download All as Excel</button>
+            </div>
         </div>
     </div>
 
@@ -1243,6 +1247,39 @@ async function downloadInvoice(id, share){
     }
 
     pdf.save(fileName);
+}
+
+async function generateInvoiceExcel(){
+    const records = await ensureInvoiceData();
+    if(!records.length){ alert("No invoices to export."); return; }
+
+    const rows = records.map(record => {
+        const inv = invoiceDataFromRecord(record);
+        return {
+            "Invoice No": inv.invoiceNumber ? "K0" + String(inv.invoiceNumber).padStart(6, "0") : (inv.itemCode || "-"),
+            "Date": inv.date || "-",
+            "Client": inv.client || "-",
+            "Worker": inv.worker || "-",
+            "AM Milk (L)": inv.milkAM,
+            "PM Milk (L)": inv.milkPM,
+            "Total Milk (L)": inv.liters,
+            "Rate (₹/L)": inv.rate,
+            "Amount (₹)": parseFloat(inv.amount.toFixed(2))
+        };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Invoices");
+
+    const colWidths = [
+        { wch: 14 }, { wch: 12 }, { wch: 22 }, { wch: 18 },
+        { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 14 }
+    ];
+    ws["!cols"] = colWidths;
+
+    const today = new Date().toISOString().slice(0, 10);
+    XLSX.writeFile(wb, `kshiralaya-invoices-${today}.xlsx`);
 }
 
 function parseDateVal(str){
