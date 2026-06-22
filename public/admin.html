@@ -757,13 +757,9 @@ td{
 
             <div id="invoiceList" class="invoiceList"></div>
             <div id="invoicePreviewHost" class="invoicePreviewHost"></div>
-            <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;">
-                <button onclick="toggleExcelPanel()" style="width:auto;" id="excelToggleBtn">Export to Excel</button>
-                <div id="excelPanel" style="display:none;margin-top:14px;">
-                    <div style="font-weight:600;font-size:14px;margin-bottom:10px;">Select columns to include:</div>
-                    <div id="excelCheckboxes" style="display:flex;flex-wrap:wrap;gap:10px 24px;margin-bottom:14px;"></div>
-                    <button onclick="generateInvoiceExcel()" style="width:auto;">Generate File</button>
-                </div>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+                <button onclick="toggleExcelSelect()" style="width:auto;" id="excelToggleBtn">Select for Excel</button>
+                <button onclick="generateInvoiceExcel()" style="width:auto;display:none;" id="excelGenerateBtn">Generate File</button>
             </div>
         </div>
     </div>
@@ -1128,15 +1124,22 @@ async function loadInvoices(){
 
     records.forEach(record => {
         const invoice = invoiceDataFromRecord(record);
+        const cbHtml = excelSelectMode
+            ? `<input type="checkbox" class="excelCheckbox" id="chk_${invoice.id}" value="${invoice.id}" onclick="event.stopPropagation()" style="width:18px;height:18px;accent-color:#22c55e;flex-shrink:0;cursor:pointer;">`
+            : "";
+        const itemStyle = excelSelectMode
+            ? `style="grid-template-columns:auto 1fr auto;cursor:pointer;" onclick="toggleInvoiceCheck('${invoice.id}')"`
+            : "";
         list.innerHTML += `
-            <div class="invoiceItem">
+            <div class="invoiceItem" ${itemStyle}>
+                ${cbHtml}
                 <div class="invoiceMeta">
                     <div>Date<strong>${formatDate(invoice.date)}</strong></div>
                     <div>Invoice No<strong>${invoice.invoiceNumber ? "K0" + String(invoice.invoiceNumber).padStart(6,"0") : (invoice.itemCode || "-")}</strong></div>
                     <div>Liters<strong>${invoice.liters.toFixed(2)} L</strong></div>
                     <div>Client<strong>${invoice.client || "-"}</strong></div>
                 </div>
-                <div class="actionRow">
+                <div class="actionRow" onclick="event.stopPropagation()">
                     <button onclick="previewInvoice('${invoice.id}')">View</button>
                     <button onclick="editInvoiceNumber('${invoice.id}')">Edit No.</button>
                     <button onclick="downloadInvoice('${invoice.id}', false)">PDF</button>
@@ -1271,68 +1274,59 @@ async function downloadInvoice(id, share){
     pdf.save(fileName);
 }
 
-const EXCEL_COLUMNS = [
-    { label: "Invoice No",    key: "invoiceNo", get: inv => inv.invoiceNumber ? "K0" + String(inv.invoiceNumber).padStart(6, "0") : (inv.itemCode || "-") },
-    { label: "Date",          key: "date",      get: inv => inv.date || "-" },
-    { label: "Client",        key: "client",    get: inv => inv.client || "-" },
-    { label: "Worker",        key: "worker",    get: inv => inv.worker || "-" },
-    { label: "AM Milk (L)",   key: "milkAM",    get: inv => inv.milkAM },
-    { label: "PM Milk (L)",   key: "milkPM",    get: inv => inv.milkPM },
-    { label: "Total Milk (L)",key: "liters",    get: inv => inv.liters },
-    { label: "Rate (₹/L)",    key: "rate",      get: inv => inv.rate },
-    { label: "Amount (₹)",    key: "amount",    get: inv => parseFloat(inv.amount.toFixed(2)) }
-];
+let excelSelectMode = false;
 
-function toggleExcelPanel(){
-    const panel = document.getElementById("excelPanel");
-    const btn = document.getElementById("excelToggleBtn");
-    const isHidden = panel.style.display === "none";
+function toggleExcelSelect(){
+    excelSelectMode = !excelSelectMode;
+    document.getElementById("excelToggleBtn").textContent = excelSelectMode ? "Cancel" : "Select for Excel";
+    document.getElementById("excelGenerateBtn").style.display = excelSelectMode ? "inline-block" : "none";
+    loadInvoices();
+}
 
-    if(isHidden){
-        const container = document.getElementById("excelCheckboxes");
-        if(!container.children.length){
-            EXCEL_COLUMNS.forEach(col => {
-                const label = document.createElement("label");
-                label.style.cssText = "display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;";
-                label.innerHTML = `<input type="checkbox" checked value="${col.key}"> ${col.label}`;
-                container.appendChild(label);
-            });
-        }
-        panel.style.display = "block";
-        btn.textContent = "Cancel";
-    } else {
-        panel.style.display = "none";
-        btn.textContent = "Export to Excel";
-    }
+function toggleInvoiceCheck(id){
+    const cb = document.getElementById("chk_" + id);
+    if(cb) cb.checked = !cb.checked;
 }
 
 async function generateInvoiceExcel(){
-    const records = await getFilteredInvoiceRecords();
-    if(!records.length){ alert("No invoices to export."); return; }
-
-    const checked = new Set(
-        [...document.querySelectorAll("#excelCheckboxes input:checked")].map(cb => cb.value)
+    const checkedIds = new Set(
+        [...document.querySelectorAll(".excelCheckbox:checked")].map(cb => cb.value)
     );
-    const activeCols = EXCEL_COLUMNS.filter(col => checked.has(col.key));
-    if(!activeCols.length){ alert("Please select at least one column."); return; }
+    if(!checkedIds.size){ alert("Please select at least one invoice."); return; }
+
+    const all = await getFilteredInvoiceRecords();
+    const records = all.filter(r => checkedIds.has(String(r._id || "")));
 
     const rows = records.map(record => {
         const inv = invoiceDataFromRecord(record);
-        const row = {};
-        activeCols.forEach(col => { row[col.label] = col.get(inv); });
-        return row;
+        return {
+            "Invoice No": inv.invoiceNumber ? "K0" + String(inv.invoiceNumber).padStart(6, "0") : (inv.itemCode || "-"),
+            "Date": inv.date || "-",
+            "Client": inv.client || "-",
+            "Worker": inv.worker || "-",
+            "AM Milk (L)": inv.milkAM,
+            "PM Milk (L)": inv.milkPM,
+            "Total Milk (L)": inv.liters,
+            "Rate (₹/L)": inv.rate,
+            "Amount (₹)": parseFloat(inv.amount.toFixed(2))
+        };
     });
 
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Invoices");
-    ws["!cols"] = activeCols.map(() => ({ wch: 16 }));
+    ws["!cols"] = [
+        { wch: 14 }, { wch: 12 }, { wch: 22 }, { wch: 18 },
+        { wch: 12 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 14 }
+    ];
 
     const today = new Date().toISOString().slice(0, 10);
     XLSX.writeFile(wb, `kshiralaya-invoices-${today}.xlsx`);
 
-    document.getElementById("excelPanel").style.display = "none";
-    document.getElementById("excelToggleBtn").textContent = "Export to Excel";
+    excelSelectMode = false;
+    document.getElementById("excelToggleBtn").textContent = "Select for Excel";
+    document.getElementById("excelGenerateBtn").style.display = "none";
+    loadInvoices();
 }
 
 function parseDateVal(str){
