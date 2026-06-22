@@ -1122,16 +1122,16 @@ async function loadInvoices(){
         return;
     }
 
-    records.forEach(record => {
+    list.innerHTML = records.map(record => {
         const invoice = invoiceDataFromRecord(record);
         const cbHtml = excelSelectMode
-            ? `<input type="checkbox" class="excelCheckbox" id="chk_${invoice.id}" value="${invoice.id}" onclick="event.stopPropagation()" style="width:18px;height:18px;accent-color:#22c55e;flex-shrink:0;cursor:pointer;">`
+            ? `<input type="checkbox" class="excelCheckbox" data-id="${invoice.id}" onclick="event.stopPropagation()" style="width:18px;height:18px;accent-color:#22c55e;flex-shrink:0;cursor:pointer;">`
             : "";
-        const itemStyle = excelSelectMode
-            ? `style="grid-template-columns:auto 1fr auto;cursor:pointer;" onclick="toggleInvoiceCheck('${invoice.id}')"`
+        const itemAttrs = excelSelectMode
+            ? `style="grid-template-columns:auto 1fr auto;cursor:pointer;" onclick="toggleInvoiceCheck(this)"`
             : "";
-        list.innerHTML += `
-            <div class="invoiceItem" ${itemStyle}>
+        return `
+            <div class="invoiceItem" ${itemAttrs}>
                 ${cbHtml}
                 <div class="invoiceMeta">
                     <div>Date<strong>${formatDate(invoice.date)}</strong></div>
@@ -1147,7 +1147,7 @@ async function loadInvoices(){
                 </div>
             </div>
         `;
-    });
+    }).join("");
 }
 
 async function editInvoiceNumber(id){
@@ -1283,14 +1283,14 @@ function toggleExcelSelect(){
     loadInvoices();
 }
 
-function toggleInvoiceCheck(id){
-    const cb = document.getElementById("chk_" + id);
+function toggleInvoiceCheck(row){
+    const cb = row.querySelector(".excelCheckbox");
     if(cb) cb.checked = !cb.checked;
 }
 
 async function generateInvoiceExcel(){
     const checkedIds = new Set(
-        [...document.querySelectorAll(".excelCheckbox:checked")].map(cb => cb.value)
+        [...document.querySelectorAll(".excelCheckbox:checked")].map(cb => cb.dataset.id)
     );
     if(!checkedIds.size){ alert("Please select at least one invoice."); return; }
 
