@@ -1125,13 +1125,13 @@ async function loadInvoices(){
     list.innerHTML = records.map(record => {
         const invoice = invoiceDataFromRecord(record);
         const cbHtml = excelSelectMode
-            ? `<input type="checkbox" class="excelCheckbox" data-id="${invoice.id}" onclick="event.stopPropagation()" style="width:18px;height:18px;accent-color:#22c55e;flex-shrink:0;cursor:pointer;">`
+            ? `<input type="checkbox" class="excelCheckbox" data-id="${invoice.id}" style="width:18px;height:18px;accent-color:#22c55e;flex-shrink:0;cursor:pointer;">`
             : "";
-        const itemAttrs = excelSelectMode
-            ? `style="grid-template-columns:auto 1fr auto;cursor:pointer;" onclick="toggleInvoiceCheck(this)"`
+        const itemStyle = excelSelectMode
+            ? `style="grid-template-columns:auto 1fr auto;cursor:pointer;"`
             : "";
         return `
-            <div class="invoiceItem" ${itemAttrs}>
+            <div class="invoiceItem" ${itemStyle}>
                 ${cbHtml}
                 <div class="invoiceMeta">
                     <div>Date<strong>${formatDate(invoice.date)}</strong></div>
@@ -1139,7 +1139,7 @@ async function loadInvoices(){
                     <div>Liters<strong>${invoice.liters.toFixed(2)} L</strong></div>
                     <div>Client<strong>${invoice.client || "-"}</strong></div>
                 </div>
-                <div class="actionRow" onclick="event.stopPropagation()">
+                <div class="actionRow">
                     <button onclick="previewInvoice('${invoice.id}')">View</button>
                     <button onclick="editInvoiceNumber('${invoice.id}')">Edit No.</button>
                     <button onclick="downloadInvoice('${invoice.id}', false)">PDF</button>
@@ -1148,6 +1148,16 @@ async function loadInvoices(){
             </div>
         `;
     }).join("");
+
+    list.onclick = excelSelectMode ? function(e){
+        if(e.target.closest(".actionRow")) return;
+        const row = e.target.closest(".invoiceItem");
+        if(!row) return;
+        const cb = row.querySelector(".excelCheckbox");
+        if(!cb) return;
+        if(e.target === cb) return;
+        cb.checked = !cb.checked;
+    } : null;
 }
 
 async function editInvoiceNumber(id){
@@ -1283,10 +1293,6 @@ function toggleExcelSelect(){
     loadInvoices();
 }
 
-function toggleInvoiceCheck(row){
-    const cb = row.querySelector(".excelCheckbox");
-    if(cb) cb.checked = !cb.checked;
-}
 
 async function generateInvoiceExcel(){
     const checkedIds = new Set(
