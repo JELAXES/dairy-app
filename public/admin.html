@@ -749,6 +749,12 @@ td{
                 <button style="width:auto;margin-top:0;" onclick="loadInvoices()">Refresh</button>
             </div>
 
+            <div class="filterBar" style="grid-template-columns:auto auto auto;">
+                <input type="date" id="invoiceDate" />
+                <button onclick="loadInvoices()">Filter by Date</button>
+                <button onclick="clearInvoiceDate()">Show All</button>
+            </div>
+
             <div id="invoiceList" class="invoiceList"></div>
             <div id="invoicePreviewHost" class="invoicePreviewHost"></div>
             <div style="margin-top:16px;padding-top:16px;border-top:1px solid #e5e7eb;">
@@ -1096,8 +1102,19 @@ async function ensureInvoiceData(){
     });
 }
 
+async function getFilteredInvoiceRecords(){
+    const all = await ensureInvoiceData();
+    const dateFilter = document.getElementById("invoiceDate").value;
+    return dateFilter ? all.filter(r => r.date === dateFilter) : all;
+}
+
+function clearInvoiceDate(){
+    document.getElementById("invoiceDate").value = "";
+    loadInvoices();
+}
+
 async function loadInvoices(){
-    const records = await ensureInvoiceData();
+    const records = await getFilteredInvoiceRecords();
     const list = document.getElementById("invoiceList");
     const previewHost = document.getElementById("invoicePreviewHost");
 
@@ -1290,7 +1307,7 @@ function toggleExcelPanel(){
 }
 
 async function generateInvoiceExcel(){
-    const records = await ensureInvoiceData();
+    const records = await getFilteredInvoiceRecords();
     if(!records.length){ alert("No invoices to export."); return; }
 
     const checked = new Set(
