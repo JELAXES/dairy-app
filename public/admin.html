@@ -484,6 +484,107 @@ td{
         min-width:900px;
     }
 }
+
+.statusBadge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:600;
+    white-space:nowrap;
+}
+
+.statusBadge.connected{
+    background:rgba(34,197,94,0.15);
+    color:var(--green);
+    border:1px solid rgba(34,197,94,0.4);
+}
+
+.statusBadge.disconnected{
+    background:rgba(239,68,68,0.15);
+    color:var(--red);
+    border:1px solid rgba(239,68,68,0.4);
+}
+
+.statusBadge.connecting{
+    background:rgba(148,163,184,0.15);
+    color:var(--muted);
+    border:1px solid rgba(148,163,184,0.4);
+}
+
+.statusDot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:currentColor;
+    flex-shrink:0;
+}
+
+.statusBadge.connecting .statusDot{
+    animation:esp32Pulse 1s infinite;
+}
+
+@keyframes esp32Pulse{
+    0%{ opacity:1; }
+    50%{ opacity:0.25; }
+    100%{ opacity:1; }
+}
+
+.spinner{
+    display:inline-block;
+    width:13px;
+    height:13px;
+    border:2px solid rgba(255,255,255,0.35);
+    border-top-color:#fff;
+    border-radius:50%;
+    animation:esp32Spin 0.7s linear infinite;
+    vertical-align:middle;
+    margin-right:7px;
+}
+
+@keyframes esp32Spin{
+    to{ transform:rotate(360deg); }
+}
+
+button:disabled{
+    opacity:0.45;
+    cursor:not-allowed;
+}
+
+.esp32InfoGrid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:10px;
+    margin-top:14px;
+}
+
+.esp32Msg{
+    margin-top:12px;
+    padding:12px 14px;
+    border-radius:10px;
+    font-size:13px;
+    line-height:1.4;
+}
+
+.esp32Msg.success{
+    background:rgba(34,197,94,0.12);
+    color:#4ade80;
+    border:1px solid rgba(34,197,94,0.35);
+}
+
+.esp32Msg.error{
+    background:rgba(239,68,68,0.12);
+    color:#f87171;
+    border:1px solid rgba(239,68,68,0.35);
+}
+
+@media (max-width: 900px){
+    .esp32InfoGrid{
+        grid-template-columns:1fr;
+    }
+}
 </style>
 </head>
 
@@ -502,6 +603,7 @@ td{
     <button class="sideBtn" onclick="showSection('recordsSection', this)">Records</button>
     <button class="sideBtn" onclick="showSection('invoiceSection', this)">Invoice</button>
     <button class="sideBtn" onclick="showSection('remarksSection', this)">Remarks</button>
+    <button class="sideBtn" onclick="showSection('esp32Section', this)">ESP32</button>
     <button class="sideBtn" onclick="logout()">Logout</button>
 </div>
 
@@ -776,6 +878,57 @@ td{
         </div>
     </div>
 
+    <!-- ESP32 -->
+    <div id="esp32Section" class="hidden">
+        <div class="card">
+            <div class="sectionHeader">
+                <div class="sectionHeaderLeft">
+                    <h2>ESP32 Connection</h2>
+                    <div class="sub">Connect to your ESP32 device over the local network</div>
+                </div>
+                <div id="esp32StatusBadge" class="statusBadge disconnected">
+                    <span class="statusDot"></span>
+                    <span id="esp32StatusText">Disconnected</span>
+                </div>
+            </div>
+
+            <div style="margin-top:14px;">
+                <input type="text" id="esp32Ip" placeholder="ESP32 IP Address (e.g. 192.168.1.50)" />
+            </div>
+
+            <div class="actionRow" style="justify-content:flex-start;">
+                <button id="esp32ConnectBtn" onclick="connectEsp32()">Connect</button>
+                <button id="esp32DisconnectBtn" class="deleteBtn" onclick="disconnectEsp32()" disabled>Disconnect</button>
+            </div>
+
+            <div class="esp32InfoGrid">
+                <div class="previewBox">
+                    <div class="label">Connected IP</div>
+                    <div class="value" id="esp32ConnectedIp">-</div>
+                </div>
+                <div class="previewBox">
+                    <div class="label">Last Checked</div>
+                    <div class="value" id="esp32LastChecked">-</div>
+                </div>
+            </div>
+
+            <div id="esp32ConnMsg" class="esp32Msg hidden"></div>
+        </div>
+
+        <div class="card">
+            <h2>ESP32 Controls</h2>
+            <div class="sub" style="margin-bottom:12px;">Send commands to the connected ESP32</div>
+
+            <div class="actionRow" style="justify-content:flex-start;">
+                <button id="blinkLedBtn" onclick="blinkLed()" disabled style="width:auto;min-width:140px;">
+                    <span id="blinkLedBtnText">Blink LED</span>
+                </button>
+            </div>
+
+            <div id="esp32ControlMsg" class="esp32Msg hidden"></div>
+        </div>
+    </div>
+
 </div>
 
 <script>
@@ -813,6 +966,7 @@ function showSection(id, btn){
     if(id === "recordsSection") loadRecords();
     if(id === "invoiceSection") loadInvoices();
     if(id === "remarksSection") loadRemarks();
+    if(id === "esp32Section") initEsp32Section();
 }
 
 function setToToday(){
@@ -2164,6 +2318,193 @@ async function deleteRemark(id){
     });
 
     loadRemarks();
+}
+
+// ======================
+// ESP32
+// ======================
+
+const ESP32_REQUEST_TIMEOUT = 4000;
+const ESP32_POLL_INTERVAL = 5000;
+
+const esp32State = {
+    ip: localStorage.getItem("esp32_ip") || "",
+    connected: false,
+    checking: false,
+    pollTimer: null
+};
+
+function esp32BaseUrl(ip){
+    return `http://${ip}`;
+}
+
+function esp32FetchWithTimeout(url, options, timeout){
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout || ESP32_REQUEST_TIMEOUT);
+    return fetch(url, { ...(options || {}), signal:controller.signal }).finally(() => clearTimeout(timer));
+}
+
+function setEsp32Message(elId, text, type){
+    const el = document.getElementById(elId);
+    if(!el) return;
+    if(!text){
+        el.classList.add("hidden");
+        el.textContent = "";
+        return;
+    }
+    el.textContent = text;
+    el.className = `esp32Msg ${type || ""}`;
+}
+
+function updateEsp32StatusUi(){
+    const badge = document.getElementById("esp32StatusBadge");
+    const statusText = document.getElementById("esp32StatusText");
+    const connectBtn = document.getElementById("esp32ConnectBtn");
+    const disconnectBtn = document.getElementById("esp32DisconnectBtn");
+    const blinkBtn = document.getElementById("blinkLedBtn");
+    const connectedIpEl = document.getElementById("esp32ConnectedIp");
+
+    if(!badge) return;
+
+    badge.classList.remove("connected", "disconnected", "connecting");
+
+    if(esp32State.checking){
+        badge.classList.add("connecting");
+        statusText.innerHTML = `<span class="spinner"></span>Connecting...`;
+    }else if(esp32State.connected){
+        badge.classList.add("connected");
+        statusText.textContent = "Connected";
+    }else{
+        badge.classList.add("disconnected");
+        statusText.textContent = "Disconnected";
+    }
+
+    connectBtn.disabled = esp32State.checking;
+    disconnectBtn.disabled = !esp32State.connected && !esp32State.checking;
+    blinkBtn.disabled = !esp32State.connected;
+
+    connectedIpEl.textContent = esp32State.connected ? esp32State.ip : "-";
+}
+
+function initEsp32Section(){
+    document.getElementById("esp32Ip").value = esp32State.ip;
+    updateEsp32StatusUi();
+
+    if(esp32State.ip && !esp32State.pollTimer){
+        checkEsp32Status(true);
+        startEsp32Polling();
+    }
+}
+
+async function checkEsp32Status(silent){
+    const ip = esp32State.ip;
+    if(!ip) return null;
+
+    try{
+        const res = await esp32FetchWithTimeout(`${esp32BaseUrl(ip)}/status`, { method:"GET" });
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        esp32State.connected = true;
+        const lastCheckedEl = document.getElementById("esp32LastChecked");
+        if(lastCheckedEl) lastCheckedEl.textContent = new Date().toLocaleTimeString();
+        updateEsp32StatusUi();
+
+        return data;
+    }catch(err){
+        esp32State.connected = false;
+        updateEsp32StatusUi();
+
+        if(!silent){
+            const reason = err.name === "AbortError" ? "connection timed out" : err.message;
+            setEsp32Message("esp32ConnMsg", `Could not reach ESP32 at ${ip}: ${reason}`, "error");
+        }
+
+        return null;
+    }
+}
+
+function startEsp32Polling(){
+    stopEsp32Polling();
+    esp32State.pollTimer = setInterval(() => {
+        checkEsp32Status(true);
+    }, ESP32_POLL_INTERVAL);
+}
+
+function stopEsp32Polling(){
+    if(esp32State.pollTimer){
+        clearInterval(esp32State.pollTimer);
+        esp32State.pollTimer = null;
+    }
+}
+
+async function connectEsp32(){
+    const ipInput = document.getElementById("esp32Ip").value.trim();
+
+    if(!ipInput){
+        setEsp32Message("esp32ConnMsg", "Enter the ESP32 IP address first.", "error");
+        return;
+    }
+
+    esp32State.ip = ipInput;
+    localStorage.setItem("esp32_ip", ipInput);
+
+    esp32State.checking = true;
+    setEsp32Message("esp32ConnMsg", "", "");
+    updateEsp32StatusUi();
+
+    const data = await checkEsp32Status(true);
+    esp32State.checking = false;
+
+    if(data){
+        setEsp32Message("esp32ConnMsg", `Connected to ESP32 at ${ipInput}`, "success");
+        startEsp32Polling();
+    }else{
+        setEsp32Message("esp32ConnMsg", `Could not reach ESP32 at ${ipInput}. Check the IP address and make sure the device is powered on and on the same network.`, "error");
+    }
+
+    updateEsp32StatusUi();
+}
+
+function disconnectEsp32(){
+    stopEsp32Polling();
+    esp32State.connected = false;
+    esp32State.checking = false;
+    updateEsp32StatusUi();
+    setEsp32Message("esp32ConnMsg", "Disconnected from ESP32.", "success");
+    setEsp32Message("esp32ControlMsg", "", "");
+}
+
+async function blinkLed(){
+    if(!esp32State.connected || !esp32State.ip){
+        setEsp32Message("esp32ControlMsg", "Connect to the ESP32 first.", "error");
+        return;
+    }
+
+    const btn = document.getElementById("blinkLedBtn");
+    const btnText = document.getElementById("blinkLedBtnText");
+    const originalText = btnText.textContent;
+
+    btn.disabled = true;
+    btnText.innerHTML = `<span class="spinner"></span>Blinking...`;
+    setEsp32Message("esp32ControlMsg", "", "");
+
+    try{
+        const res = await esp32FetchWithTimeout(`${esp32BaseUrl(esp32State.ip)}/blink`, { method:"GET" });
+        if(!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if(data.success === false) throw new Error(data.message || "ESP32 reported an error");
+
+        setEsp32Message("esp32ControlMsg", data.message || "LED blinked successfully.", "success");
+    }catch(err){
+        const reason = err.name === "AbortError" ? "connection timed out" : err.message;
+        setEsp32Message("esp32ControlMsg", `Failed to blink LED: ${reason}`, "error");
+    }finally{
+        btnText.textContent = originalText;
+        btn.disabled = !esp32State.connected;
+        updateEsp32StatusUi();
+    }
 }
 
 document.getElementById("dashboardMonth").value = currentMonth();
