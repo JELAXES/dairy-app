@@ -468,6 +468,13 @@ Milk Entry
 
 <button
 class="sideBtn"
+onclick="showSection('cowsSection',this)"
+>
+Cows
+</button>
+
+<button
+class="sideBtn"
 onclick="showSection('recordsSection',this)"
 >
 Records
@@ -683,6 +690,235 @@ Milk Records
 </thead>
 
 <tbody id="milkRecords">
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<!-- COWS -->
+
+<div
+id="cowsSection"
+class="hidden"
+>
+
+<div class="card">
+
+<h2>
+Add Cow
+</h2>
+
+<div class="grid">
+
+<div>
+<input
+type="text"
+id="newCowName"
+placeholder="Cow Name"
+/>
+</div>
+
+<div>
+<input
+type="text"
+id="newCowId"
+placeholder="Cow ID"
+/>
+</div>
+
+<div>
+<input
+type="text"
+id="newCowTag"
+placeholder="Tag Number"
+/>
+</div>
+
+</div>
+
+<button onclick="addCow()">
++ Add Cow
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>
+Cows
+</h2>
+
+<input
+type="text"
+id="cowSearch"
+placeholder="Search by name, Cow ID or Tag Number"
+oninput="renderCowList()"
+/>
+
+<div
+id="cowListWrap"
+style="margin-top:16px;"
+>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- COW DAILY ENTRY -->
+
+<div
+id="cowDailySection"
+class="hidden"
+>
+
+<div class="card">
+
+<button
+style="width:auto;margin-bottom:14px;background:#334155;"
+onclick="backToCows()"
+>
+&larr; Back to Cows
+</button>
+
+<h2 id="cowDailyTitle">
+Cow
+</h2>
+
+<div
+class="smallText"
+id="cowDailyMeta"
+style="color:#94a3b8;margin-bottom:10px;"
+>
+</div>
+
+<div class="grid">
+
+<div>
+<input
+type="date"
+id="dailyDate"
+onchange="loadDailyRecordForDate()"
+/>
+</div>
+
+<div>
+<input
+type="number"
+id="dailyMilkAM"
+placeholder="Milk AM (L)"
+oninput="updateDailyTotal()"
+/>
+</div>
+
+<div>
+<input
+type="number"
+id="dailyMilkPM"
+placeholder="Milk PM (L)"
+oninput="updateDailyTotal()"
+/>
+</div>
+
+<div>
+<input
+type="number"
+id="dailyFeed"
+placeholder="Feed Given (kg)"
+/>
+</div>
+
+</div>
+
+<div style="margin-top:12px;">
+<input
+type="text"
+id="dailyHealthNotes"
+placeholder="Health / condition notes"
+/>
+</div>
+
+<div class="slipPreview">
+<h3>Today's Total</h3>
+<div class="slipPreviewGrid">
+<div class="slipPreviewBox">
+<span>Total Milk</span>
+<strong id="dailyTotalMilk">0 L</strong>
+</div>
+</div>
+</div>
+
+<button onclick="saveDailyRecord()" id="saveDailyBtn">
+Save Daily Entry
+</button>
+
+</div>
+
+<div class="card">
+
+<h2>
+Cow Totals
+</h2>
+
+<div class="grid" style="grid-template-columns:repeat(4,1fr);">
+<button onclick="setCowStatsPeriod('today')" id="cowPeriodTodayBtn">Today</button>
+<button onclick="setCowStatsPeriod('week')" id="cowPeriodWeekBtn">This Week</button>
+<button onclick="setCowStatsPeriod('month')" id="cowPeriodMonthBtn">This Month</button>
+<button onclick="setCowStatsPeriod('custom')" id="cowPeriodCustomBtn">Custom</button>
+</div>
+
+<div
+class="grid"
+id="cowStatsCustomRange"
+style="display:none;margin-top:12px;"
+>
+<input type="date" id="cowStatsFrom" />
+<input type="date" id="cowStatsTo" />
+<button onclick="applyCowStatsCustomRange()">Apply</button>
+</div>
+
+<div class="slipPreview">
+<div class="slipPreviewGrid" style="grid-template-columns:repeat(4,1fr);">
+<div class="slipPreviewBox">
+<span>Total Milk</span>
+<strong id="cowStatTotalMilk">0 L</strong>
+</div>
+<div class="slipPreviewBox">
+<span>Avg Daily Milk</span>
+<strong id="cowStatAvgMilk">0 L</strong>
+</div>
+<div class="slipPreviewBox">
+<span>Days Recorded</span>
+<strong id="cowStatDaysRecorded">0</strong>
+</div>
+<div class="slipPreviewBox">
+<span>Total Feed</span>
+<strong id="cowStatTotalFeed">0 kg</strong>
+</div>
+</div>
+</div>
+
+<table>
+
+<thead>
+
+<tr>
+<th>Date</th>
+<th>AM</th>
+<th>PM</th>
+<th>Total</th>
+<th>Feed (kg)</th>
+<th>Notes</th>
+</tr>
+
+</thead>
+
+<tbody id="cowStatsRecords">
 
 </tbody>
 
@@ -1513,12 +1749,284 @@ async function shareMilkReport(){
     await loadInvoiceCounter(client);
 }
 // ======================
+// COWS
+// ======================
+
+let cowsCache = [];
+let selectedCow = null;
+let cowStatsPeriod = "today";
+
+function escapeHtml(str){
+    return String(str ?? "").replace(/[&<>"']/g, ch => ({
+        "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    }[ch]));
+}
+
+function todayStr(){
+    return new Date().toISOString().split("T")[0];
+}
+
+function weekStartStr(){
+    const d = new Date();
+    d.setDate(d.getDate() - 6);
+    return d.toISOString().split("T")[0];
+}
+
+function monthStartStr(){
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,"0")}-01`;
+}
+
+async function loadCows(){
+    const res = await fetch(`/cows?date=${todayStr()}`);
+    const data = await res.json();
+    cowsCache = data.success && Array.isArray(data.cows) ? data.cows : [];
+    renderCowList();
+}
+
+function renderCowList(){
+    const term = (document.getElementById("cowSearch")?.value || "").trim().toLowerCase();
+
+    const filtered = cowsCache.filter(c => {
+        if(!term) return true;
+        return (
+            String(c.name || "").toLowerCase().includes(term) ||
+            String(c.cowId || "").toLowerCase().includes(term) ||
+            String(c.tagNumber || "").toLowerCase().includes(term)
+        );
+    });
+
+    const wrap = document.getElementById("cowListWrap");
+    wrap.innerHTML = "";
+
+    if(!filtered.length){
+        wrap.innerHTML = "<div class='remarkItem'>No cows found</div>";
+        return;
+    }
+
+    filtered.forEach(c => {
+        const filled = !!c.todayRecord;
+        const todayMilk = c.todayRecord?.dailyMilk || 0;
+
+        wrap.innerHTML += `
+        <div class="remarkItem" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+            <div>
+                <strong>${escapeHtml(c.name)}</strong>
+                <div style="color:#94a3b8;font-size:13px;margin-top:4px;">
+                    ID: ${escapeHtml(c.cowId)} &nbsp;|&nbsp; Tag: ${escapeHtml(c.tagNumber)}
+                </div>
+                <div style="margin-top:4px;font-size:13px;color:${filled ? "#4ade80" : "#facc15"};">
+                    ${filled ? `Today: Filled (${todayMilk} L)` : "Today: Pending"}
+                </div>
+            </div>
+            <button style="width:auto;margin-top:0;" onclick="openCowDaily('${c._id}')">
+                Fill Today
+            </button>
+        </div>
+        `;
+    });
+}
+
+async function addCow(){
+    const name = document.getElementById("newCowName").value.trim();
+    const cowId = document.getElementById("newCowId").value.trim();
+    const tagNumber = document.getElementById("newCowTag").value.trim();
+
+    if(!name || !cowId || !tagNumber){
+        alert("Enter cow name, cow ID and tag number");
+        return;
+    }
+
+    const res = await fetch("/create-cow", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({ name, cowId, tagNumber })
+    });
+
+    const data = await res.json();
+
+    if(!data.success){
+        alert(data.message || "Could not add cow");
+        return;
+    }
+
+    document.getElementById("newCowName").value = "";
+    document.getElementById("newCowId").value = "";
+    document.getElementById("newCowTag").value = "";
+
+    alert("Cow added ✅");
+    loadCows();
+}
+
+function openCowDaily(id){
+    selectedCow = cowsCache.find(c => c._id === id);
+    if(!selectedCow) return;
+
+    document.querySelectorAll(".main > div").forEach(sec => sec.classList.add("hidden"));
+    document.getElementById("cowDailySection").classList.remove("hidden");
+
+    document.getElementById("cowDailyTitle").innerText = selectedCow.name;
+    document.getElementById("cowDailyMeta").innerText =
+        `Cow ID: ${selectedCow.cowId}  |  Tag Number: ${selectedCow.tagNumber}`;
+
+    document.getElementById("dailyDate").value = todayStr();
+    loadDailyRecordForDate();
+
+    cowStatsPeriod = "today";
+    document.getElementById("cowStatsCustomRange").style.display = "none";
+    loadCowStats();
+}
+
+function backToCows(){
+    document.querySelectorAll(".main > div").forEach(sec => sec.classList.add("hidden"));
+    document.getElementById("cowsSection").classList.remove("hidden");
+
+    document.querySelectorAll(".sideBtn").forEach(b => b.classList.remove("activeBtn"));
+    const cowsBtn = [...document.querySelectorAll(".sideBtn")]
+        .find(b => (b.getAttribute("onclick") || "").includes("cowsSection"));
+    if(cowsBtn) cowsBtn.classList.add("activeBtn");
+
+    loadCows();
+}
+
+function updateDailyTotal(){
+    const am = Number(document.getElementById("dailyMilkAM").value || 0);
+    const pm = Number(document.getElementById("dailyMilkPM").value || 0);
+    document.getElementById("dailyTotalMilk").innerText = `${(am + pm).toFixed(2)} L`;
+}
+
+async function loadDailyRecordForDate(){
+    if(!selectedCow) return;
+
+    const date = document.getElementById("dailyDate").value;
+    if(!date) return;
+
+    const res = await fetch(`/daily-cow-record?cowId=${selectedCow._id}&date=${date}`);
+    const data = await res.json();
+    const record = data.record;
+
+    document.getElementById("dailyMilkAM").value = record?.milkAM ?? "";
+    document.getElementById("dailyMilkPM").value = record?.milkPM ?? "";
+    document.getElementById("dailyFeed").value = record?.feedGiven ?? "";
+    document.getElementById("dailyHealthNotes").value = record?.healthNotes ?? "";
+
+    updateDailyTotal();
+
+    document.getElementById("saveDailyBtn").innerText =
+        record ? "Update Entry" : "Save Daily Entry";
+}
+
+async function saveDailyRecord(){
+    if(!selectedCow) return;
+
+    const date = document.getElementById("dailyDate").value;
+    if(!date){
+        alert("Select a date");
+        return;
+    }
+
+    const payload = {
+        cowId: selectedCow._id,
+        date,
+        milkAM: Number(document.getElementById("dailyMilkAM").value) || 0,
+        milkPM: Number(document.getElementById("dailyMilkPM").value) || 0,
+        feedGiven: Number(document.getElementById("dailyFeed").value) || 0,
+        healthNotes: document.getElementById("dailyHealthNotes").value || "",
+        worker: localStorage.getItem("username") || "Worker"
+    };
+
+    const res = await fetch("/save-daily-cow-record", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(payload)
+    });
+
+    const data = await res.json();
+
+    if(!data.success){
+        alert(data.message || "Could not save daily record");
+        return;
+    }
+
+    alert("Daily record saved ✅");
+    document.getElementById("saveDailyBtn").innerText = "Update Entry";
+    loadCowStats();
+}
+
+function setCowStatsPeriod(period){
+    cowStatsPeriod = period;
+    document.getElementById("cowStatsCustomRange").style.display =
+        period === "custom" ? "grid" : "none";
+
+    if(period === "custom") return;
+    loadCowStats();
+}
+
+function applyCowStatsCustomRange(){
+    cowStatsPeriod = "custom";
+    loadCowStats();
+}
+
+function cowStatsRange(){
+    const today = todayStr();
+
+    if(cowStatsPeriod === "week"){
+        return { from: weekStartStr(), to: today };
+    }
+    if(cowStatsPeriod === "month"){
+        return { from: monthStartStr(), to: today };
+    }
+    if(cowStatsPeriod === "custom"){
+        const from = document.getElementById("cowStatsFrom").value || today;
+        const to = document.getElementById("cowStatsTo").value || today;
+        return { from, to };
+    }
+    return { from: today, to: today };
+}
+
+async function loadCowStats(){
+    if(!selectedCow) return;
+
+    const { from, to } = cowStatsRange();
+    const today = todayStr();
+
+    const res = await fetch(
+        `/cow-stats?cowId=${selectedCow._id}&from=${from}&to=${to}&date=${today}`
+    );
+    const data = await res.json();
+
+    if(!data.success) return;
+
+    document.getElementById("cowStatTotalMilk").innerText = `${data.totalMilk.toFixed(2)} L`;
+    document.getElementById("cowStatAvgMilk").innerText = `${data.avgDailyMilk.toFixed(2)} L`;
+    document.getElementById("cowStatDaysRecorded").innerText = data.daysRecorded;
+    document.getElementById("cowStatTotalFeed").innerText = `${data.totalFeed.toFixed(2)} kg`;
+
+    const body = document.getElementById("cowStatsRecords");
+    body.innerHTML = "";
+
+    data.records.slice().reverse().forEach(r => {
+        body.innerHTML += `
+        <tr>
+            <td>${r.date}</td>
+            <td>${r.milkAM || 0}</td>
+            <td>${r.milkPM || 0}</td>
+            <td>${r.dailyMilk || 0}</td>
+            <td>${r.feedGiven || 0}</td>
+            <td>${escapeHtml(r.healthNotes || "-")}</td>
+        </tr>
+        `;
+    });
+}
+
+// ======================
 // INIT
 // ======================
 
 loadClients();
 loadMilkRecords();
 loadRemarks();
+loadCows();
 
 [
     "milkDate",

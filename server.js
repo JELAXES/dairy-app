@@ -149,6 +149,71 @@ mongoose.model(
 );
 
 // ======================
+// COW SCHEMA
+// ======================
+
+const CowSchema =
+new mongoose.Schema({
+
+    name:String,
+
+    cowId:{ type:String, unique:true },
+
+    tagNumber:{ type:String, unique:true },
+
+    active:{ type:Boolean, default:true }
+
+},{
+
+    timestamps:true
+});
+
+const Cow =
+mongoose.model(
+    "Cow",
+    CowSchema
+);
+
+// ======================
+// DAILY COW RECORD SCHEMA
+// ======================
+
+const DailyCowRecordSchema =
+new mongoose.Schema({
+
+    cowId:{ type:mongoose.Schema.Types.ObjectId, ref:"Cow", required:true },
+
+    date:{ type:String, required:true },
+
+    milkAM:{ type:Number, default:0 },
+
+    milkPM:{ type:Number, default:0 },
+
+    dailyMilk:{ type:Number, default:0 },
+
+    feedGiven:{ type:Number, default:0 },
+
+    healthNotes:{ type:String, default:"" },
+
+    createdBy:String,
+
+    updatedBy:String
+
+},{
+
+    timestamps:true
+});
+
+DailyCowRecordSchema.index({ cowId:1, date:1 },{ unique:true });
+DailyCowRecordSchema.index({ date:1 });
+
+const DailyCowRecord =
+mongoose.model(
+    "DailyCowRecord",
+    DailyCowRecordSchema
+);
+
+// ======================
 // REMARK SCHEMA
 // ======================
 
@@ -230,6 +295,28 @@ async function createAdmin(){
 }
 
 createAdmin();
+
+// ======================
+// AUTH HELPERS
+// ======================
+
+function escapeRegex(str){
+
+    return String(str || "")
+    .replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+}
+
+async function isAdmin(username){
+
+    if(!username) return false;
+
+    const user =
+    await User.findOne({
+        username
+    });
+
+    return !!(user && user.role === "admin");
+}
 
 // ======================
 // LOGIN
@@ -867,6 +954,540 @@ app.post("/edit-milk", async (req,res)=>{
         res.send({
 
             success:false
+        });
+    }
+});
+
+// ======================
+// COWS
+// ======================
+
+app.post("/create-cow", async (req,res)=>{
+
+    try{
+
+        const name = String(req.body.name || "").trim();
+        const cowId = String(req.body.cowId || "").trim();
+        const tagNumber = String(req.body.tagNumber || "").trim();
+
+        if(!name || !cowId || !tagNumber){
+
+            return res.send({
+                success:false,
+                message:"Cow name, Cow ID and Tag Number are required"
+            });
+        }
+
+        const duplicate = await Cow.findOne({
+            $or:[
+                { cowId:{ $regex:`^${escapeRegex(cowId)}$`, $options:"i" } },
+                { tagNumber:{ $regex:`^${escapeRegex(tagNumber)}$`, $options:"i" } }
+            ]
+        });
+
+        if(duplicate){
+
+            const field =
+            duplicate.cowId.toLowerCase() === cowId.toLowerCase()
+                ? "Cow ID"
+                : "Tag Number";
+
+            return res.send({
+                success:false,
+                message:`${field} already exists`
+            });
+        }
+
+        const cow = await Cow.create({
+            name,
+            cowId,
+            tagNumber,
+            active:true
+        });
+
+        res.send({ success:true, cow });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+            success:false,
+            message:"Could not create cow"
+        });
+    }
+});
+
+app.get("/cows", async (req,res)=>{
+
+    try{
+
+        const date = req.query.date || "";
+        const includeInactive = req.query.includeInactive === "true";
+
+        const filter = includeInactive ? {} : { active:{ $ne:false } };
+
+        const cows =
+        await Cow.find(filter)
+        .sort({ name:1 });
+
+        const todayMap = new Map();
+
+        if(date && cows.length){
+
+            const todayRecords =
+            await DailyCowRecord.find({
+                date,
+                cowId:{ $in:cows.map(c => c._id) }
+            });
+
+            todayRecords.forEach(r => todayMap.set(String(r.cowId), r));
+        }
+
+        const result = cows.map(c => {
+
+            const rec = todayMap.get(String(c._id));
+
+            return {
+                ...c.toObject(),
+                todayRecord: rec ? {
+                    milkAM:rec.milkAM || 0,
+                    milkPM:rec.milkPM || 0,
+                    dailyMilk:rec.dailyMilk || 0,
+                    feedGiven:rec.feedGiven || 0
+                } : null
+            };
+        });
+
+        res.send({ success:true, cows:result });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({ success:false, cows:[] });
+    }
+});
+
+app.get("/cow/:id", async (req,res)=>{
+
+    try{
+
+        const cow = await Cow.findById(req.params.id);
+
+        if(!cow){
+            return res.send({ success:false, message:"Cow not found" });
+        }
+
+        res.send({ success:true, cow });
+
+    }catch(err){
+
+        res.send({ success:false, message:"Could not fetch cow" });
+    }
+});
+
+app.post("/edit-cow", async (req,res)=>{
+
+    try{
+
+        if(!(await isAdmin(req.body.username))){
+            return res.send({ success:false, message:"Admin access required" });
+        }
+
+        const id = req.body.id;
+        const name = String(req.body.name || "").trim();
+        const cowId = String(req.body.cowId || "").trim();
+        const tagNumber = String(req.body.tagNumber || "").trim();
+
+        if(!id || !name || !cowId || !tagNumber){
+
+            return res.send({
+                success:false,
+                message:"Cow name, Cow ID and Tag Number are required"
+            });
+        }
+
+        const duplicate = await Cow.findOne({
+            _id:{ $ne:id },
+            $or:[
+                { cowId:{ $regex:`^${escapeRegex(cowId)}$`, $options:"i" } },
+                { tagNumber:{ $regex:`^${escapeRegex(tagNumber)}$`, $options:"i" } }
+            ]
+        });
+
+        if(duplicate){
+
+            const field =
+            duplicate.cowId.toLowerCase() === cowId.toLowerCase()
+                ? "Cow ID"
+                : "Tag Number";
+
+            return res.send({
+                success:false,
+                message:`${field} already exists`
+            });
+        }
+
+        await Cow.findByIdAndUpdate(id, { name, cowId, tagNumber });
+
+        res.send({ success:true });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({ success:false, message:"Could not update cow" });
+    }
+});
+
+app.post("/set-cow-active", async (req,res)=>{
+
+    try{
+
+        if(!(await isAdmin(req.body.username))){
+            return res.send({ success:false, message:"Admin access required" });
+        }
+
+        await Cow.findByIdAndUpdate(req.body.id, {
+            active: !!req.body.active
+        });
+
+        res.send({ success:true });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({ success:false, message:"Could not update cow status" });
+    }
+});
+
+// ======================
+// DAILY COW RECORDS
+// ======================
+
+app.post("/save-daily-cow-record", async (req,res)=>{
+
+    try{
+
+        const cowId = req.body.cowId;
+        const date = String(req.body.date || "").trim();
+        const worker = req.body.worker || "Worker";
+
+        if(!cowId || !date){
+
+            return res.send({
+                success:false,
+                message:"Cow and date are required"
+            });
+        }
+
+        const cow = await Cow.findById(cowId);
+
+        if(!cow){
+            return res.send({ success:false, message:"Cow not found" });
+        }
+
+        const milkAM = Number(req.body.milkAM || 0);
+        const milkPM = Number(req.body.milkPM || 0);
+        const feedGiven = Number(req.body.feedGiven || 0);
+        const healthNotes = String(req.body.healthNotes || "").trim();
+        const dailyMilk = milkAM + milkPM;
+
+        const existing =
+        await DailyCowRecord.findOne({ cowId, date });
+
+        let record;
+
+        if(existing){
+
+            existing.milkAM = milkAM;
+            existing.milkPM = milkPM;
+            existing.dailyMilk = dailyMilk;
+            existing.feedGiven = feedGiven;
+            existing.healthNotes = healthNotes;
+            existing.updatedBy = worker;
+
+            record = await existing.save();
+
+        }else{
+
+            record = await DailyCowRecord.create({
+                cowId,
+                date,
+                milkAM,
+                milkPM,
+                dailyMilk,
+                feedGiven,
+                healthNotes,
+                createdBy:worker,
+                updatedBy:worker
+            });
+        }
+
+        res.send({ success:true, record });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+            success:false,
+            message:"Could not save daily record"
+        });
+    }
+});
+
+app.get("/daily-cow-record", async (req,res)=>{
+
+    try{
+
+        const { cowId, date } = req.query;
+
+        if(!cowId || !date){
+            return res.send({ success:true, record:null });
+        }
+
+        const record =
+        await DailyCowRecord.findOne({ cowId, date });
+
+        res.send({ success:true, record });
+
+    }catch(err){
+
+        res.send({ success:false, record:null });
+    }
+});
+
+app.get("/daily-cow-records", async (req,res)=>{
+
+    try{
+
+        const { cowId, from, to } = req.query;
+
+        if(!cowId){
+            return res.send({ success:false, records:[] });
+        }
+
+        const filter = { cowId };
+
+        if(from || to){
+
+            filter.date = {};
+
+            if(from) filter.date.$gte = from;
+            if(to) filter.date.$lte = to;
+        }
+
+        const records =
+        await DailyCowRecord.find(filter)
+        .sort({ date:1 });
+
+        res.send({ success:true, records });
+
+    }catch(err){
+
+        res.send({ success:false, records:[] });
+    }
+});
+
+// ======================
+// COW STATISTICS
+// ======================
+
+app.get("/cow-stats", async (req,res)=>{
+
+    try{
+
+        const { cowId, from, to, date } = req.query;
+
+        if(!cowId){
+            return res.send({ success:false, message:"cowId required" });
+        }
+
+        const cow = await Cow.findById(cowId);
+
+        if(!cow){
+            return res.send({ success:false, message:"Cow not found" });
+        }
+
+        const filter = { cowId };
+
+        if(from || to){
+
+            filter.date = {};
+
+            if(from) filter.date.$gte = from;
+            if(to) filter.date.$lte = to;
+        }
+
+        const records =
+        await DailyCowRecord.find(filter)
+        .sort({ date:1 });
+
+        const totalMilk =
+        records.reduce((s,r) => s + Number(r.dailyMilk || 0), 0);
+
+        const totalFeed =
+        records.reduce((s,r) => s + Number(r.feedGiven || 0), 0);
+
+        const daysRecorded = records.length;
+
+        const avgDailyMilk =
+        daysRecorded > 0 ? totalMilk / daysRecorded : 0;
+
+        let todayMilk = 0;
+
+        if(date){
+
+            const todayRecord =
+            records.find(r => r.date === date) ||
+            await DailyCowRecord.findOne({ cowId, date });
+
+            todayMilk = Number(todayRecord?.dailyMilk || 0);
+        }
+
+        res.send({
+            success:true,
+            cow,
+            todayMilk,
+            totalMilk,
+            avgDailyMilk,
+            totalFeed,
+            daysRecorded,
+            records
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+            success:false,
+            message:"Could not load cow stats"
+        });
+    }
+});
+
+app.get("/admin-cow-stats", async (req,res)=>{
+
+    try{
+
+        if(!(await isAdmin(req.query.username))){
+            return res.send({ success:false, message:"Admin access required" });
+        }
+
+        const { from, to, date } = req.query;
+
+        const cows =
+        await Cow.find()
+        .sort({ name:1 });
+
+        const dateFilter = {};
+
+        if(from || to){
+
+            dateFilter.date = {};
+
+            if(from) dateFilter.date.$gte = from;
+            if(to) dateFilter.date.$lte = to;
+        }
+
+        const records = await DailyCowRecord.find(dateFilter);
+
+        const byCow = new Map();
+
+        records.forEach(r => {
+
+            const key = String(r.cowId);
+
+            if(!byCow.has(key)) byCow.set(key,[]);
+
+            byCow.get(key).push(r);
+        });
+
+        let totalMilk = 0;
+        let totalFeed = 0;
+
+        const cowBreakdown = cows.map(c => {
+
+            const recs = byCow.get(String(c._id)) || [];
+
+            const cowMilk =
+            recs.reduce((s,r) => s + Number(r.dailyMilk || 0), 0);
+
+            const cowFeed =
+            recs.reduce((s,r) => s + Number(r.feedGiven || 0), 0);
+
+            const daysRecorded = recs.length;
+
+            const avgDailyMilk =
+            daysRecorded > 0 ? cowMilk / daysRecorded : 0;
+
+            totalMilk += cowMilk;
+            totalFeed += cowFeed;
+
+            let todayMilk = 0;
+            let lastUpdatedBy = "";
+            let lastUpdatedAt = null;
+
+            if(recs.length){
+
+                const sorted =
+                recs.slice()
+                .sort((a,b) => String(a.date).localeCompare(String(b.date)));
+
+                const last = sorted[sorted.length - 1];
+
+                lastUpdatedBy = last.updatedBy || last.createdBy || "";
+                lastUpdatedAt = last.updatedAt;
+
+                if(date){
+
+                    const todayRec = recs.find(r => r.date === date);
+
+                    todayMilk = Number(todayRec?.dailyMilk || 0);
+                }
+            }
+
+            return {
+                _id:c._id,
+                name:c.name,
+                cowId:c.cowId,
+                tagNumber:c.tagNumber,
+                active:c.active,
+                todayMilk,
+                totalMilk:cowMilk,
+                totalFeed:cowFeed,
+                avgDailyMilk,
+                daysRecorded,
+                lastUpdatedBy,
+                lastUpdatedAt
+            };
+        });
+
+        const activeCows =
+        cows.filter(c => c.active !== false).length;
+
+        res.send({
+            success:true,
+            totalCows:cows.length,
+            activeCows,
+            totalMilk,
+            totalFeed,
+            avgMilkPerCow:
+            activeCows > 0 ? totalMilk / activeCows : 0,
+            cows:cowBreakdown
+        });
+
+    }catch(err){
+
+        console.log(err);
+
+        res.send({
+            success:false,
+            message:"Could not load farm cow statistics"
         });
     }
 });

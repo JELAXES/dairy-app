@@ -597,6 +597,7 @@ button:disabled{
     </div>
 
     <button class="sideBtn activeBtn" onclick="showSection('dashboardSection', this)">Dashboard</button>
+    <button class="sideBtn" onclick="showSection('adminCowsSection', this)">Cows</button>
     <button class="sideBtn" onclick="showSection('clientsSection', this)">Clients</button>
     <button class="sideBtn" onclick="showSection('feedSection', this)">Feed</button>
     <button class="sideBtn" onclick="showSection('managerSection', this)">Managers</button>
@@ -698,6 +699,111 @@ button:disabled{
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- COWS -->
+    <div id="adminCowsSection" class="hidden">
+        <div class="card">
+            <div class="sectionHeader">
+                <div class="sectionHeaderLeft">
+                    <h2>Farm Cow Statistics</h2>
+                    <div class="sub" id="adminCowRangeText">Loading...</div>
+                </div>
+            </div>
+
+            <div class="filterBar">
+                <button onclick="setAdminCowPeriod('today')" id="adminCowPeriodTodayBtn">Today</button>
+                <button onclick="setAdminCowPeriod('week')" id="adminCowPeriodWeekBtn">This Week</button>
+                <button onclick="setAdminCowPeriod('month')" id="adminCowPeriodMonthBtn">This Month</button>
+                <button onclick="setAdminCowPeriod('custom')" id="adminCowPeriodCustomBtn">Custom</button>
+            </div>
+
+            <div class="filterBar" id="adminCowCustomRange" style="display:none;">
+                <input type="date" id="adminCowFrom" />
+                <input type="date" id="adminCowTo" />
+                <button onclick="applyAdminCowCustomRange()">Apply</button>
+            </div>
+
+            <div class="stats">
+                <div class="stat">
+                    <h3>Total Cows</h3>
+                    <p id="adminCowTotalCows">0</p>
+                    <div class="smallText" id="adminCowActiveText">0 active</div>
+                </div>
+                <div class="stat">
+                    <h3>Total Milk</h3>
+                    <p id="adminCowTotalMilk">0L</p>
+                    <div class="smallText">Selected range</div>
+                </div>
+                <div class="stat">
+                    <h3>Avg / Cow</h3>
+                    <p id="adminCowAvgPerCow">0L</p>
+                    <div class="smallText">Across active cows</div>
+                </div>
+                <div class="stat">
+                    <h3>Total Feed</h3>
+                    <p id="adminCowTotalFeed">0kg</p>
+                    <div class="smallText">Selected range</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="sectionHeader">
+                <div class="sectionHeaderLeft">
+                    <h2>Cows</h2>
+                </div>
+                <input type="text" id="adminCowSearch" placeholder="Search by name, Cow ID or Tag Number" style="max-width:320px;" oninput="renderAdminCowTable()" />
+            </div>
+
+            <div class="tableWrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Cow ID</th>
+                            <th>Tag</th>
+                            <th>Status</th>
+                            <th>Today's Milk</th>
+                            <th>Total Milk</th>
+                            <th>Avg/Day</th>
+                            <th>Days Recorded</th>
+                            <th>Last Updated By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminCowTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="card hidden" id="adminCowDetailCard">
+            <div class="sectionHeader">
+                <div class="sectionHeaderLeft">
+                    <h2 id="adminCowDetailTitle">Cow Details</h2>
+                    <div class="sub" id="adminCowDetailMeta"></div>
+                </div>
+                <button style="width:auto;" onclick="closeAdminCowDetail()">Close</button>
+            </div>
+
+            <div class="tableWrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>AM</th>
+                            <th>PM</th>
+                            <th>Total</th>
+                            <th>Feed (kg)</th>
+                            <th>Notes</th>
+                            <th>Entered By</th>
+                            <th>Updated By</th>
+                        </tr>
+                    </thead>
+                    <tbody id="adminCowRecordsBody"></tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -936,6 +1042,10 @@ if(!localStorage.getItem("username")){
     window.location = "/login.html";
 }
 
+if(localStorage.getItem("role") !== "admin"){
+    window.location = "/worker.html";
+}
+
 const state = {
     records: [],
     feeds: [],
@@ -960,6 +1070,7 @@ function showSection(id, btn){
     if(btn) btn.classList.add("activeBtn");
 
     if(id === "dashboardSection") loadDashboard();
+    if(id === "adminCowsSection") loadAdminCows();
     if(id === "clientsSection") loadClients();
     if(id === "feedSection") loadFeeds();
     if(id === "managerSection") loadPendingUsers();
@@ -2530,12 +2641,246 @@ document.getElementById("feedMonthFilter").addEventListener("change", () => {
     loadFeeds();
 });
 
+// ======================
+// ADMIN COWS
+// ======================
+
+const adminCowState = {
+    breakdown: [],
+    period: "today",
+    from: todayValue(),
+    to: todayValue(),
+    openCowId: null
+};
+
+function escapeHtml(str){
+    return String(str ?? "").replace(/[&<>"']/g, ch => ({
+        "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;"
+    }[ch]));
+}
+
+function weekStartValue(){
+    const d = new Date();
+    d.setDate(d.getDate() - 6);
+    return d.toISOString().split("T")[0];
+}
+
+function monthStartValue(){
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2,"0")}-01`;
+}
+
+function setAdminCowPeriod(period){
+    adminCowState.period = period;
+    document.getElementById("adminCowCustomRange").style.display = period === "custom" ? "grid" : "none";
+
+    const today = todayValue();
+
+    if(period === "today"){
+        adminCowState.from = today;
+        adminCowState.to = today;
+    }else if(period === "week"){
+        adminCowState.from = weekStartValue();
+        adminCowState.to = today;
+    }else if(period === "month"){
+        adminCowState.from = monthStartValue();
+        adminCowState.to = today;
+    }else{
+        return;
+    }
+
+    loadAdminCows();
+}
+
+function applyAdminCowCustomRange(){
+    adminCowState.period = "custom";
+    adminCowState.from = document.getElementById("adminCowFrom").value || todayValue();
+    adminCowState.to = document.getElementById("adminCowTo").value || todayValue();
+    loadAdminCows();
+}
+
+async function loadAdminCows(){
+    const username = localStorage.getItem("username") || "";
+    const { from, to } = adminCowState;
+
+    document.getElementById("adminCowRangeText").innerText = `Pulling data from ${from} to ${to}`;
+
+    const res = await fetch(
+        `/admin-cow-stats?from=${from}&to=${to}&date=${todayValue()}&username=${encodeURIComponent(username)}`
+    );
+    const data = await res.json();
+
+    if(!data.success){
+        document.getElementById("adminCowRangeText").innerText = data.message || "Could not load cow statistics";
+        return;
+    }
+
+    adminCowState.breakdown = data.cows || [];
+
+    document.getElementById("adminCowTotalCows").innerText = data.totalCows;
+    document.getElementById("adminCowActiveText").innerText = `${data.activeCows} active`;
+    document.getElementById("adminCowTotalMilk").innerText = `${data.totalMilk.toFixed(1)}L`;
+    document.getElementById("adminCowAvgPerCow").innerText = `${data.avgMilkPerCow.toFixed(1)}L`;
+    document.getElementById("adminCowTotalFeed").innerText = `${data.totalFeed.toFixed(1)}kg`;
+
+    renderAdminCowTable();
+}
+
+function renderAdminCowTable(){
+    const term = (document.getElementById("adminCowSearch")?.value || "").trim().toLowerCase();
+
+    const filtered = adminCowState.breakdown.filter(c => {
+        if(!term) return true;
+        return (
+            String(c.name || "").toLowerCase().includes(term) ||
+            String(c.cowId || "").toLowerCase().includes(term) ||
+            String(c.tagNumber || "").toLowerCase().includes(term)
+        );
+    });
+
+    const body = document.getElementById("adminCowTableBody");
+    body.innerHTML = "";
+
+    if(!filtered.length){
+        body.innerHTML = "<tr><td colspan='10'>No cows found</td></tr>";
+        return;
+    }
+
+    filtered.forEach(c => {
+        body.innerHTML += `
+        <tr>
+            <td>${escapeHtml(c.name)}</td>
+            <td>${escapeHtml(c.cowId)}</td>
+            <td>${escapeHtml(c.tagNumber)}</td>
+            <td>${c.active === false ? "Inactive" : "Active"}</td>
+            <td>${c.todayMilk.toFixed(2)} L</td>
+            <td>${c.totalMilk.toFixed(2)} L</td>
+            <td>${c.avgDailyMilk.toFixed(2)} L</td>
+            <td>${c.daysRecorded}</td>
+            <td>${escapeHtml(c.lastUpdatedBy || "-")}</td>
+            <td>
+                <button style="width:auto;" onclick="viewAdminCowDetail('${c._id}')">View</button>
+                <button style="width:auto;" onclick="editAdminCow('${c._id}')">Edit</button>
+                <button style="width:auto;" class="deleteBtn" onclick="toggleAdminCowActive('${c._id}', ${c.active !== false})">
+                    ${c.active === false ? "Activate" : "Deactivate"}
+                </button>
+            </td>
+        </tr>
+        `;
+    });
+}
+
+async function viewAdminCowDetail(id){
+    const cow = adminCowState.breakdown.find(c => String(c._id) === String(id));
+    if(!cow) return;
+
+    adminCowState.openCowId = id;
+
+    const res = await fetch(`/daily-cow-records?cowId=${id}&from=${adminCowState.from}&to=${adminCowState.to}`);
+    const data = await res.json();
+    const records = data.success ? data.records : [];
+
+    document.getElementById("adminCowDetailTitle").innerText = `${cow.name} — Daily Records`;
+    document.getElementById("adminCowDetailMeta").innerText =
+        `Cow ID: ${cow.cowId}  |  Tag Number: ${cow.tagNumber}  |  Range: ${adminCowState.from} to ${adminCowState.to}`;
+
+    const body = document.getElementById("adminCowRecordsBody");
+    body.innerHTML = "";
+
+    if(!records.length){
+        body.innerHTML = "<tr><td colspan='8'>No records in this range</td></tr>";
+    }else{
+        records.slice().reverse().forEach(r => {
+            body.innerHTML += `
+            <tr>
+                <td>${r.date}</td>
+                <td>${r.milkAM || 0}</td>
+                <td>${r.milkPM || 0}</td>
+                <td>${r.dailyMilk || 0}</td>
+                <td>${r.feedGiven || 0}</td>
+                <td>${escapeHtml(r.healthNotes || "-")}</td>
+                <td>${escapeHtml(r.createdBy || "-")}</td>
+                <td>${escapeHtml(r.updatedBy || "-")}</td>
+            </tr>
+            `;
+        });
+    }
+
+    document.getElementById("adminCowDetailCard").classList.remove("hidden");
+    document.getElementById("adminCowDetailCard").scrollIntoView({ behavior:"smooth", block:"start" });
+}
+
+function closeAdminCowDetail(){
+    adminCowState.openCowId = null;
+    document.getElementById("adminCowDetailCard").classList.add("hidden");
+}
+
+async function editAdminCow(id){
+    const cow = adminCowState.breakdown.find(c => String(c._id) === String(id));
+    if(!cow) return;
+
+    const name = prompt("Cow Name", cow.name);
+    if(name === null) return;
+
+    const cowId = prompt("Cow ID", cow.cowId);
+    if(cowId === null) return;
+
+    const tagNumber = prompt("Tag Number", cow.tagNumber);
+    if(tagNumber === null) return;
+
+    const res = await fetch("/edit-cow", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+            id,
+            name: name.trim(),
+            cowId: cowId.trim(),
+            tagNumber: tagNumber.trim(),
+            username: localStorage.getItem("username") || ""
+        })
+    });
+
+    const data = await res.json();
+
+    if(!data.success){
+        alert(data.message || "Could not update cow");
+        return;
+    }
+
+    loadAdminCows();
+}
+
+async function toggleAdminCowActive(id, currentlyActive){
+    const label = currentlyActive ? "deactivate" : "activate";
+    if(!confirm(`Are you sure you want to ${label} this cow?`)) return;
+
+    const res = await fetch("/set-cow-active", {
+        method:"POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify({
+            id,
+            active: !currentlyActive,
+            username: localStorage.getItem("username") || ""
+        })
+    });
+
+    const data = await res.json();
+
+    if(!data.success){
+        alert(data.message || "Could not update cow status");
+        return;
+    }
+
+    loadAdminCows();
+}
+
 loadDashboard();
 loadClients();
 loadFeeds();
 loadPendingUsers();
 loadRecords();
 loadRemarks();
+loadAdminCows();
 </script>
 
 </body>

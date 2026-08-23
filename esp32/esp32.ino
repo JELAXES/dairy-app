@@ -28,8 +28,8 @@
 #include <WebServer.h>
 
 // ---- Wi-Fi credentials ----
-const char* WIFI_SSID     = "YOUR_WIFI_SSID";
-const char* WIFI_PASSWORD = "YOUR_WIFI_PASSWORD";
+const char* WIFI_SSID     = "Ramleela";
+const char* WIFI_PASSWORD = "llnkvv39495";
 
 // ---- Device settings ----
 const char* DEVICE_NAME = "Kshiralaya-ESP32";
