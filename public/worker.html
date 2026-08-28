@@ -717,24 +717,8 @@ Add Cow
 <div>
 <input
 type="text"
-id="newCowName"
-placeholder="Cow Name"
-/>
-</div>
-
-<div>
-<input
-type="text"
-id="newCowId"
-placeholder="Cow ID"
-/>
-</div>
-
-<div>
-<input
-type="text"
 id="newCowTag"
-placeholder="Tag Number"
+placeholder="Cow Tag"
 />
 </div>
 
@@ -755,7 +739,7 @@ Cows
 <input
 type="text"
 id="cowSearch"
-placeholder="Search by name, Cow ID or Tag Number"
+placeholder="Search by Cow Tag"
 oninput="renderCowList()"
 />
 
@@ -812,6 +796,15 @@ onchange="loadDailyRecordForDate()"
 type="number"
 id="dailyMilkAM"
 placeholder="Milk AM (L)"
+oninput="updateDailyTotal()"
+/>
+</div>
+
+<div>
+<input
+type="number"
+id="dailyMilkAfternoon"
+placeholder="Milk Afternoon (L)"
 oninput="updateDailyTotal()"
 />
 </div>
@@ -910,6 +903,7 @@ style="display:none;margin-top:12px;"
 <tr>
 <th>Date</th>
 <th>AM</th>
+<th>Afternoon</th>
 <th>PM</th>
 <th>Total</th>
 <th>Feed (kg)</th>
@@ -1789,11 +1783,7 @@ function renderCowList(){
 
     const filtered = cowsCache.filter(c => {
         if(!term) return true;
-        return (
-            String(c.name || "").toLowerCase().includes(term) ||
-            String(c.cowId || "").toLowerCase().includes(term) ||
-            String(c.tagNumber || "").toLowerCase().includes(term)
-        );
+        return String(c.tagNumber || "").toLowerCase().includes(term);
     });
 
     const wrap = document.getElementById("cowListWrap");
@@ -1811,10 +1801,7 @@ function renderCowList(){
         wrap.innerHTML += `
         <div class="remarkItem" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
             <div>
-                <strong>${escapeHtml(c.name)}</strong>
-                <div style="color:#94a3b8;font-size:13px;margin-top:4px;">
-                    ID: ${escapeHtml(c.cowId)} &nbsp;|&nbsp; Tag: ${escapeHtml(c.tagNumber)}
-                </div>
+                <strong>Cow Tag: ${escapeHtml(c.tagNumber)}</strong>
                 <div style="margin-top:4px;font-size:13px;color:${filled ? "#4ade80" : "#facc15"};">
                     ${filled ? `Today: Filled (${todayMilk} L)` : "Today: Pending"}
                 </div>
@@ -1828,19 +1815,17 @@ function renderCowList(){
 }
 
 async function addCow(){
-    const name = document.getElementById("newCowName").value.trim();
-    const cowId = document.getElementById("newCowId").value.trim();
     const tagNumber = document.getElementById("newCowTag").value.trim();
 
-    if(!name || !cowId || !tagNumber){
-        alert("Enter cow name, cow ID and tag number");
+    if(!tagNumber){
+        alert("Enter cow tag");
         return;
     }
 
     const res = await fetch("/create-cow", {
         method:"POST",
         headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ name, cowId, tagNumber })
+        body: JSON.stringify({ tagNumber })
     });
 
     const data = await res.json();
@@ -1850,8 +1835,6 @@ async function addCow(){
         return;
     }
 
-    document.getElementById("newCowName").value = "";
-    document.getElementById("newCowId").value = "";
     document.getElementById("newCowTag").value = "";
 
     alert("Cow added ✅");
@@ -1865,9 +1848,8 @@ function openCowDaily(id){
     document.querySelectorAll(".main > div").forEach(sec => sec.classList.add("hidden"));
     document.getElementById("cowDailySection").classList.remove("hidden");
 
-    document.getElementById("cowDailyTitle").innerText = selectedCow.name;
-    document.getElementById("cowDailyMeta").innerText =
-        `Cow ID: ${selectedCow.cowId}  |  Tag Number: ${selectedCow.tagNumber}`;
+    document.getElementById("cowDailyTitle").innerText = `Cow Tag: ${selectedCow.tagNumber}`;
+    document.getElementById("cowDailyMeta").innerText = "";
 
     document.getElementById("dailyDate").value = todayStr();
     loadDailyRecordForDate();
@@ -1891,8 +1873,9 @@ function backToCows(){
 
 function updateDailyTotal(){
     const am = Number(document.getElementById("dailyMilkAM").value || 0);
+    const afternoon = Number(document.getElementById("dailyMilkAfternoon").value || 0);
     const pm = Number(document.getElementById("dailyMilkPM").value || 0);
-    document.getElementById("dailyTotalMilk").innerText = `${(am + pm).toFixed(2)} L`;
+    document.getElementById("dailyTotalMilk").innerText = `${(am + afternoon + pm).toFixed(2)} L`;
 }
 
 async function loadDailyRecordForDate(){
@@ -1906,6 +1889,7 @@ async function loadDailyRecordForDate(){
     const record = data.record;
 
     document.getElementById("dailyMilkAM").value = record?.milkAM ?? "";
+    document.getElementById("dailyMilkAfternoon").value = record?.milkAfternoon ?? "";
     document.getElementById("dailyMilkPM").value = record?.milkPM ?? "";
     document.getElementById("dailyFeed").value = record?.feedGiven ?? "";
     document.getElementById("dailyHealthNotes").value = record?.healthNotes ?? "";
@@ -1929,6 +1913,7 @@ async function saveDailyRecord(){
         cowId: selectedCow._id,
         date,
         milkAM: Number(document.getElementById("dailyMilkAM").value) || 0,
+        milkAfternoon: Number(document.getElementById("dailyMilkAfternoon").value) || 0,
         milkPM: Number(document.getElementById("dailyMilkPM").value) || 0,
         feedGiven: Number(document.getElementById("dailyFeed").value) || 0,
         healthNotes: document.getElementById("dailyHealthNotes").value || "",
@@ -2010,6 +1995,7 @@ async function loadCowStats(){
         <tr>
             <td>${r.date}</td>
             <td>${r.milkAM || 0}</td>
+            <td>${r.milkAfternoon || 0}</td>
             <td>${r.milkPM || 0}</td>
             <td>${r.dailyMilk || 0}</td>
             <td>${r.feedGiven || 0}</td>

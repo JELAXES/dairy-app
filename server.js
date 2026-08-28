@@ -187,6 +187,8 @@ new mongoose.Schema({
 
     milkAM:{ type:Number, default:0 },
 
+    milkAfternoon:{ type:Number, default:0 },
+
     milkPM:{ type:Number, default:0 },
 
     dailyMilk:{ type:Number, default:0 },
@@ -966,41 +968,31 @@ app.post("/create-cow", async (req,res)=>{
 
     try{
 
-        const name = String(req.body.name || "").trim();
-        const cowId = String(req.body.cowId || "").trim();
         const tagNumber = String(req.body.tagNumber || "").trim();
 
-        if(!name || !cowId || !tagNumber){
+        if(!tagNumber){
 
             return res.send({
                 success:false,
-                message:"Cow name, Cow ID and Tag Number are required"
+                message:"Cow Tag is required"
             });
         }
 
         const duplicate = await Cow.findOne({
-            $or:[
-                { cowId:{ $regex:`^${escapeRegex(cowId)}$`, $options:"i" } },
-                { tagNumber:{ $regex:`^${escapeRegex(tagNumber)}$`, $options:"i" } }
-            ]
+            tagNumber:{ $regex:`^${escapeRegex(tagNumber)}$`, $options:"i" }
         });
 
         if(duplicate){
 
-            const field =
-            duplicate.cowId.toLowerCase() === cowId.toLowerCase()
-                ? "Cow ID"
-                : "Tag Number";
-
             return res.send({
                 success:false,
-                message:`${field} already exists`
+                message:"Cow Tag already exists"
             });
         }
 
         const cow = await Cow.create({
-            name,
-            cowId,
+            name:tagNumber,
+            cowId:tagNumber,
             tagNumber,
             active:true
         });
@@ -1052,6 +1044,7 @@ app.get("/cows", async (req,res)=>{
                 ...c.toObject(),
                 todayRecord: rec ? {
                     milkAM:rec.milkAM || 0,
+                    milkAfternoon:rec.milkAfternoon || 0,
                     milkPM:rec.milkPM || 0,
                     dailyMilk:rec.dailyMilk || 0,
                     feedGiven:rec.feedGiven || 0
@@ -1096,40 +1089,30 @@ app.post("/edit-cow", async (req,res)=>{
         }
 
         const id = req.body.id;
-        const name = String(req.body.name || "").trim();
-        const cowId = String(req.body.cowId || "").trim();
         const tagNumber = String(req.body.tagNumber || "").trim();
 
-        if(!id || !name || !cowId || !tagNumber){
+        if(!id || !tagNumber){
 
             return res.send({
                 success:false,
-                message:"Cow name, Cow ID and Tag Number are required"
+                message:"Cow Tag is required"
             });
         }
 
         const duplicate = await Cow.findOne({
             _id:{ $ne:id },
-            $or:[
-                { cowId:{ $regex:`^${escapeRegex(cowId)}$`, $options:"i" } },
-                { tagNumber:{ $regex:`^${escapeRegex(tagNumber)}$`, $options:"i" } }
-            ]
+            tagNumber:{ $regex:`^${escapeRegex(tagNumber)}$`, $options:"i" }
         });
 
         if(duplicate){
 
-            const field =
-            duplicate.cowId.toLowerCase() === cowId.toLowerCase()
-                ? "Cow ID"
-                : "Tag Number";
-
             return res.send({
                 success:false,
-                message:`${field} already exists`
+                message:"Cow Tag already exists"
             });
         }
 
-        await Cow.findByIdAndUpdate(id, { name, cowId, tagNumber });
+        await Cow.findByIdAndUpdate(id, { name:tagNumber, cowId:tagNumber, tagNumber });
 
         res.send({ success:true });
 
@@ -1190,10 +1173,11 @@ app.post("/save-daily-cow-record", async (req,res)=>{
         }
 
         const milkAM = Number(req.body.milkAM || 0);
+        const milkAfternoon = Number(req.body.milkAfternoon || 0);
         const milkPM = Number(req.body.milkPM || 0);
         const feedGiven = Number(req.body.feedGiven || 0);
         const healthNotes = String(req.body.healthNotes || "").trim();
-        const dailyMilk = milkAM + milkPM;
+        const dailyMilk = milkAM + milkAfternoon + milkPM;
 
         const existing =
         await DailyCowRecord.findOne({ cowId, date });
@@ -1203,6 +1187,7 @@ app.post("/save-daily-cow-record", async (req,res)=>{
         if(existing){
 
             existing.milkAM = milkAM;
+            existing.milkAfternoon = milkAfternoon;
             existing.milkPM = milkPM;
             existing.dailyMilk = dailyMilk;
             existing.feedGiven = feedGiven;
@@ -1217,6 +1202,7 @@ app.post("/save-daily-cow-record", async (req,res)=>{
                 cowId,
                 date,
                 milkAM,
+                milkAfternoon,
                 milkPM,
                 dailyMilk,
                 feedGiven,
@@ -1453,8 +1439,6 @@ app.get("/admin-cow-stats", async (req,res)=>{
 
             return {
                 _id:c._id,
-                name:c.name,
-                cowId:c.cowId,
                 tagNumber:c.tagNumber,
                 active:c.active,
                 todayMilk,

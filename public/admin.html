@@ -755,16 +755,14 @@ button:disabled{
                 <div class="sectionHeaderLeft">
                     <h2>Cows</h2>
                 </div>
-                <input type="text" id="adminCowSearch" placeholder="Search by name, Cow ID or Tag Number" style="max-width:320px;" oninput="renderAdminCowTable()" />
+                <input type="text" id="adminCowSearch" placeholder="Search by Cow Tag" style="max-width:320px;" oninput="renderAdminCowTable()" />
             </div>
 
             <div class="tableWrap">
                 <table>
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Cow ID</th>
-                            <th>Tag</th>
+                            <th>Cow Tag</th>
                             <th>Status</th>
                             <th>Today's Milk</th>
                             <th>Total Milk</th>
@@ -794,6 +792,7 @@ button:disabled{
                         <tr>
                             <th>Date</th>
                             <th>AM</th>
+                            <th>Afternoon</th>
                             <th>PM</th>
                             <th>Total</th>
                             <th>Feed (kg)</th>
@@ -2731,26 +2730,20 @@ function renderAdminCowTable(){
 
     const filtered = adminCowState.breakdown.filter(c => {
         if(!term) return true;
-        return (
-            String(c.name || "").toLowerCase().includes(term) ||
-            String(c.cowId || "").toLowerCase().includes(term) ||
-            String(c.tagNumber || "").toLowerCase().includes(term)
-        );
+        return String(c.tagNumber || "").toLowerCase().includes(term);
     });
 
     const body = document.getElementById("adminCowTableBody");
     body.innerHTML = "";
 
     if(!filtered.length){
-        body.innerHTML = "<tr><td colspan='10'>No cows found</td></tr>";
+        body.innerHTML = "<tr><td colspan='8'>No cows found</td></tr>";
         return;
     }
 
     filtered.forEach(c => {
         body.innerHTML += `
         <tr>
-            <td>${escapeHtml(c.name)}</td>
-            <td>${escapeHtml(c.cowId)}</td>
             <td>${escapeHtml(c.tagNumber)}</td>
             <td>${c.active === false ? "Inactive" : "Active"}</td>
             <td>${c.todayMilk.toFixed(2)} L</td>
@@ -2780,21 +2773,22 @@ async function viewAdminCowDetail(id){
     const data = await res.json();
     const records = data.success ? data.records : [];
 
-    document.getElementById("adminCowDetailTitle").innerText = `${cow.name} — Daily Records`;
+    document.getElementById("adminCowDetailTitle").innerText = `Cow Tag: ${cow.tagNumber} — Daily Records`;
     document.getElementById("adminCowDetailMeta").innerText =
-        `Cow ID: ${cow.cowId}  |  Tag Number: ${cow.tagNumber}  |  Range: ${adminCowState.from} to ${adminCowState.to}`;
+        `Range: ${adminCowState.from} to ${adminCowState.to}`;
 
     const body = document.getElementById("adminCowRecordsBody");
     body.innerHTML = "";
 
     if(!records.length){
-        body.innerHTML = "<tr><td colspan='8'>No records in this range</td></tr>";
+        body.innerHTML = "<tr><td colspan='9'>No records in this range</td></tr>";
     }else{
         records.slice().reverse().forEach(r => {
             body.innerHTML += `
             <tr>
                 <td>${r.date}</td>
                 <td>${r.milkAM || 0}</td>
+                <td>${r.milkAfternoon || 0}</td>
                 <td>${r.milkPM || 0}</td>
                 <td>${r.dailyMilk || 0}</td>
                 <td>${r.feedGiven || 0}</td>
@@ -2819,13 +2813,7 @@ async function editAdminCow(id){
     const cow = adminCowState.breakdown.find(c => String(c._id) === String(id));
     if(!cow) return;
 
-    const name = prompt("Cow Name", cow.name);
-    if(name === null) return;
-
-    const cowId = prompt("Cow ID", cow.cowId);
-    if(cowId === null) return;
-
-    const tagNumber = prompt("Tag Number", cow.tagNumber);
+    const tagNumber = prompt("Cow Tag", cow.tagNumber);
     if(tagNumber === null) return;
 
     const res = await fetch("/edit-cow", {
@@ -2833,8 +2821,6 @@ async function editAdminCow(id){
         headers:{ "Content-Type":"application/json" },
         body: JSON.stringify({
             id,
-            name: name.trim(),
-            cowId: cowId.trim(),
             tagNumber: tagNumber.trim(),
             username: localStorage.getItem("username") || ""
         })
