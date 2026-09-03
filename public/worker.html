@@ -1258,6 +1258,7 @@ async function saveMilk(){
     lastSlipData = {
         ...currentSlipData(),
         itemCode: saved.entry?.itemCode || "",
+        invoiceNumber: saved.entry?.invoiceNumber || null,
         _id: saved.entry?._id || ""
     };
 
@@ -1534,13 +1535,36 @@ async function shareMilkReport(){
         return;
     }
 
-    const counterRes = await fetch(`/invoice-counter?client=${encodeURIComponent(client)}`);
-    const counterData = await counterRes.json();
-    if(!counterData.success){
-        alert("Could not fetch invoice number");
-        return;
+    let invoiceNum = slip.invoiceNumber;
+
+    if(!invoiceNum){
+
+        // Fallback for entries saved before automatic numbering (legacy data)
+        const counterRes = await fetch(`/invoice-counter?client=${encodeURIComponent(client)}`);
+        const counterData = await counterRes.json();
+        if(!counterData.success){
+            alert("Could not fetch invoice number");
+            return;
+        }
+        invoiceNum = counterData.value;
+
+        if(slip._id){
+            await fetch("/save-invoice-number", {
+                method:"POST",
+                headers:{ "Content-Type":"application/json" },
+                body: JSON.stringify({ id: slip._id, invoiceNumber: invoiceNum })
+            });
+        }
+
+        await fetch("/invoice-counter/increment", {
+            method:"POST",
+            headers:{ "Content-Type":"application/json" },
+            body: JSON.stringify({ client })
+        });
+
+        slip.invoiceNumber = invoiceNum;
     }
-    const invoiceNum = counterData.value;
+
     const invoiceLabel = "K0" + String(invoiceNum).padStart(6, "0");
 
     const report = document.createElement("div");
@@ -1597,7 +1621,7 @@ async function shareMilkReport(){
             <div style="padding:10px;border-right:1px solid #222;">
                 <h3 style="margin:0 0 8px 0;">Seller</h3>
                 <div><b>Seller:</b> Delphi Crest Solutions</div>
-                <div><b>Warehouse Name:</b> Kshiralaya Diary Farms</div>
+                <div><b>Warehouse Name:</b> Kshiralaya Dairy Farms</div>
                 <div><b>Warehouse Address:</b> Dandiganahalli, Manchenahalli Taluk, Chickballapur Dist, 561211</div>
                 <div><b>City:</b> Bangalore</div>
                 <div><b>State:</b> Karnataka</div>
@@ -1727,19 +1751,6 @@ async function shareMilkReport(){
         pdf.save(fileName);
     }
 
-    if(slip._id){
-        await fetch("/save-invoice-number", {
-            method:"POST",
-            headers:{ "Content-Type":"application/json" },
-            body: JSON.stringify({ id: slip._id, invoiceNumber: invoiceNum })
-        });
-    }
-
-    await fetch("/invoice-counter/increment", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({ client })
-    });
     await loadInvoiceCounter(client);
 }
 // ======================

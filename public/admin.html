@@ -1248,7 +1248,7 @@ function buildInvoiceHtml(invoice){
                 <div style="padding:10px;border-right:1px solid #222;">
                     <h3 style="margin:0 0 8px 0;">Seller</h3>
                     <div><b>Seller:</b> Delphi Crest Solutions</div>
-                    <div><b>Warehouse Name:</b> Kshiralaya Diary Farms</div>
+                    <div><b>Warehouse Name:</b> Kshiralaya Dairy Farms</div>
                     <div><b>Warehouse Address:</b> Dandiganahalli, Manchenahalli Taluk, Chickballapur Dist, 561211</div>
                     <div><b>City:</b> Bangalore</div>
                     <div><b>State:</b> Karnataka</div>
@@ -1432,7 +1432,7 @@ async function editInvoiceNumber(id){
 
     // all invoices for this client sorted oldest-first (same order server uses)
     const clientRecords = state.records
-        .filter(r => r.client === client && r.invoiceNumber > 0)
+        .filter(r => r.client === client)
         .sort((a, b) => {
             const d = String(a.date || "").localeCompare(String(b.date || ""));
             return d !== 0 ? d : String(a._id || "").localeCompare(String(b._id || ""));

@@ -798,6 +798,38 @@ app.post("/edit-feed", async (req,res)=>{
 // MILK ENTRIES
 // ======================
 
+async function assignNextInvoiceNumber(client){
+
+    const counterName = `invoice_${client}`;
+
+    let counter = await Counter.findOne({ name:counterName });
+
+    if(!counter){
+
+        const lastEntry = await Entry.findOne({
+            type:"milk",
+            client,
+            invoiceNumber:{ $exists:true, $gt:0 }
+        }).sort({ invoiceNumber:-1 });
+
+        const startValue = (lastEntry?.invoiceNumber || 0) + 1;
+
+        counter = await Counter.findOneAndUpdate(
+            { name:counterName },
+            { $setOnInsert:{ value:startValue } },
+            { new:true, upsert:true }
+        );
+    }
+
+    const assigned = await Counter.findOneAndUpdate(
+        { name:counterName },
+        { $inc:{ value:1 } },
+        { new:false }
+    );
+
+    return assigned.value;
+}
+
 app.post("/add", async (req,res)=>{
 
     try{
@@ -842,6 +874,20 @@ app.post("/add", async (req,res)=>{
         String(nextItemNumber)
         .padStart(6,"0");
 
+        let invoiceNumber;
+
+        if(req.body.client){
+
+            const clientDoc =
+            await Client.findOne({ name:req.body.client });
+
+            if(clientDoc && clientDoc.canInvoice !== false){
+
+                invoiceNumber =
+                await assignNextInvoiceNumber(req.body.client);
+            }
+        }
+
         const entry =
         await Entry.create({
 
@@ -849,7 +895,9 @@ app.post("/add", async (req,res)=>{
 
             itemCode,
 
-            dailyMilk
+            dailyMilk,
+
+            ...(invoiceNumber ? { invoiceNumber } : {})
         });
 
         res.send({
@@ -1765,8 +1813,7 @@ app.post("/renumber-invoices", async (req,res)=>{
 
         const entries = await Entry.find({
             type:"milk",
-            client:client,
-            invoiceNumber:{ $exists:true, $gt:0 }
+            client:client
         }).sort({ date:1, _id:1 });
 
         for(let i = 0; i < entries.length; i++){
